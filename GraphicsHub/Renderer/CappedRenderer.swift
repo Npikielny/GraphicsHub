@@ -27,7 +27,7 @@ class SinglyCappedRenderer: CappedRenderer {
     
     var device: MTLDevice
     
-    var inputView: NSView?
+    var inputView: [NSView]?
     
     var recordable: Bool {
         return frame % (Int(ceil(size.width / maxRenderSize.width)) * Int(ceil(size.height / maxRenderSize.height))) == 0

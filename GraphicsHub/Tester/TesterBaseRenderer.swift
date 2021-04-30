@@ -15,7 +15,7 @@ class TesterBaseRenderer: Renderer {
     var renderPipelineState: MTLRenderPipelineState?
     
     var device: MTLDevice
-    var inputView: NSView? = nil
+    var inputView: [NSView]? = nil
     
     var size: CGSize
     var outputImage: MTLTexture!

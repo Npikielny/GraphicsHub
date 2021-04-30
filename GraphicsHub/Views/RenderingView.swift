@@ -52,7 +52,7 @@ class RenderingView: MTKView {
     
     func setRenderer(renderer: Renderer) {
         if let currentRenderer = self.renderer {
-            currentRenderer.inputView?.window?.close()
+            currentRenderer.inputView?[0].window?.close()
         }
         self.renderer = renderer
         mtkView(self, drawableSizeWillChange: renderer.size)

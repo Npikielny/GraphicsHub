@@ -10,7 +10,7 @@ import MetalKit
 class ConwayRenderer: Renderer {
     var device: MTLDevice
     
-    var inputView: NSView?
+    var inputView: [NSView]?
     
     var size: CGSize
     
@@ -50,9 +50,7 @@ class ConwayRenderer: Renderer {
             cellEncoder?.setBytes([cellCount], length: MemoryLayout<SIMD2<Int32>>.stride, index: 0)
             cellEncoder?.setBuffer(buffer, offset: 0, index: 1)
             cellEncoder?.setBuffer(oldBuffer, offset: 0, index: 2)
-    //        cellEncoder?.dispatchThreadgroups(getThreadGroupSize(size: cellCount, ThreadSize: MTLSize(width: 1, height: 1, depth: 1)), threadsPerThreadgroup: MTLSize(width: 8, height: 8, depth: 1))
-    //        cellEncoder?.dispatchThreads(MTLSize(width: Int(size.width), height: Int(size.height), depth: 1), threadsPerThreadgroup: MTLSize(width: 1, height: 1, depth: 1))
-            cellEncoder?.dispatchThreadgroups(getThreadGroupSize(size: cellCount, ThreadSize: MTLSize(width: 1, height: 1, depth: 1)), threadsPerThreadgroup: MTLSize(width: 1, height: 1, depth: 1))
+            cellEncoder?.dispatchThreadgroups(getThreadGroupSize(size: cellCount, ThreadSize: MTLSize(width: 8, height: 8, depth: 1)), threadsPerThreadgroup: MTLSize(width: 8, height: 8, depth: 1))
             cellEncoder?.endEncoding()
             
             let drawEncoder = commandBuffer.makeComputeCommandEncoder()

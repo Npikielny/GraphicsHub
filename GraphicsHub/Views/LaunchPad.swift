@@ -9,7 +9,7 @@ import Cocoa
 
 class LaunchPad: NSViewController {
     
-    var options: [(String, Renderer.Type)] = [("Tester",TesterBaseRenderer.self),("Tester Capped Renderer",TesterCappedRenderer.self),("Conway's Game of Life",ConwayRenderer.self),("Ray Tracing",TesterBaseRenderer.self)]
+    var options: [(String, Renderer.Type)] = [("Tester",TesterBaseRenderer.self),("Tester Capped Renderer",TesterCappedRenderer.self),("Conway's Game of Life",ConwayRenderer.self),("Complex Image Generator",ComplexRenderer.self)]
     
     lazy var graphicsOption: NSCollectionView = {
         let cv = NSCollectionView(frame: .zero)

@@ -11,7 +11,7 @@ protocol Renderer {
     
     var device: MTLDevice { get }
     // Holder for renderer's user inputs
-    var inputView: NSView? { get }
+    var inputView: [NSView]? { get }
     
     var size: CGSize { get set }
     
@@ -32,7 +32,8 @@ protocol Renderer {
 
 var defaultSizes: [(Renderer.Type, CGSize)] = [
     (TesterCappedRenderer.self, CGSize(width: 2048, height: 1024)),
-    (ConwayRenderer.self, CGSize(width: 2048, height: 2048))
+    (ConwayRenderer.self, CGSize(width: 2048, height: 2048)),
+    (ComplexRenderer.self, CGSize(width: 2048, height: 2058))
 ]
 
 extension Renderer {
