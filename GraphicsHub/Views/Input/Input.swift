@@ -202,13 +202,14 @@ class ColorInput: NSView, Input {
         let cp = NSColorPanel()
         cp.color = NSColor(red: 1, green: 1, blue: 1, alpha: 1)
         cp.isContinuous = true
-        cp.mode = .RGB
+        cp.mode = .wheel
         return cp
     }()
     
     convenience init(name: String, defaultColor: NSColor) {
         self.init(name: name)
         self.defaultColor = defaultColor
+        _ = self.didChange
     }
     
     required init(name: String) {
@@ -259,6 +260,9 @@ class ColorInput: NSView, Input {
     }
     
 }
+
+// TODO: 2D Inputs
+
 // TODO: Y / N BUTTON
 
 // Lists
@@ -266,7 +270,7 @@ class ListInput<inputType: Input>: NSView, Input {
     var name: String
     
     required convenience init(name: String) {
-        self.init(inputs: [], name: name)
+        self.init(name: name, inputs: [])
     }
     
     typealias InputType = [inputType.InputType]
@@ -284,7 +288,7 @@ class ListInput<inputType: Input>: NSView, Input {
     lazy var addButton = NSButton(image: NSImage(named: NSImage.addTemplateName)!, target: self, action: #selector(addInput))
     @objc func addInput() {
         if InputType.self == [NSColor].self {
-            addInputView(Views: [inputType.init(name: "Color \(inputs.count)")])
+            addInputView(Views: [inputType.init(name: "Color \(inputs.count + 1)")])
         }
     }
     lazy var removeButton = NSButton(image: NSImage(named: NSImage.removeTemplateName)!, target: self, action: #selector(removeInput))
@@ -300,7 +304,7 @@ class ListInput<inputType: Input>: NSView, Input {
         
     }
     
-    init(inputs: [inputType], name: String) {
+    init(name: String, inputs: [inputType]) {
         self.name = name
         super.init(frame: .zero)
         translatesAutoresizingMaskIntoConstraints = false

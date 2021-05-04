@@ -93,8 +93,8 @@ class LaunchPad: NSViewController {
 }
 
 extension LaunchPad: NSCollectionViewDelegate {
+    
     func collectionView(_ collectionView: NSCollectionView, didSelectItemsAt indexPaths: Set<IndexPath>) {
-        print("SELECTION")
         if let indexPath = indexPaths.first {
             let rendererOptions = options[indexPath.item]
             let defaultSize = (defaultSizes.first { $0.0 == rendererOptions.1})?.1
@@ -116,6 +116,7 @@ extension LaunchPad: NSCollectionViewDelegate {
         }
         collectionView.deselectAll(nil)
     }
+    
 }
 
 extension LaunchPad: NSCollectionViewDataSource {

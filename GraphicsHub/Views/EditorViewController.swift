@@ -34,18 +34,7 @@ class EditorViewController: NSSplitViewController {
             addSplitViewItem(NSSplitViewItem(contentListWithViewController: TemplateController(color: .systemPink)))
             return
         }
-        if let inputs = renderer.renderSpecificInputs {
-            addSplitViewItem(NSSplitViewItem(contentListWithViewController: InputDashboardController(renderer: renderer)))
-        } else {
-            addSplitViewItem(NSSplitViewItem(contentListWithViewController: RenderingInputController(renderer: renderer)))
-        }
-        
-//        let itemB = NSSplitViewItem(contentListWithViewController: InputDashboardController(controller: renderingController))
-//        let itemB = NSSplitViewItem(contentListWithViewController: TemplateController(color: .orange))
-//        itemB.minimumThickness = 80
-//        addSplitViewItem(itemB)
-        
-        
+        addSplitViewItem(NSSplitViewItem(contentListWithViewController: InputController(inputs: renderer.inputManager.inputs)))
     }
     
 }

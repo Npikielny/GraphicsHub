@@ -81,10 +81,11 @@ extension RenderingView: MTKViewDelegate {
             semaphore.wait()
             let commandBuffer = commandQueue.makeCommandBuffer()
             commandBuffer?.addCompletedHandler { [self] _ in
+                // TODO: This may need to be converted to main thread–depending on how bool-inputs are implemented
                 if renderer.inputManager.recording && renderer.recordable {
                     if let pixelBuffer = pixelBuffer {
                         if let image = toImage(pixelBuffer: pixelBuffer, imageSize: SIMD2<Int>(renderer.outputImage.width, renderer.outputImage.height)) {
-                            // TODO: Handle writing files
+                            handleWriting(image: image)
                             frameIndex += 1
                         }
                     }
@@ -94,6 +95,7 @@ extension RenderingView: MTKViewDelegate {
                 }
                 self.semaphore.signal()
             }
+            renderer.inputManager.handlePerFrameChecks()
             
             if let commandBuffer = commandBuffer {
                 renderer.synchronizeInputs()
@@ -143,7 +145,7 @@ extension RenderingView: MTKViewDelegate {
     
     func handleWriting(image: NSImage) {
         do {
-            if let url = URL(string: savingPath!+"/\(frame).tiff") {
+            if let url = URL(string: (savingPath ?? (createDirectory() ?? ""))+"/\(frame).tiff") {
                 try image.tiffRepresentation?.write(to: url)
             } else {
                 print("Failed saving \(frame)–couldn't make URL")
@@ -153,7 +155,7 @@ extension RenderingView: MTKViewDelegate {
         }
     }
     
-    func createDirectory() {
+    func createDirectory() -> String? {
         let paths = NSSearchPathForDirectoriesInDomains(.desktopDirectory, .userDomainMask, true)
         let desktopDirectory = paths[0]
         let docURL = URL(string: desktopDirectory)!
@@ -162,10 +164,12 @@ extension RenderingView: MTKViewDelegate {
             do {
                 try FileManager.default.createDirectory(atPath: dataPath.path, withIntermediateDirectories: true, attributes: nil)
                 self.savingPath = desktopDirectory+"/"+dataPath.path
+                return self.savingPath!
             } catch {
                 print(error.localizedDescription)
             }
         }
+        return nil
     }
     
 }

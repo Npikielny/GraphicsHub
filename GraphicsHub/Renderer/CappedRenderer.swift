@@ -33,37 +33,22 @@ extension CappedRenderer {
 }
 
 class SinglyCappedRenderer: CappedRenderer {
+    
     var name: String = "SinglyCappedRenderer"
     
     var recordPipeline: MTLComputePipelineState!
     
-    var inputManager: GeneralInputManager!
+    var inputManager: Inputmanager
     
     func synchronizeInputs() {
-        if inputManager.size != size {
-            drawableSizeDidChange(size: inputManager.size)
+        if inputManager.size() != size {
+            drawableSizeDidChange(size: inputManager.size())
         }
-        let inputs = inputManager as! CappedInputManager
-        setRenderSize(renderSize: inputs.renderSize)
-        inputs.syncSize(size: size, renderSize: maxRenderSize)
-    }
-    
-    func setRenderSize(renderSize: CGSize) {
-        let clamped: CGSize = .Min(size1: renderSize, size2: size)
-        if clamped != maxRenderSize {
-            maxRenderSize = clamped
-            frame = 0
+        let inputManager = inputManager as! CappedInputManager
+        let renderSize = inputManager.renderSize()
+        if maxRenderSize != renderSize {
+            maxRenderSize = renderSize
         }
-        if let renderSpecificInputs = renderSpecificInputs, renderSpecificInputs.contains(where: { ($0 as! Input).didChange }) {
-            frame = 0
-        }
-//        if maxRenderSize != renderSize {
-//            let clamped: CGSize = .clamp(value: renderSize, minValue: CGSize(width: 1, height: 1), maxValue: size)
-//            if clamped != maxRenderSize {
-//                maxRenderSize = clamped
-//                frame = 0
-//            }
-//        }
     }
     
     static var rayCapped: Bool = true
@@ -97,9 +82,23 @@ class SinglyCappedRenderer: CappedRenderer {
     
     var renderPipelineState: MTLRenderPipelineState?
     
+    init(device: MTLDevice, size: CGSize, inputManager: CappedInputManager? = nil) {
+        self.size = size
+        self.device = device
+        if let inputManager = inputManager {
+            self.inputManager = inputManager
+        } else {
+            self.inputManager = CappedInputManager(renderSpecificInputs: [], imageSize: size)
+        }
+        image = createTexture(size: size)
+        
+        recordPipeline = try! getRecordPipeline()
+    }
+    
     required init(device: MTLDevice, size: CGSize) {
         self.size = size
         self.device = device
+        self.inputManager = CappedInputManager(renderSpecificInputs: [], imageSize: size)
         image = createTexture(size: size)
         
         recordPipeline = try! getRecordPipeline()

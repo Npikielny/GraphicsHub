@@ -12,10 +12,10 @@ class TesterBaseRenderer: Renderer {
     
     var recordPipeline: MTLComputePipelineState!
     
-    var inputManager: GeneralInputManager!
+    var inputManager: Inputmanager
     func synchronizeInputs() {
-        if inputManager.size != size {
-            drawableSizeDidChange(size: size)
+        if inputManager.size() != size {
+            drawableSizeDidChange(size: inputManager.size())
         }
     }
     var recordable: Bool = true
@@ -31,6 +31,7 @@ class TesterBaseRenderer: Renderer {
     var resizeable: Bool = true
     
     required init(View: RenderingView, size: CGSize) {
+        self.inputManager = BasicInputManager(imageSize: size)
         self.device = View.device!
         self.size = size
         do {
@@ -48,6 +49,7 @@ class TesterBaseRenderer: Renderer {
     }
     
     required init(device: MTLDevice, size: CGSize) {
+        self.inputManager = BasicInputManager(imageSize: size)
         self.device = device
         self.size = size
         

@@ -13,10 +13,10 @@ class ConwayRenderer: Renderer {
     
     var recordPipeline: MTLComputePipelineState!
     
-    var inputManager: GeneralInputManager!
+    var inputManager: Inputmanager
     func synchronizeInputs() {
-        if inputManager.size != size {
-            drawableSizeDidChange(size: size)
+        if inputManager.size() != size {
+            drawableSizeDidChange(size: inputManager.size())
         }
     }
     
@@ -91,6 +91,7 @@ class ConwayRenderer: Renderer {
         self.device = device
         self.size = size
         self.cellCount = SIMD2<Int32>(512,512)
+        self.inputManager = BasicInputManager(imageSize: size)
         let functions = createFunctions(names: "conwayCalculate", "conwayDraw", "conwayCopy")
         do {
             self.cellPipeline = try device.makeComputePipelineState(function: functions[0]!)

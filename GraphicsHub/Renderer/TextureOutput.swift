@@ -74,6 +74,7 @@ extension Renderer {
         let finalImage = NSImage(cgImage: (context?.makeImage()!)!, size: NSSize(width: CGFloat(outputImage.width), height: CGFloat(outputImage.height)))
         return finalImage
         
+        // TODO: Direct from MTLTexture -> Tiff
 //        let bytesPerPixel = 16
 //        let imageByteCount = outputImage.width * outputImage.height * bytesPerPixel
 //        var imageBytes = malloc(imageByteCount)!

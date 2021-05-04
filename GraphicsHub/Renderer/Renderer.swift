@@ -14,7 +14,7 @@ protocol Renderer {
     var device: MTLDevice { get }
     // Holder for renderer's user inputs
     var renderSpecificInputs: [NSView]? { get }
-    var inputManager: GeneralInputManager! { get set }
+    var inputManager: Inputmanager { get set }
     func synchronizeInputs()
     
     var size: CGSize { get set }
