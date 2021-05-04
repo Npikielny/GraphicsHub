@@ -10,7 +10,6 @@ import Cocoa
 class MainController: NSViewController {
 
     let renderingView: RenderingView
-    
     init(size: CGSize) {
         renderingView = RenderingView(size: size)
         super.init(nibName: "MainController", bundle: nil)

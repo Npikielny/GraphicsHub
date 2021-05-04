@@ -11,6 +11,19 @@ protocol CappedRenderer: Renderer {
     // Whether the view should render the image at small intervals (maxRenderSize)
     static var rayCapped: Bool { get }
     var maxRenderSize: CGSize { get set }
+    var frame: Int { get set }
+}
+
+extension CGSize {
+    static func clamp(value: CGSize, minValue: CGSize, maxValue: CGSize) -> CGSize {
+        return Min(size1: maxValue, size2: Max(size1: value, size2: minValue))
+    }
+    static func Min(size1: CGSize, size2: CGSize) -> CGSize {
+        return CGSize(width: min(size1.width, size2.width), height: min(size1.height, size2.height))
+    }
+    static func Max(size1: CGSize, size2: CGSize) -> CGSize {
+        return CGSize(width: max(size1.width, size2.width), height: max(size1.height, size2.height))
+    }
 }
 
 extension CappedRenderer {
@@ -20,6 +33,38 @@ extension CappedRenderer {
 }
 
 class SinglyCappedRenderer: CappedRenderer {
+    var name: String = "SinglyCappedRenderer"
+    
+    var recordPipeline: MTLComputePipelineState!
+    
+    var inputManager: GeneralInputManager!
+    
+    func synchronizeInputs() {
+        if inputManager.size != size {
+            drawableSizeDidChange(size: inputManager.size)
+        }
+        let inputs = inputManager as! CappedInputManager
+        setRenderSize(renderSize: inputs.renderSize)
+        inputs.syncSize(size: size, renderSize: maxRenderSize)
+    }
+    
+    func setRenderSize(renderSize: CGSize) {
+        let clamped: CGSize = .Min(size1: renderSize, size2: size)
+        if clamped != maxRenderSize {
+            maxRenderSize = clamped
+            frame = 0
+        }
+        if let renderSpecificInputs = renderSpecificInputs, renderSpecificInputs.contains(where: { ($0 as! Input).didChange }) {
+            frame = 0
+        }
+//        if maxRenderSize != renderSize {
+//            let clamped: CGSize = .clamp(value: renderSize, minValue: CGSize(width: 1, height: 1), maxValue: size)
+//            if clamped != maxRenderSize {
+//                maxRenderSize = clamped
+//                frame = 0
+//            }
+//        }
+    }
     
     static var rayCapped: Bool = true
     var maxRenderSize: CGSize = CGSize(width: 512, height: 512)
@@ -27,7 +72,7 @@ class SinglyCappedRenderer: CappedRenderer {
     
     var device: MTLDevice
     
-    var inputView: [NSView]?
+    var renderSpecificInputs: [NSView]?
     
     var recordable: Bool {
         return frame % (Int(ceil(size.width / maxRenderSize.width)) * Int(ceil(size.height / maxRenderSize.height))) == 0
@@ -39,22 +84,25 @@ class SinglyCappedRenderer: CappedRenderer {
     
     var resizeable: Bool { false }
     
-    internal var frame: Int = 0
+    var frame: Int = 0
     
     func drawableSizeDidChange(size: CGSize) {
         self.size = size
         self.image = createTexture(size: size)
+        self.maxRenderSize = .clamp(value: maxRenderSize, minValue: CGSize(width: 1, height: 1), maxValue: size)
         frame = 0
     }
     
-    func graphicsPipeline(commandBuffer: MTLCommandBuffer, view: MTKView) {}
+    func draw(commandBuffer: MTLCommandBuffer, view: MTKView) {}
     
     var renderPipelineState: MTLRenderPipelineState?
     
     required init(device: MTLDevice, size: CGSize) {
         self.size = size
         self.device = device
-        self.image = createTexture(size: size)
+        image = createTexture(size: size)
+        
+        recordPipeline = try! getRecordPipeline()
     }
 }
 

@@ -8,9 +8,21 @@
 import MetalKit
 
 class ConwayRenderer: Renderer {
+    
+    var name: String = "Conway's Game of Life"
+    
+    var recordPipeline: MTLComputePipelineState!
+    
+    var inputManager: GeneralInputManager!
+    func synchronizeInputs() {
+        if inputManager.size != size {
+            drawableSizeDidChange(size: size)
+        }
+    }
+    
     var device: MTLDevice
     
-    var inputView: [NSView]?
+    var renderSpecificInputs: [NSView]?
     
     var size: CGSize
     
@@ -43,7 +55,7 @@ class ConwayRenderer: Renderer {
     var drawPipeline: MTLComputePipelineState!
     var copyPipeline: MTLComputePipelineState!
     
-    func graphicsPipeline(commandBuffer: MTLCommandBuffer, view: MTKView) {
+    func draw(commandBuffer: MTLCommandBuffer, view: MTKView) {
         if let buffer = cellBuffer, let oldBuffer = oldCellBuffer {
             let cellEncoder = commandBuffer.makeComputeCommandEncoder()
             cellEncoder?.setComputePipelineState(cellPipeline)
@@ -84,6 +96,7 @@ class ConwayRenderer: Renderer {
             self.cellPipeline = try device.makeComputePipelineState(function: functions[0]!)
             self.drawPipeline = try device.makeComputePipelineState(function: functions[1]!)
             self.copyPipeline = try device.makeComputePipelineState(function: functions[2]!)
+            self.recordPipeline = try getRecordPipeline()
         } catch {
             print(error)
             fatalError()

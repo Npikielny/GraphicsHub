@@ -9,7 +9,10 @@ import Cocoa
 
 class LaunchPad: NSViewController {
     
-    var options: [(String, Renderer.Type)] = [("Tester",TesterBaseRenderer.self),("Tester Capped Renderer",TesterCappedRenderer.self),("Conway's Game of Life",ConwayRenderer.self),("Complex Image Generator",ComplexRenderer.self)]
+    var options: [(String, Renderer.Type)] = [("Tester",TesterBaseRenderer.self),
+                                              ("Tester Capped Renderer",TesterCappedRenderer.self),
+                                              ("Conway's Game of Life",ConwayRenderer.self),
+                                              ("Complex Image Generator",ComplexRenderer.self)]
     
     lazy var graphicsOption: NSCollectionView = {
         let cv = NSCollectionView(frame: .zero)
@@ -95,12 +98,16 @@ extension LaunchPad: NSCollectionViewDelegate {
         if let indexPath = indexPaths.first {
             let rendererOptions = options[indexPath.item]
             let defaultSize = (defaultSizes.first { $0.0 == rendererOptions.1})?.1
+            
             guard let device = MTLCreateSystemDefaultDevice() else { print("Failed to create MTLDevice"); return }
             let renderer = rendererOptions.1.init(device: device, size: defaultSize ?? CGSize(width: 1000, height: 600))
+            
             let controller = MainController(size: renderer.size)
-//            controller.renderingView.setRenderer(renderer: renderer.1.init(device: controller.renderingView, size: defaultSize ?? CGSize(width: 1000, height: 600)))
             controller.renderingView.setRenderer(renderer: renderer)
-            let window = NSWindow(contentViewController: controller)
+            
+            let editor = EditorViewController(controller: controller)
+            
+            let window = NSWindow(contentViewController: editor)
             window.title = rendererOptions.0
             window.styleMask = [window.styleMask, .fullSizeContentView]
             window.titlebarAppearsTransparent = true

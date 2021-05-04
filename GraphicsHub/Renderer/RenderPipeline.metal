@@ -35,3 +35,26 @@ fragment float4 copyFragment(CopyVertexOut in [[stage_in]],
     
     return float4(color, 1.0f);
 }
+
+uint32_t createEntry(uint8_t red,
+                 uint8_t green,
+                 uint8_t blue,
+                 uint8_t alpha) {
+    return ((red) << 24) | ((green) << 16) | ((blue) << 8) | ((alpha) << 0);
+}
+
+uint8_t toInt(float value) {
+    return int(value * 255);
+}
+
+kernel void encodeImage(uint2 tid [[thread_position_in_grid]],
+                    device uint32_t * pixels [[buffer(0)]],
+                    constant int & imageWidth [[buffer(1)]],
+                    texture2d<float, access::read_write>Image) {
+//    float4 value = Image.read(tid);
+    float4 value = float4(1,0,0,1);
+    pixels[tid.x + tid.y * imageWidth] = createEntry(toInt(value.x),
+                                                     toInt(value.y),
+                                                     toInt(value.z),
+                                                     toInt(value.w));
+}

@@ -11,12 +11,14 @@ using namespace metal;
 
 float3 complexColor(constant float3 * colors, int colorCount, float percent) {
     if (percent >= 1) {
-        return colors[colorCount - 1];
-    }else if (percent <= 0) {
+        return colors[colorCount-1];
+    } else if (percent <= 0) {
         return colors[0];
-    }else {
-        int minColorIndex = int(percent * float(colorCount));
-        return lerp(colors[minColorIndex],colors[minColorIndex+1],percent);
+    } else {
+        float value = percent * float(colorCount - 1);
+        int minColor = value;
+        float percentInRange = value - floor(value);
+        return lerp(colors[minColor], colors[minColor + 1], percentInRange);
     }
 }
 
@@ -33,8 +35,9 @@ kernel void juliaSet(uint2 tid [[thread_position_in_grid]],
                      constant float2 & origin [[buffer(3)]],
                      constant float2 & c [[buffer(4)]],
                      constant float & zoom [[buffer(5)]],
-                     constant float3 * colors [[buffer(6)]],
-                     constant int & colorCount [[buffer(7)]],
+                     constant float & scalingFactor [[buffer(6)]],
+                     constant float3 * colors [[buffer(7)]],
+                     constant int & colorCount [[buffer(8)]],
                      texture2d<float, access::read_write>Image) {
     tid = shiftedTid(tid, imageSize, renderSize, frame);
     float2 z = (float2(tid.x,tid.y) - float2(imageSize)/2) / zoom + origin;
@@ -46,8 +49,7 @@ kernel void juliaSet(uint2 tid [[thread_position_in_grid]],
             value = i;
         }
     }
-    Image.write(float4(complexColor(colors, colorCount, float(value) / 255 * 5), 1), tid);
-//    Image.write(float4(1) * float(value) / 255, tid);
+    Image.write(float4(complexColor(colors, colorCount, float(value) / 255 * scalingFactor), 1), tid);
 }
 
 kernel void mandelbrotSet() {}

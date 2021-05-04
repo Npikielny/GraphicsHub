@@ -35,7 +35,7 @@ class InputController: NSViewController {
             $0.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: padding).isActive = true
             $0.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -padding).isActive = true
         }
-        inputs.last?.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -padding).isActive = true
+        inputs.last?.bottomAnchor.constraint(lessThanOrEqualTo: view.bottomAnchor, constant: -padding).isActive = true
     }
     
 }

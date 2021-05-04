@@ -27,16 +27,7 @@ class TesterCappedRenderer: SinglyCappedRenderer {
         }
     }
     
-    override func graphicsPipeline(commandBuffer: MTLCommandBuffer, view: MTKView) {
-//        dispatchComputeEncoder(commandBuffer: commandBuffer,
-//                               computePipelineState: tidComputePipeline,
-//                               buffers: [],
-//                               bytes: [([Int32(frame)] as! UnsafeRawPointer, MemoryLayout<Int32>.stride, 0),
-//                                       ([SIMD2<Int32>(Int32(size.width), Int32(size.height))]  as! UnsafeRawPointer, MemoryLayout<SIMD2<Int32>>.stride, 1),
-//                                       ([SIMD2<Int32>(Int32(maxRenderSize!.width),Int32(maxRenderSize!.height))] as! UnsafeRawPointer, MemoryLayout<SIMD2<Int32>>.stride, 2)],
-//                               textures: [self.outputImage],
-//                               threadGroups: getCappedGroupSize(),
-//                               threadGroupSize: MTLSize(width: 8, height: 8, depth: 1))
+    override func draw(commandBuffer: MTLCommandBuffer, view: MTKView) {
         let computeEncoder = commandBuffer.makeComputeCommandEncoder()
         computeEncoder?.setComputePipelineState(tidComputePipeline)
         computeEncoder?.setBytes([Int32(frame)], length: MemoryLayout<Int32>.size, index: 0)

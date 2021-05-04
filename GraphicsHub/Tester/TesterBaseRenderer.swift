@@ -8,14 +8,23 @@
 import MetalKit
 
 class TesterBaseRenderer: Renderer {
+    var name: String = "TesterBaseRenderer"
     
+    var recordPipeline: MTLComputePipelineState!
+    
+    var inputManager: GeneralInputManager!
+    func synchronizeInputs() {
+        if inputManager.size != size {
+            drawableSizeDidChange(size: size)
+        }
+    }
     var recordable: Bool = true
     
     
     var renderPipelineState: MTLRenderPipelineState?
     
     var device: MTLDevice
-    var inputView: [NSView]? = nil
+    var renderSpecificInputs: [NSView]? = nil
     
     var size: CGSize
     var outputImage: MTLTexture!
@@ -65,5 +74,5 @@ class TesterBaseRenderer: Renderer {
         self.outputImage = texture
     }
     
-    func graphicsPipeline(commandBuffer: MTLCommandBuffer, view: MTKView) {}
+    func draw(commandBuffer: MTLCommandBuffer, view: MTKView) {}
 }

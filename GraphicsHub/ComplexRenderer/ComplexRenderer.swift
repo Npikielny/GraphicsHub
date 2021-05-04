@@ -18,19 +18,21 @@ class ComplexRenderer: SinglyCappedRenderer {
     var state: State = .juliaSet
     
     var c: SIMD2<Float> {
-        let cReal = inputView![0] as! SliderInput
-        let cImaginary = inputView![1] as! SliderInput
+        let cReal = renderSpecificInputs![0] as! SliderInput
+        let cImaginary = renderSpecificInputs![1] as! SliderInput
         return SIMD2<Float>(Float(cReal.output),Float(cImaginary.output))
     }
     var zoom: Float {
-        Float((inputView![2] as! SliderInput).output)
+        Float((renderSpecificInputs![2] as! SliderInput).output)
     }
     var origin: SIMD2<Float> {
-        let originX = inputView![3] as! SliderInput
-        let originY = inputView![4] as! SliderInput
+        let originX = renderSpecificInputs![3] as! SliderInput
+        let originY = renderSpecificInputs![4] as! SliderInput
         return SIMD2<Float>(Float(originX.output),Float(originY.output))
     }
-    
+    var scalingFactor: Float {
+        return Float((renderSpecificInputs![5] as! SliderInput).output)
+    }
     func randomColor() -> SIMD3<Float> {
         return SIMD3<Float>(Float.random(in: 0...1),
                             Float.random(in: 0...1),
@@ -60,27 +62,31 @@ class ComplexRenderer: SinglyCappedRenderer {
 
         let zoomSlider = SliderInput(name: "Zoom", minValue: 1, currentValue: 10, maxValue: 10000)
 
-        let originX = SliderInput(name: "Origin X", minValue: -99999, currentValue: 0, maxValue: 99999)
-        let originY = SliderInput(name: "Origin Y", minValue: -99999, currentValue: 0, maxValue: 99999)
+        let originX = SliderInput(name: "Origin X", minValue: -9999, currentValue: 0, maxValue: 9999)
+        let originY = SliderInput(name: "Origin Y", minValue: -9999, currentValue: 0, maxValue: 9999)
 
-        let colorList = ListInput<ColorInput>(inputs: (0..<Int.random(in: 3...5)).map {
-            ColorInput(defaultColor: NSColor(color: randomColor()), name: "Color \($0)")
-        })
+        let colorScalingFactor = SliderInput(name: "scaling Factor", minValue: 0.1, currentValue: 1, maxValue: 100)
         
-        inputView = [cRealSlider, cImaginarySlider,
+//        let colorList = ListInput<ColorInput>(inputs: (0..<2).map {
+//            ColorInput(name: "Color \($0)", defaultColor: <#T##NSColor#>)
+//        }, name: "Coloring")
+
+        let colorList = ListInput<ColorInput>(inputs: [
+            ColorInput(name: "Color 1", defaultColor: NSColor(red: 1, green: 1, blue: 1, alpha: 1)),
+            ColorInput(name: "Color 2", defaultColor: NSColor(red: 0, green: 0, blue: 0, alpha: 1))
+        ], name: "Coloring")
+        
+        renderSpecificInputs = [cRealSlider, cImaginarySlider,
                           zoomSlider,
                           originX,originY,
+                          colorScalingFactor,
                           colorList]
-        let partnerController = InputController(inputs: inputView!)
-        let partnerWindow = NSWindow(contentViewController: partnerController)
-        partnerWindow.title = "Complex Renderer Inputs"
-        partnerWindow.makeKeyAndOrderFront(nil)
     }
     
-    override func graphicsPipeline(commandBuffer: MTLCommandBuffer, view: MTKView) {
-        let colors = (self.inputView![5] as! ListInput<ColorInput>).output.map { $0.toVector() }
+    override func draw(commandBuffer: MTLCommandBuffer, view: MTKView) {
+        guard let colorInputs = self.renderSpecificInputs?[6] as? ListInput<ColorInput> else { return }
+        let colors = colorInputs.output.map { $0.cgColor.toVector() }
         let colorBuffers = device.makeBuffer(bytes: colors, length: MemoryLayout<SIMD3<Float>>.stride * colors.count, options: .storageModeManaged)
-        
         if state == .juliaSet {
             let juliaEncoder = commandBuffer.makeComputeCommandEncoder()
             juliaEncoder?.setComputePipelineState(juliaPipeline)
@@ -93,8 +99,9 @@ class ComplexRenderer: SinglyCappedRenderer {
             juliaEncoder?.setBytes([origin], length: MemoryLayout<SIMD2<Float>>.stride, index: 3)
             juliaEncoder?.setBytes([c], length: MemoryLayout<SIMD2<Float>>.stride, index: 4)
             juliaEncoder?.setBytes([zoom], length: MemoryLayout<Float>.stride, index: 5)
-            juliaEncoder?.setBuffer(colorBuffers, offset: 0, index: 6)
-            juliaEncoder?.setBytes([Int32(colors.count)], length: MemoryLayout<Int32>.stride, index: 7)
+            juliaEncoder?.setBytes([scalingFactor], length: MemoryLayout<Float>.stride, index: 6)
+            juliaEncoder?.setBuffer(colorBuffers, offset: 0, index: 7)
+            juliaEncoder?.setBytes([Int32(colors.count)], length: MemoryLayout<Int32>.stride, index: 8)
             juliaEncoder?.setTexture(outputImage, index: 0)
             juliaEncoder?.dispatchThreadgroups(getCappedGroupSize(), threadsPerThreadgroup: MTLSize(width: 8, height: 8, depth: 1))
             juliaEncoder?.endEncoding()
@@ -116,5 +123,17 @@ extension NSColor {
         return SIMD3<Float>(Float(redComponent),
                             Float(greenComponent),
                             Float(blueComponent))
+    }
+}
+
+extension CGColor {
+    func toVector() -> SIMD3<Float> {
+        if numberOfComponents >= 3 {
+            guard let components = components else {
+                return SIMD3<Float>(1,1,1)
+            }
+            return SIMD3<Float>(Float(components[0]),Float(components[1]),Float(components[2]))
+        }
+        return SIMD3<Float>(1,1,1)
     }
 }

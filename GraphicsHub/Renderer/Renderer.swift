@@ -9,20 +9,26 @@ import MetalKit
 
 protocol Renderer {
     
+    var name: String { get set}
+    
     var device: MTLDevice { get }
     // Holder for renderer's user inputs
-    var inputView: [NSView]? { get }
+    var renderSpecificInputs: [NSView]? { get }
+    var inputManager: GeneralInputManager! { get set }
+    func synchronizeInputs()
     
     var size: CGSize { get set }
     
     var recordable: Bool { get }
+    var recordPipeline: MTLComputePipelineState! { get set }
+    
     var outputImage: MTLTexture! { get }
     // Whether the view should resize with the window
     var resizeable: Bool { get }
     
     func drawableSizeDidChange(size: CGSize)
     
-    func graphicsPipeline(commandBuffer: MTLCommandBuffer, view: MTKView)
+    func draw(commandBuffer: MTLCommandBuffer, view: MTKView)
     
     var renderPipelineState: MTLRenderPipelineState? { get }
     
@@ -45,7 +51,7 @@ extension Renderer {
         renderTargetDescriptor.textureType = MTLTextureType.type2D
         renderTargetDescriptor.width = Int(size.width)
         renderTargetDescriptor.height = Int(size.height)
-        renderTargetDescriptor.storageMode = MTLStorageMode.private;
+        renderTargetDescriptor.storageMode = MTLStorageMode.managed;
         renderTargetDescriptor.usage = [MTLTextureUsage.shaderRead, MTLTextureUsage.shaderWrite]
         return device.makeTexture(descriptor: renderTargetDescriptor)
     }
@@ -71,16 +77,32 @@ extension Renderer {
         }
         return functions
     }
-    
     func getDefaultVertexFunction(library: MTLLibrary) -> MTLFunction? {
         let function = library.makeFunction(name: "copyVertex")
         return function
     }
-    
     func getDefaultFragFunction(library: MTLLibrary) -> MTLFunction? {
         let function = library.makeFunction(name: "copyFragment")
         return function
     }
+    func getDefaultCopyFunction(library: MTLLibrary) -> MTLFunction? {
+        let function = library.makeFunction(name: "encodeImage")
+        return function
+    }
+    private func getDefaultCopyFunction() -> MTLFunction? {
+        let library = device.makeDefaultLibrary()
+        let function = library?.makeFunction(name: "encodeImage")
+        return function
+    }
+    func getRecordPipeline() throws -> MTLComputePipelineState {
+        let recordFunction = getDefaultCopyFunction()
+        do {
+            return try device.makeComputePipelineState(function: recordFunction!)
+        } catch {
+            throw error
+        }
+    }
+    
     func getImageGroupSize() -> MTLSize {
         return MTLSize(width: (Int(size.width) + 7)/8, height: (Int(size.height) + 7)/8, depth: 1)
     }
@@ -112,5 +134,16 @@ extension Renderer {
         computeEncoder?.setTextures(textures, range: 0..<textures.count)
         computeEncoder?.dispatchThreadgroups(threadGroups, threadsPerThreadgroup: threadGroupSize)
         computeEncoder?.endEncoding()
+    }
+    
+    func copyToBuffer(commandBuffer: MTLCommandBuffer?, pixelBuffer: MTLBuffer?) {
+        guard let recordPipeline = recordPipeline else { return }
+        let copyEncoder = commandBuffer?.makeComputeCommandEncoder()
+        copyEncoder?.setComputePipelineState(recordPipeline)
+        copyEncoder?.setBuffer(pixelBuffer, offset: 0, index: 0)
+        copyEncoder?.setBytes([Int32(outputImage.width)], length: MemoryLayout<Int32>.stride, index: 1)
+        copyEncoder?.setTexture(outputImage, index: 0)
+        copyEncoder?.dispatchThreadgroups(getImageGroupSize(), threadsPerThreadgroup: MTLSize(width: 8, height: 8, depth: 1))
+        copyEncoder?.endEncoding()
     }
 }

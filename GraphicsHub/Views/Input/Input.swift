@@ -19,11 +19,24 @@ protocol Input {
     func reset()
     func collapse()
     func expand()
+    var didChange: Bool { get }
+    var name: String { get set}
+    init(name: String)
+    
 }
 
 // Sliders
 class SliderInput: NSView, Input {
+    var name: String
+    
+    required convenience init(name: String) {
+        self.init(name: name, minValue: 0, currentValue: 5, maxValue: 10)
+    }
+    
     typealias InputType = Double
+    
+    private var changed: Bool = true
+    var didChange: Bool { if changed { changed = false; return true } else { return false } }
     var output: InputType {
         if let transform = transform {
             return transform(slider.doubleValue)
@@ -38,9 +51,12 @@ class SliderInput: NSView, Input {
         assignLabel()
     }
     private var slider: NSSlider!
-    private var label: NSTextView = {
+    private lazy var label: NSTextView = {
         let tv = NSTextView()
         tv.backgroundColor = .clear
+        tv.delegate = self
+//        tv.isEditable = false
+//        tv.isSelectable = false
         return tv
     }()
     private var titleLabel: NSTextView = {
@@ -55,11 +71,13 @@ class SliderInput: NSView, Input {
     private var heightAnchorConstraint: NSLayoutConstraint!
     
     init(name: String, minValue: Double, currentValue: Double, maxValue: Double, tickMarks: Int? = nil, transform: ((InputType) -> InputType)? = nil) {
+        self.name = name
         defaultValue = currentValue
         titleLabel.string = name
         super.init(frame: .zero)
         
         slider = NSSlider(value: currentValue, minValue: minValue, maxValue: maxValue, target: self, action: #selector(valueChanged))
+        slider.isContinuous = true
         if let tickMarks = tickMarks {
             slider.numberOfTickMarks = tickMarks
             slider.allowsTickMarkValuesOnly = true
@@ -75,7 +93,7 @@ class SliderInput: NSView, Input {
         }
         heightAnchorConstraint = heightAnchor.constraint(equalToConstant: 30)
         NSLayoutConstraint.activate([
-            titleLabel.widthAnchor.constraint(equalToConstant: 100),
+            titleLabel.widthAnchor.constraint(equalToConstant: 150),
             titleLabel.leadingAnchor.constraint(equalTo: leadingAnchor),
 
             slider.leadingAnchor.constraint(equalTo: titleLabel.trailingAnchor, constant: 5),
@@ -96,6 +114,13 @@ class SliderInput: NSView, Input {
     }
     @objc func valueChanged() {
         assignLabel()
+        changed = true
+    }
+    
+    func setValue(value: Double) {
+        self.slider.doubleValue = value
+        assignLabel()
+        changed = true
     }
     
     func collapse() {
@@ -108,10 +133,12 @@ class SliderInput: NSView, Input {
 }
 
 extension SliderInput: NSTextViewDelegate {
-    func textDidEndEditing(_ notification: Notification) {
+    func textDidChange(_ notification: Notification) {
+        if label.string == "" { return }
         if let value = Double(label.string) {
             if value > slider.minValue && value < slider.maxValue {
                 slider.doubleValue = value
+                changed = true
             } else {
                 assignLabel()
             }
@@ -124,17 +151,31 @@ extension SliderInput: NSTextViewDelegate {
 
 // Color
 class ColorInput: NSView, Input {
+    var name: String
     
     typealias InputType = NSColor
     
-    private var defaultColor: NSColor
-    var output: NSColor = .white { didSet { colorView.layer?.backgroundColor = output.cgColor } }
+    private var lastColor: NSColor = NSColor(red: 1, green: 1, blue: 1, alpha: 1)
+    private var changed: Bool { lastColor != output}
+    var didChange: Bool { if changed { lastColor = output; return true } else { return false } }
+    
+    var defaultColor: NSColor = NSColor(red: 1, green: 1, blue: 1, alpha: 1)
+    
+    var output: NSColor {
+        get {
+            colorView.layer?.backgroundColor = colorPicker.color.cgColor
+            return colorPicker.color
+        }
+        set {
+            colorView.layer?.backgroundColor = newValue.cgColor
+        }
+    }
     var transform: ((NSColor) -> NSColor)?
     
-    var colorView: NSView = {
+    lazy var colorView: NSView = {
         let view = NSView()
         view.wantsLayer = true
-        view.layer?.backgroundColor = NSColor.white.cgColor
+        view.layer?.backgroundColor = defaultColor.cgColor
         view.layer?.cornerRadius = 10
         return view
     }()
@@ -157,9 +198,22 @@ class ColorInput: NSView, Input {
     
     private var heightAnchorConstraint: NSLayoutConstraint!
     
-    init(defaultColor: NSColor, name: String) {
+    var colorPicker: NSColorPanel = {
+        let cp = NSColorPanel()
+        cp.color = NSColor(red: 1, green: 1, blue: 1, alpha: 1)
+        cp.isContinuous = true
+        cp.mode = .RGB
+        return cp
+    }()
+    
+    convenience init(name: String, defaultColor: NSColor) {
+        self.init(name: name)
         self.defaultColor = defaultColor
+    }
+    
+    required init(name: String) {
         titleLabel.string = name
+        self.name = name
         super.init(frame: .zero)
         
         reset()
@@ -176,7 +230,7 @@ class ColorInput: NSView, Input {
         setColorButton.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
             titleLabel.leadingAnchor.constraint(equalTo: leadingAnchor),
-            titleLabel.widthAnchor.constraint(equalToConstant: 100),
+            titleLabel.widthAnchor.constraint(equalToConstant: 150),
 
             setColorButton.centerYAnchor.constraint(equalTo: centerYAnchor),
             setColorButton.trailingAnchor.constraint(equalTo: trailingAnchor),
@@ -188,7 +242,9 @@ class ColorInput: NSView, Input {
         ])
     }
     
-    @objc func setColor() {}
+    @objc func setColor() {
+        colorPicker.makeKeyAndOrderFront(self)
+    }
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
@@ -207,8 +263,15 @@ class ColorInput: NSView, Input {
 
 // Lists
 class ListInput<inputType: Input>: NSView, Input {
+    var name: String
+    
+    required convenience init(name: String) {
+        self.init(inputs: [], name: name)
+    }
     
     typealias InputType = [inputType.InputType]
+    
+    var didChange: Bool { return inputs.contains { $0.didChange } }
     var inputs = [inputType]()
     var output: [inputType.InputType] { inputs.map { $0.output } }
     
@@ -220,7 +283,9 @@ class ListInput<inputType: Input>: NSView, Input {
     
     lazy var addButton = NSButton(image: NSImage(named: NSImage.addTemplateName)!, target: self, action: #selector(addInput))
     @objc func addInput() {
-        
+        if InputType.self == [NSColor].self {
+            addInputView(Views: [inputType.init(name: "Color \(inputs.count)")])
+        }
     }
     lazy var removeButton = NSButton(image: NSImage(named: NSImage.removeTemplateName)!, target: self, action: #selector(removeInput))
     @objc func removeInput() {
@@ -235,7 +300,8 @@ class ListInput<inputType: Input>: NSView, Input {
         
     }
     
-    init(inputs: [inputType]) {
+    init(inputs: [inputType], name: String) {
+        self.name = name
         super.init(frame: .zero)
         translatesAutoresizingMaskIntoConstraints = false
         [addButton, removeButton, collapseButton, expandButton].forEach {
@@ -253,28 +319,28 @@ class ListInput<inputType: Input>: NSView, Input {
             removeButton.widthAnchor.constraint(equalTo: collapseButton.widthAnchor, multiplier: 1),
             collapseButton.widthAnchor.constraint(equalTo: expandButton.widthAnchor, multiplier: 1),
         ])
-        addInputView(Views: inputs.reversed())
+        addInputView(Views: inputs)
     }
     
     func addInputView(Views: [inputType]) {
-        var last: NSLayoutYAxisAnchor?
+        var last: NSLayoutYAxisAnchor!
         if inputs.count > 0 {
             last = (inputs.last! as! NSView).topAnchor
+        } else {
+            last = addButton.topAnchor
         }
         for View in Views {
             let view = View as! NSView
             addSubview(view)
             view.leadingAnchor.constraint(equalTo: leadingAnchor).isActive = true
             view.trailingAnchor.constraint(equalTo: trailingAnchor).isActive = true
-            if let last = last  {
-                view.topAnchor.constraint(equalTo: last, constant: 5).isActive = true
-            } else {
-                view.topAnchor.constraint(equalTo: topAnchor, constant: 5).isActive = true
-            }
-            last = view.bottomAnchor
+            
+            view.bottomAnchor.constraint(equalTo: last, constant: -5).isActive = true
+            
+            last = view.topAnchor
             inputs.append(View)
+            view.layoutSubtreeIfNeeded()
         }
-        (Views.last! as! NSView).bottomAnchor.constraint(lessThanOrEqualTo: addButton.topAnchor, constant: -5).isActive = true
         
     }
     
