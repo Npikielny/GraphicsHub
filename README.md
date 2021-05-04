@@ -4,10 +4,8 @@ Every project will have easy to use inputs, as well as some generic inputs, whic
 ## Projects
 ### Complex Imager
 A pipeline to render Julia sets and the Mandelbrot set.
-### Conway's Game Of Life
-
 <img width="1792" alt="Screen Shot 2021-05-04 at 5 39 00 PM" src="https://user-images.githubusercontent.com/42814781/117073824-7afdf100-ad00-11eb-86f2-030492bdef3b.png">
-
+### Conway's Game Of Life
 ### Tests
 So far I have written basic tests for rasterization and a pipeline that enables easy setup for any rendering engine, which should renderr images in segments to limit GPU load. 
 ### Coming soon
