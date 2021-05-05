@@ -49,8 +49,8 @@ class BasicInputManager: Inputmanager {
     }
     
     var recording: Bool {
-        get { (inputs[2] as! SliderInput).output == 1}
-        set { (inputs[2] as! SliderInput).setValue(value: newValue ? 1 : 0) }
+        get { (inputs[2] as! StateInput).output }
+        set { (inputs[2] as! StateInput).output = newValue }
     }
     
     var renderWidth: Double?
@@ -62,7 +62,7 @@ class BasicInputManager: Inputmanager {
     init(renderSpecificInputs: [NSView] = [], imageSize: CGSize?) {
         inputs.append(SliderInput(name: "Image Width", minValue: 1, currentValue: Double(imageSize?.width ?? 512), maxValue: 2048))
         inputs.append(SliderInput(name: "Image Height", minValue: 1, currentValue: Double(imageSize?.height ?? 512), maxValue: 2048))
-        inputs.append(SliderInput(name: "Recording", minValue: 0, currentValue: 0, maxValue: 1, tickMarks: 2))
+        inputs.append(StateInput(name: "Recording"))
         inputOffset = inputs.count
         inputs.append(contentsOf: renderSpecificInputs)
     }
@@ -93,8 +93,8 @@ class CappedInputManager: Inputmanager {
     }
     
     var recording: Bool {
-        get { (inputs[2] as! SliderInput).output == 1}
-        set { (inputs[2] as! SliderInput).setValue(value: newValue ? 1 : 0) }
+        get { (inputs[2] as! StateInput).output }
+        set { (inputs[2] as! StateInput).output = newValue }
     }
     
     private var renderWidthSlider: SliderInput { inputs[3] as! SliderInput }
@@ -114,7 +114,7 @@ class CappedInputManager: Inputmanager {
     init(renderSpecificInputs: [NSView], imageSize: CGSize?) {
         inputs.append(SliderInput(name: "Image Width", minValue: 1, currentValue: Double(imageSize?.width ?? 512), maxValue: 2048))
         inputs.append(SliderInput(name: "Image Height", minValue: 1, currentValue: Double(imageSize?.height ?? 512), maxValue: 2048))
-        inputs.append(SliderInput(name: "Recording", minValue: 0, currentValue: 0, maxValue: 1, tickMarks: 2))
+        inputs.append(StateInput(name: "Recording"))
         inputs.append(SliderInput(name: "Render Width", minValue: 1, currentValue: Double(min(imageSize?.width ?? 512, 512)), maxValue: 2048))
         inputs.append(SliderInput(name: "Render Height", minValue: 1, currentValue: Double(min(imageSize?.height ?? 512, 512)), maxValue: 2048))
         inputOffset = inputs.count

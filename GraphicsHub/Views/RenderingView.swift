@@ -52,6 +52,52 @@ class RenderingView: MTKView {
         
     }
     
+    var frameLayer = CAShapeLayer()
+    func animateLayer(FPS: Double) {
+        frameLayer.removeFromSuperlayer()
+        frameLayer = CAShapeLayer()
+        let fillPath = CGMutablePath()
+        let centerPoint = CGPoint(x: 25 + 10, y: 25 + 10)
+        fillPath.addArc(center: centerPoint, radius: 25, startAngle: 0 + CGFloat.pi/2, endAngle: CGFloat.pi * 2 + CGFloat.pi/2, clockwise: false)
+        frameLayer.path = fillPath
+        frameLayer.strokeColor = .none
+        frameLayer.fillColor = .black
+        
+        let path = CGMutablePath()
+        let percent = min(1, FPS/200)
+        let final = CGFloat.pi*2 * CGFloat(percent)
+        let strokeLayer = CAShapeLayer()
+        path.addArc(center: centerPoint, radius: 25, startAngle: 0 + CGFloat.pi/2, endAngle: final + CGFloat.pi/2, clockwise: false)
+        strokeLayer.path = path
+        strokeLayer.fillColor = .none
+        
+        let colors: [NSColor] = [.red, .orange, .green]
+        
+        let value = percent * Double(colors.count - 1)
+        let minColor = Int(value)
+        let percentInRange = CGFloat(value - floor(value))
+        strokeLayer.strokeColor = NSColor(red: colors[minColor].redComponent * percentInRange + colors[minColor + 1].redComponent * (1 - percentInRange),
+                                          green: colors[minColor].greenComponent * percentInRange + colors[minColor + 1].greenComponent * (1 - percentInRange),
+                                          blue: colors[minColor].blueComponent * percentInRange + colors[minColor + 1].blueComponent * (1 - percentInRange),
+                                          alpha: 1).cgColor
+        
+        strokeLayer.lineWidth = 5.0
+        frameLayer.addSublayer(strokeLayer)
+        
+        let textLayer = CATextLayer()
+        textLayer.font = NSFont.boldSystemFont(ofSize: 15)
+        textLayer.fontSize = 20
+        textLayer.alignmentMode = .center
+        textLayer.frame = CGRect(x: 0, y: 0, width: 50, height: 50)
+        textLayer.string = String(Int(FPS))
+        textLayer.position = CGPoint(x: 25 + 10, y: 10 + 15)
+        textLayer.contentsScale = 1
+        textLayer.foregroundColor = .white
+        frameLayer.addSublayer(textLayer)
+        
+        layer?.addSublayer(frameLayer)
+    }
+    
     required init(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }

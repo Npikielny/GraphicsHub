@@ -11,10 +11,7 @@
 		3028F1A7263C93E0006922F0 /* EditorViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 3028F1A5263C93E0006922F0 /* EditorViewController.xib */; };
 		3028F1AA263C9529006922F0 /* TemplateController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3028F1A8263C9529006922F0 /* TemplateController.swift */; };
 		3028F1AB263C9529006922F0 /* TemplateController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 3028F1A9263C9529006922F0 /* TemplateController.xib */; };
-		3028F1AE263C9882006922F0 /* InputDashboardController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3028F1AC263C9882006922F0 /* InputDashboardController.swift */; };
-		3028F1AF263C9882006922F0 /* InputDashboardController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 3028F1AD263C9882006922F0 /* InputDashboardController.xib */; };
-		3028F1B2263C9C50006922F0 /* RenderingInputController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3028F1B0263C9C50006922F0 /* RenderingInputController.swift */; };
-		3028F1B3263C9C50006922F0 /* RenderingInputController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 3028F1B1263C9C50006922F0 /* RenderingInputController.xib */; };
+		3092B3222641DB5700902BB6 /* InputManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3092B3212641DB5700902BB6 /* InputManager.swift */; };
 		309B4018263BC40000300BBE /* ComplexRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 309B4017263BC40000300BBE /* ComplexRenderer.swift */; };
 		309B401B263BC4AE00300BBE /* ComplexRendering.metal in Sources */ = {isa = PBXBuildFile; fileRef = 309B401A263BC4AE00300BBE /* ComplexRendering.metal */; };
 		309B401E263BCE1600300BBE /* Input.swift in Sources */ = {isa = PBXBuildFile; fileRef = 309B401D263BCE1600300BBE /* Input.swift */; };
@@ -66,10 +63,7 @@
 		3028F1A5263C93E0006922F0 /* EditorViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = EditorViewController.xib; sourceTree = "<group>"; };
 		3028F1A8263C9529006922F0 /* TemplateController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TemplateController.swift; sourceTree = "<group>"; };
 		3028F1A9263C9529006922F0 /* TemplateController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = TemplateController.xib; sourceTree = "<group>"; };
-		3028F1AC263C9882006922F0 /* InputDashboardController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InputDashboardController.swift; sourceTree = "<group>"; };
-		3028F1AD263C9882006922F0 /* InputDashboardController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = InputDashboardController.xib; sourceTree = "<group>"; };
-		3028F1B0263C9C50006922F0 /* RenderingInputController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RenderingInputController.swift; sourceTree = "<group>"; };
-		3028F1B1263C9C50006922F0 /* RenderingInputController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = RenderingInputController.xib; sourceTree = "<group>"; };
+		3092B3212641DB5700902BB6 /* InputManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InputManager.swift; sourceTree = "<group>"; };
 		309B4017263BC40000300BBE /* ComplexRenderer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ComplexRenderer.swift; sourceTree = "<group>"; };
 		309B401A263BC4AE00300BBE /* ComplexRendering.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = ComplexRendering.metal; sourceTree = "<group>"; };
 		309B401D263BCE1600300BBE /* Input.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Input.swift; sourceTree = "<group>"; };
@@ -147,6 +141,7 @@
 				309B401D263BCE1600300BBE /* Input.swift */,
 				309B401F263BDDBE00300BBE /* InputController.swift */,
 				309B4020263BDDBE00300BBE /* InputController.xib */,
+				3092B3212641DB5700902BB6 /* InputManager.swift */,
 			);
 			path = Input;
 			sourceTree = "<group>";
@@ -236,14 +231,10 @@
 				30AEDA35263A54A2007ED421 /* LaunchPad.xib */,
 				3028F1A4263C93E0006922F0 /* EditorViewController.swift */,
 				3028F1A5263C93E0006922F0 /* EditorViewController.xib */,
-				3028F1AC263C9882006922F0 /* InputDashboardController.swift */,
-				3028F1AD263C9882006922F0 /* InputDashboardController.xib */,
 				30AEDA39263A5B5B007ED421 /* RenderingOption.swift */,
 				30AEDA3A263A5B5B007ED421 /* RenderingOption.xib */,
 				30AEDA1F263A1F2E007ED421 /* MainController.swift */,
 				30AEDA20263A1F2E007ED421 /* MainController.xib */,
-				3028F1B0263C9C50006922F0 /* RenderingInputController.swift */,
-				3028F1B1263C9C50006922F0 /* RenderingInputController.xib */,
 				30AEDA23263A1F99007ED421 /* RenderingView.swift */,
 				3028F1A8263C9529006922F0 /* TemplateController.swift */,
 				3028F1A9263C9529006922F0 /* TemplateController.xib */,
@@ -368,10 +359,8 @@
 				3028F1A7263C93E0006922F0 /* EditorViewController.xib in Resources */,
 				30AED9F8263A1F16007ED421 /* Assets.xcassets in Resources */,
 				30AED9FB263A1F16007ED421 /* MainMenu.xib in Resources */,
-				3028F1B3263C9C50006922F0 /* RenderingInputController.xib in Resources */,
 				30AEDA3C263A5B5B007ED421 /* RenderingOption.xib in Resources */,
 				30AEDA37263A54A2007ED421 /* LaunchPad.xib in Resources */,
-				3028F1AF263C9882006922F0 /* InputDashboardController.xib in Resources */,
 				309B4022263BDDBE00300BBE /* InputController.xib in Resources */,
 				30AEDA22263A1F2E007ED421 /* MainController.xib in Resources */,
 				3028F1AB263C9529006922F0 /* TemplateController.xib in Resources */,
@@ -399,6 +388,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3092B3222641DB5700902BB6 /* InputManager.swift in Sources */,
 				30D52282263FA08500DA75F6 /* TextureOutput.swift in Sources */,
 				30AEDA26263A2314007ED421 /* Renderer.swift in Sources */,
 				30AEDA2D263A27B7007ED421 /* RenderPipeline.metal in Sources */,
@@ -414,8 +404,6 @@
 				30AEDA3B263A5B5B007ED421 /* RenderingOption.swift in Sources */,
 				30CC8734263B492C0002B0B8 /* TesterCappedRenderer.swift in Sources */,
 				309B4018263BC40000300BBE /* ComplexRenderer.swift in Sources */,
-				3028F1AE263C9882006922F0 /* InputDashboardController.swift in Sources */,
-				3028F1B2263C9C50006922F0 /* RenderingInputController.swift in Sources */,
 				30AED9F6263A1F15007ED421 /* AppDelegate.swift in Sources */,
 				309B401B263BC4AE00300BBE /* ComplexRendering.metal in Sources */,
 				309B401E263BCE1600300BBE /* Input.swift in Sources */,
