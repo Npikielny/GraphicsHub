@@ -38,7 +38,7 @@ class SinglyCappedRenderer: CappedRenderer {
     
     var recordPipeline: MTLComputePipelineState!
     
-    var inputManager: Inputmanager
+    var inputManager: InputManager
     
     func synchronizeInputs() {
         if inputManager.size() != size {
@@ -48,6 +48,12 @@ class SinglyCappedRenderer: CappedRenderer {
         let renderSize = inputManager.renderSize()
         if maxRenderSize != renderSize {
             maxRenderSize = renderSize
+        }
+        (inputManager.inputs as! [InputShell]).forEach {
+            if $0.didChange {
+                frame = 0
+                return
+            }
         }
     }
     

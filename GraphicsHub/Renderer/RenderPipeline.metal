@@ -52,9 +52,10 @@ kernel void encodeImage(uint2 tid [[thread_position_in_grid]],
                     constant int & imageWidth [[buffer(1)]],
                     texture2d<float, access::read_write>Image) {
 //    float4 value = Image.read(tid);
-    float4 value = float4(1,0,0,1);
-    pixels[tid.x + tid.y * imageWidth] = createEntry(toInt(value.x),
-                                                     toInt(value.y),
-                                                     toInt(value.z),
-                                                     toInt(value.w));
+//    float4 value = float4(1,0,0,1);
+//    pixels[tid.x + tid.y * imageWidth] = createEntry(toInt(value.x),
+//                                                     toInt(value.y),
+//                                                     toInt(value.z),
+//                                                     toInt(value.w));
+    pixels[tid.x + tid.y * imageWidth] = createEntry(0, 255, 0, 255);
 }

@@ -26,15 +26,16 @@ class EditorViewController: NSSplitViewController {
         
         splitView.dividerStyle = .paneSplitter
         minimumThicknessForInlineSidebars = 180
-        let itemA = NSSplitViewItem(contentListWithViewController: renderingController)
-        itemA.minimumThickness = 80
-        addSplitViewItem(itemA)
         
         guard let renderer = renderingController.renderingView.renderer else {
             addSplitViewItem(NSSplitViewItem(contentListWithViewController: TemplateController(color: .systemPink)))
             return
         }
         addSplitViewItem(NSSplitViewItem(contentListWithViewController: InputController(inputs: renderer.inputManager.inputs)))
+        
+        let itemA = NSSplitViewItem(contentListWithViewController: renderingController)
+        itemA.minimumThickness = 80
+        addSplitViewItem(itemA)
     }
     
 }

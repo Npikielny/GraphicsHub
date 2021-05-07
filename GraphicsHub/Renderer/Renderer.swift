@@ -14,7 +14,7 @@ protocol Renderer {
     var device: MTLDevice { get }
     // Holder for renderer's user inputs
     var renderSpecificInputs: [NSView]? { get }
-    var inputManager: Inputmanager { get set }
+    var inputManager: InputManager { get set }
     func synchronizeInputs()
     
     var size: CGSize { get set }
@@ -145,5 +145,55 @@ extension Renderer {
         copyEncoder?.setTexture(outputImage, index: 0)
         copyEncoder?.dispatchThreadgroups(getImageGroupSize(), threadsPerThreadgroup: MTLSize(width: 8, height: 8, depth: 1))
         copyEncoder?.endEncoding()
+    }
+    
+    func handleRecording(commandBuffer: MTLCommandBuffer, frame: inout Int) {
+        if inputManager.recording && recordable {
+            let desktopURL = FileManager.default.urls(for: .desktopDirectory, in: .userDomainMask).first!
+            saveImage(path: desktopURL, frame: frame, commandBuffer: commandBuffer)
+            frame += 1
+        }
+    }
+    
+    private func saveImage(path: URL, frame: Int, commandBuffer: MTLCommandBuffer) {
+        guard let recordPipeline = recordPipeline else { print("No record pipeline"); return }
+        let outputImage = outputImage!
+        let copyEncoder = commandBuffer.makeComputeCommandEncoder()
+        copyEncoder?.setComputePipelineState(recordPipeline)
+        let pixelBuffer = device.makeBuffer(length: MemoryLayout<RGBA32>.stride * outputImage.width * outputImage.height * 2, options: .storageModeManaged)
+        copyEncoder?.setBuffer(pixelBuffer, offset: 0, index: 0)
+        copyEncoder?.setBytes([Int32(outputImage.width * 2)], length: MemoryLayout<Int32>.stride, index: 1)
+        copyEncoder?.setTexture(outputImage, index: 0)
+        copyEncoder?.dispatchThreadgroups(getImageGroupSize(), threadsPerThreadgroup: MTLSize(width: 8, height: 8, depth: 1))
+        copyEncoder?.endEncoding()
+        
+        commandBuffer.addCompletedHandler { _ in
+            writeImage(path: path, frame: frame, pixelBuffer: pixelBuffer, imageSize: (outputImage.width, outputImage.height))
+        }
+    }
+    
+    private func writeImage(path: URL, frame: Int, pixelBuffer: MTLBuffer?, imageSize: (Int,Int)) {
+//        let byteCount = imageSize.0 * imageSize.1 * 2
+//        let context = CGContext(data: pixelBuffer?.contents().bindMemory(to: RGBA32.self, capacity: byteCount/2),
+//                                width: imageSize.0,
+//                                height: imageSize.1,
+//                                bitsPerComponent: 8,
+//                                bytesPerRow: Int(8*imageSize.0),
+//                                space: CGColorSpaceCreateDeviceRGB(),
+//                                bitmapInfo: RGBA32.bitmapInfo)
+//        let finalImage = NSImage(cgImage: (context?.makeImage()!)!, size: NSSize(width: imageSize.0, height: imageSize.1))
+//        try! finalImage.tiffRepresentation?.write(to: path.appendingPathComponent(name + " \(frame).tiff"))
+//        print("WRITING", path.appendingPathComponent(name + ".tiff"))
+        let width = imageSize.0
+        let height = imageSize.1
+        
+        let byteCount = Int(width*height*2)
+        let Output = (pixelBuffer!.contents().bindMemory(to: RGBA32.self, capacity: byteCount))
+        for i in 0..<byteCount {
+            Output[i] = RGBA32(red: 0, green: 0, blue: 0, alpha: 255)
+        }
+        let context2 = CGContext(data: Output, width: Int(width), height: Int(height), bitsPerComponent: 8, bytesPerRow: Int(8*width), space: CGColorSpaceCreateDeviceRGB(), bitmapInfo: RGBA32.bitmapInfo)
+        let finalImage = NSImage(cgImage: (context2?.makeImage()!)!, size: NSSize(width: width, height: height))
+        try! finalImage.tiffRepresentation?.write(to: path.appendingPathComponent(name + "-\(frame).tiff"))
     }
 }

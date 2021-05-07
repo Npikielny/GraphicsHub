@@ -7,14 +7,14 @@
 
 import Cocoa
 
-protocol Inputmanager {
-    var imageWidth: Double { get set }
-    var imageHeight: Double { get set }
+protocol InputManager {
+    var imageWidth: CGFloat { get set }
+    var imageHeight: CGFloat { get set }
     
     var recording: Bool { get set}
     
-    var renderWidth: Double? { get set }
-    var renderHeight: Double? { get set }
+    var renderWidth: CGFloat? { get set }
+    var renderHeight: CGFloat? { get set }
     
     var inputs: [NSView] { get set }
     var inputOffset: Int { get }
@@ -23,10 +23,12 @@ protocol Inputmanager {
     
     func keyDown(event: NSEvent)
     func mouseDown(event: NSEvent)
+    func mouseDragged(event: NSEvent)
     func mouseMoved(event: NSEvent)
+    func scrollWheel(event: NSEvent)
 }
 
-extension Inputmanager {
+extension InputManager {
     func size() -> CGSize {
         return CGSize(width: CGFloat(imageWidth), height: CGFloat(imageHeight))
     }
@@ -35,95 +37,91 @@ extension Inputmanager {
     }
 }
 
-class BasicInputManager: Inputmanager {
+class BasicInputManager: InputManager {
     
     var inputOffset: Int
-    var imageWidth: Double {
-        get { (inputs[0] as! SliderInput).output }
-        set { (inputs[0] as! SliderInput).setValue(value: newValue) }
+    var imageWidth: CGFloat {
+        get { (inputs[0] as! SizeInput).width }
+        set { (inputs[0] as! SizeInput).width = newValue }
     }
     
-    var imageHeight: Double {
-        get { (inputs[1] as! SliderInput).output }
-        set { (inputs[1] as! SliderInput).setValue(value: newValue) }
+    var imageHeight: CGFloat {
+        get { (inputs[0] as! SizeInput).height }
+        set { (inputs[0] as! SizeInput).height = newValue }
     }
     
     var recording: Bool {
-        get { (inputs[2] as! StateInput).output }
-        set { (inputs[2] as! StateInput).output = newValue }
+        get { (inputs[1] as! StateInput).output }
+        set { (inputs[1] as! StateInput).output = newValue }
     }
     
-    var renderWidth: Double?
+    var renderWidth: CGFloat?
     
-    var renderHeight: Double?
+    var renderHeight: CGFloat?
     
     var inputs = [NSView]()
     
     init(renderSpecificInputs: [NSView] = [], imageSize: CGSize?) {
-        inputs.append(SliderInput(name: "Image Width", minValue: 1, currentValue: Double(imageSize?.width ?? 512), maxValue: 2048))
-        inputs.append(SliderInput(name: "Image Height", minValue: 1, currentValue: Double(imageSize?.height ?? 512), maxValue: 2048))
+        inputs.append(SizeInput(name: "Image Size", prefix: "Image", minSize: CGSize(width: 1, height: 1), size: CGSize(width: 2048, height: 204812), maxSize: CGSize(width: 4096, height: 4096)))
         inputs.append(StateInput(name: "Recording"))
         inputOffset = inputs.count
         inputs.append(contentsOf: renderSpecificInputs)
     }
     
     func handlePerFrameChecks() {}
-    
     func keyDown(event: NSEvent) {}
-    
     func mouseDown(event: NSEvent) {}
-    
+    func mouseDragged(event: NSEvent) {}
     func mouseMoved(event: NSEvent) {}
+    func scrollWheel(event: NSEvent) {}
+    
 }
 
-class CappedInputManager: Inputmanager {
+class CappedInputManager: InputManager {
     
     var inputOffset: Int
     
-    private var imageWidthSlider: SliderInput { inputs[0] as! SliderInput }
-    var imageWidth: Double {
-        get { (inputs[0] as! SliderInput).output }
-        set { (inputs[0] as! SliderInput).setValue(value: newValue) }
+//    private var imageWidthSlider: SliderInput { inputs[0] as! SliderInput }
+    var imageWidth: CGFloat {
+        get { (inputs[0] as! SizeInput).width }
+        set { (inputs[0] as! SizeInput).width = newValue }
     }
     
-    private var imageHeightSlider: SliderInput { inputs[1] as! SliderInput }
-    var imageHeight: Double {
-        get { (inputs[1] as! SliderInput).output }
-        set { (inputs[1] as! SliderInput).setValue(value: newValue) }
+//    private var imageHeightSlider: SliderInput { (inputs[0] as! SizeInput). }
+    var imageHeight: CGFloat {
+        get { (inputs[0] as! SizeInput).height }
+        set { (inputs[0] as! SizeInput).height = newValue }
     }
     
+//    private var renderWidthSlider: SliderInput { inputs[3] as! SliderInput }
+    var renderWidth: CGFloat? {
+        get { (inputs[1] as! SizeInput).width }
+        set { (inputs[1] as! SizeInput).width = newValue! }
+    }
+    
+//    private var renderHeightSlider: SliderInput { inputs[4] as! SliderInput }
+    var renderHeight: CGFloat? {
+        get { (inputs[1] as! SizeInput).height }
+        set { (inputs[1] as! SizeInput).height = newValue! }
+    }
     var recording: Bool {
         get { (inputs[2] as! StateInput).output }
         set { (inputs[2] as! StateInput).output = newValue }
     }
-    
-    private var renderWidthSlider: SliderInput { inputs[3] as! SliderInput }
-    var renderWidth: Double? {
-        get { (inputs[3] as! SliderInput).output }
-        set { (inputs[3] as! SliderInput).setValue(value: newValue!) }
-    }
-    
-    private var renderHeightSlider: SliderInput { inputs[4] as! SliderInput }
-    var renderHeight: Double? {
-        get { (inputs[4] as! SliderInput).output }
-        set { (inputs[4] as! SliderInput).setValue(value: newValue!) }
-    }
-    
     var inputs = [NSView]()
     
     init(renderSpecificInputs: [NSView], imageSize: CGSize?) {
-        inputs.append(SliderInput(name: "Image Width", minValue: 1, currentValue: Double(imageSize?.width ?? 512), maxValue: 2048))
-        inputs.append(SliderInput(name: "Image Height", minValue: 1, currentValue: Double(imageSize?.height ?? 512), maxValue: 2048))
+        inputs.append(SizeInput(name: "Image Size", prefix: "Image", minSize: CGSize(width: 1, height: 1), size: CGSize(width: 2048, height: 2048), maxSize: CGSize(width: 4096, height: 4096)))
+        inputs.append(SizeInput(name: "Render Size", prefix: "Render", minSize: CGSize(width: 1, height: 1), size: CGSize(width: 512, height: 512), maxSize: CGSize(width: 4096, height: 4096)))
         inputs.append(StateInput(name: "Recording"))
-        inputs.append(SliderInput(name: "Render Width", minValue: 1, currentValue: Double(min(imageSize?.width ?? 512, 512)), maxValue: 2048))
-        inputs.append(SliderInput(name: "Render Height", minValue: 1, currentValue: Double(min(imageSize?.height ?? 512, 512)), maxValue: 2048))
         inputOffset = inputs.count
         inputs.append(contentsOf: renderSpecificInputs)
     }
     
     func handleImageSizeChanges() {
-        renderWidthSlider.setValue(value: min(imageWidth, renderWidth!))
-        renderHeightSlider.setValue(value: min(imageHeight, renderHeight!))
+        let renderSize = inputs[1] as! SizeInput
+        renderSize.width = min(imageWidth, renderWidth!)
+        renderSize.height = min(imageHeight, renderHeight!)
     }
     
     func handlePerFrameChecks() {
@@ -131,10 +129,10 @@ class CappedInputManager: Inputmanager {
     }
     
     func keyDown(event: NSEvent) {}
-    
     func mouseDown(event: NSEvent) {}
-    
+    func mouseDragged(event: NSEvent) {}
     func mouseMoved(event: NSEvent) {}
+    func scrollWheel(event: NSEvent) {}
 }
 
 extension CappedInputManager {

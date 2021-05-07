@@ -45,7 +45,7 @@ class ComplexRenderer: SinglyCappedRenderer {
                                    length: MemoryLayout<SIMD2<Int32>>.stride, index: 1)
             juliaEncoder?.setBytes([frame], length: MemoryLayout<Int32>.stride, index: 2)
             juliaEncoder?.setBytes([inputManager.origin.toVector()], length: MemoryLayout<SIMD2<Float>>.stride, index: 3)
-            juliaEncoder?.setBytes([inputManager.c.toVector()], length: MemoryLayout<SIMD2<Float>>.stride, index: 4)
+            juliaEncoder?.setBytes([inputManager.c.toInverseVector()], length: MemoryLayout<SIMD2<Float>>.stride, index: 4)
             juliaEncoder?.setBytes([inputManager.zoom], length: MemoryLayout<Float>.stride, index: 5)
             juliaEncoder?.setBytes([inputManager.scalingFactor], length: MemoryLayout<Float>.stride, index: 6)
             let colors = inputManager.colors
@@ -69,66 +69,88 @@ class ComplexInputManager: CappedInputManager {
     
     var c: CGPoint {
         get {
-            let cReal = getInput(0) as! SliderInput
-            let cImaginary = getInput(1) as! SliderInput
-            return CGPoint(x: CGFloat(cReal.output),y: CGFloat(cImaginary.output))
+            (getInput(0) as! PointInput).output
         }
         set {
-            (getInput(0) as! SliderInput).setValue(value: Double(newValue.x))
-            (getInput(1) as! SliderInput).setValue(value: Double(newValue.y))
+            let c = getInput(0) as! PointInput
+            c.x = newValue.x
+            c.y = newValue.y
         }
     }
     var zoom: Float {
         get {
-           Float((getInput(2) as! SliderInput).output)
+           Float((getInput(1) as! SliderInput).output)
         }
         set {
-            (getInput(2) as! SliderInput).setValue(value: Double(newValue))
+            (getInput(1) as! SliderInput).setValue(value: Double(newValue))
         }
     }
     var origin: CGPoint {
         get {
-            let originX = (getInput(3) as! SliderInput).output
-            let originY = (getInput(4) as! SliderInput).output
-            return CGPoint(x: CGFloat(originX), y: CGFloat(originY))
+            (getInput(2) as! PointInput).output
         }
         set {
-            (getInput(3) as! SliderInput).setValue(value: Double(newValue.x))
-            (getInput(4) as! SliderInput).setValue(value: Double(newValue.y))
+            let output = getInput(2) as! PointInput
+            output.x = newValue.x
+            output.y = newValue.y
         }
     }
     var scalingFactor: Float {
         get {
-            Float((getInput(5) as! SliderInput).output)
+            Float((getInput(3) as! SliderInput).output)
         }
         set {
-            (getInput(5) as! SliderInput).setValue(value: Double(scalingFactor))
+            (getInput(3) as! SliderInput).setValue(value: Double(newValue))
         }
     }
     var colors: [SIMD3<Float>] {
-        (getInput(6) as! ListInput<ColorInput>).output.map { $0.toVector() }
+        (getInput(4) as! ListInput<ColorInput>).output.map { $0.toVector() }
     }
     convenience init(size: CGSize) {
-        let cReal = SliderInput(name: "C Real", minValue: -2, currentValue: 0, maxValue: 2)
-        let cImaginary = SliderInput(name: "C Imaginary", minValue: -2, currentValue: 0, maxValue: 2)
+        let c = PointInput(name: "C", xName: "C Imaginary", yName: "C Real", origin: CGPoint(x: 0, y: 0), size: CGSize(width: 4, height: 4))
         let zoom = SliderInput(name: "Zoom", minValue: 1, currentValue: 20, maxValue: 10000)
-        let originX = SliderInput(name: "X", minValue: -10000, currentValue: 0, maxValue: 10000)
-        let originY = SliderInput(name: "Y", minValue: -10000, currentValue: 0, maxValue: 10000)
+        let origin = PointInput(name: "Origin", origin: CGPoint(x: 0, y: 0), size: CGSize(width: 1000000, height: 1000000))
         let scalingFactor = SliderInput(name: "Scaling Factor", minValue: 0.1, currentValue: 1, maxValue: 10)
         let colorList = ListInput<ColorInput>(name: "Colors", inputs: [
             ColorInput(name: "Color 1", defaultColor: NSColor(red: 1, green: 1, blue: 1, alpha: 1)),
             ColorInput(name: "Color 2", defaultColor: NSColor(red: 0, green: 0, blue: 0, alpha: 1)),
         ])
-        self.init(renderSpecificInputs: [cReal,
-                                         cImaginary,
+        self.init(renderSpecificInputs: [c,
                                          zoom,
-                                         originX,
-                                         originY,
+                                         origin,
                                          scalingFactor,
                                          colorList
         ], imageSize: size)
     }
-    
+    override func keyDown(event: NSEvent) {
+        if event.charactersIgnoringModifiers == " " {
+            if scrollType == .origin {
+                scrollType = .c
+            } else {
+                scrollType = .origin
+            }
+        }
+    }
+    override func mouseDragged(event: NSEvent) {
+        if scrollType == .c {
+            c = CGPoint(x: c.x - event.deltaX / CGFloat(zoom), y: c.y + event.deltaY / CGFloat(zoom))
+        } else {
+            origin = CGPoint(x: origin.x - event.deltaX / CGFloat(zoom), y: origin.y + event.deltaY / CGFloat(zoom))
+        }
+    }
+    override func scrollWheel(event: NSEvent) {
+        zoom += Float(event.scrollingDeltaX + event.scrollingDeltaY)
+    }
+    private var scrollType: ScrollType = .origin
+    enum ScrollType {
+        case origin
+        case c
+    }
+    private var setType: SetType = .juliaSet
+    enum SetType {
+        case mandelBrot
+        case juliaSet
+    }
 }
 
 
@@ -160,6 +182,9 @@ extension CGColor {
 
 extension CGPoint {
     func toVector() -> SIMD2<Float> {
-        return SIMD2<Float>(Float(self.x),Float(self.y))
+        return SIMD2<Float>(Float(x),Float(y))
+    }
+    func toInverseVector() -> SIMD2<Float> {
+        return SIMD2<Float>(Float(y),Float(x))
     }
 }

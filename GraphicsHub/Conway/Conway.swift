@@ -13,7 +13,7 @@ class ConwayRenderer: Renderer {
     
     var recordPipeline: MTLComputePipelineState!
     
-    var inputManager: Inputmanager
+    var inputManager: InputManager
     func synchronizeInputs() {
         if inputManager.size() != size {
             drawableSizeDidChange(size: inputManager.size())

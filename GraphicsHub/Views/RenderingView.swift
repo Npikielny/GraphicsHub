@@ -9,6 +9,8 @@ import MetalKit
 
 class RenderingView: MTKView {
     
+    override var acceptsFirstResponder: Bool { true }
+    
     let commandQueue: MTLCommandQueue
     let semaphore = DispatchSemaphore(value: 1)
     
@@ -18,7 +20,7 @@ class RenderingView: MTKView {
     
     var pixelBuffer: MTLBuffer?
     
-    var savingPath: String?
+    var savingPath: URL?
     var frameIndex: Int = 0
     
     init(size: CGSize) {
@@ -74,7 +76,7 @@ class RenderingView: MTKView {
         let colors: [NSColor] = [.red, .orange, .green]
         
         let value = percent * Double(colors.count - 1)
-        let minColor = Int(value)
+        let minColor = min(max(Int(value),0),1)
         let percentInRange = CGFloat(value - floor(value))
         strokeLayer.strokeColor = NSColor(red: colors[minColor].redComponent * percentInRange + colors[minColor + 1].redComponent * (1 - percentInRange),
                                           green: colors[minColor].greenComponent * percentInRange + colors[minColor + 1].greenComponent * (1 - percentInRange),
@@ -94,6 +96,21 @@ class RenderingView: MTKView {
         textLayer.contentsScale = 1
         textLayer.foregroundColor = .white
         frameLayer.addSublayer(textLayer)
+        
+        if let renderer = renderer as? CappedRenderer {
+            let frameText = CATextLayer()
+            frameText.font = NSFont.boldSystemFont(ofSize: 15)
+            frameText.fontSize = 10
+            frameText.alignmentMode = .center
+            frameText.frame = CGRect(x: 0, y: 0, width: 50, height: 50)
+            frameText.string = String(renderer.frame)
+            frameText.position = CGPoint(x: 25 + 10, y: 0)
+            frameText.contentsScale = 1
+            frameText.foregroundColor = .white
+            frameLayer.addSublayer(frameText)
+        }
+        
+        
         
         layer?.addSublayer(frameLayer)
     }
@@ -126,19 +143,27 @@ extension RenderingView: MTKViewDelegate {
         if let renderPassDescriptor = view.currentRenderPassDescriptor, let renderer = renderer {
             semaphore.wait()
             let commandBuffer = commandQueue.makeCommandBuffer()
-            commandBuffer?.addCompletedHandler { [self] _ in
-                // TODO: This may need to be converted to main thread–depending on how bool-inputs are implemented
-                if renderer.inputManager.recording && renderer.recordable {
-                    if let pixelBuffer = pixelBuffer {
-                        if let image = toImage(pixelBuffer: pixelBuffer, imageSize: SIMD2<Int>(renderer.outputImage.width, renderer.outputImage.height)) {
-                            handleWriting(image: image)
-                            frameIndex += 1
-                        }
-                    }
-                } else if !renderer.inputManager.recording {
-                    savingPath = nil
-                    frameIndex = 0
+            commandBuffer?.addCompletedHandler { [self] commandBuffer in
+//                // TODO: This may need to be converted to main thread–depending on how bool-inputs are implemented
+//                if renderer.inputManager.recording && renderer.recordable {
+//                    if let pixelBuffer = pixelBuffer {
+//                        DispatchQueue.main.async {
+//                            semaphore.wait()
+//                            if let image = toImage(pixelBuffer: pixelBuffer.contents(), imageSize: SIMD2<Int>(renderer.outputImage.width, renderer.outputImage.height)) {
+//                                handleWriting(image: image)
+//                            }
+//                            semaphore.signal()
+//                        }
+//                        frameIndex += 1
+//                    }
+//                } else if !renderer.inputManager.recording {
+//                    savingPath = nil
+//                    frameIndex = 0
+//                }
+                DispatchQueue.main.async {
+                    animateLayer(FPS: 1/(commandBuffer.gpuEndTime - commandBuffer.gpuStartTime))
                 }
+//                print("Max Potential FPS: ",1/(cp.gpuEndTime - cp.gpuStartTime))
                 self.semaphore.signal()
             }
             renderer.inputManager.handlePerFrameChecks()
@@ -146,14 +171,15 @@ extension RenderingView: MTKViewDelegate {
             if let commandBuffer = commandBuffer {
                 renderer.synchronizeInputs()
                 renderer.draw(commandBuffer: commandBuffer, view: self)
-                if renderer.inputManager.recording && renderer.recordable {
-                    if let pixelBuffer = pixelBuffer {
-                        renderer.copyToBuffer(commandBuffer: commandBuffer, pixelBuffer: pixelBuffer)
-                    } else {
-                        self.pixelBuffer = device?.makeBuffer(length: renderer.outputImage.width * renderer.outputImage.height * MemoryLayout<RGBA32>.stride, options: .storageModeManaged)
-                        renderer.copyToBuffer(commandBuffer: commandBuffer, pixelBuffer: pixelBuffer!)
-                    }
-                }
+                renderer.handleRecording(commandBuffer: commandBuffer, frame: &frameIndex)
+//                if renderer.inputManager.recording && renderer.recordable {
+//                    if let pixelBuffer = pixelBuffer {
+//                        renderer.copyToBuffer(commandBuffer: commandBuffer, pixelBuffer: pixelBuffer)
+//                    } else {
+//                        self.pixelBuffer = device?.makeBuffer(length: renderer.outputImage.width * renderer.outputImage.height * MemoryLayout<RGBA32>.stride, options: .storageModeManaged)
+//                        renderer.copyToBuffer(commandBuffer: commandBuffer, pixelBuffer: pixelBuffer!)
+//                    }
+//                }
             }
             
             let renderEncoder = commandBuffer?.makeRenderCommandEncoder(descriptor: renderPassDescriptor)!
@@ -172,50 +198,80 @@ extension RenderingView: MTKViewDelegate {
         }
     }
     
-    func toImage(pixelBuffer: MTLBuffer, imageSize: SIMD2<Int>) -> NSImage? {
-        let byteCount = imageSize.x * imageSize.y * 2
-        let output = (pixelBuffer.contents().bindMemory(to: RGBA32.self, capacity: byteCount))
-
-        let context = CGContext(data: output,
-                                width: imageSize.x,
-                                height: imageSize.y,
-                                bitsPerComponent: 8,
-                                bytesPerRow: Int(8 * imageSize.x),
-                                space: CGColorSpaceCreateDeviceRGB(),
-                                bitmapInfo: RGBA32.bitmapInfo)
-        let image = context!.makeImage()
-        let finalImage = NSImage(cgImage: image!, size: NSSize(width: CGFloat(imageSize.x), height: CGFloat(imageSize.y)))
+    func toImage(pixelBuffer: UnsafeMutableRawPointer, imageSize: SIMD2<Int>) -> NSImage? {
+        let byteCount = Int(imageSize.x * imageSize.y * 2)
+        let context = CGContext(data: pixelBuffer, width: imageSize.x, height: imageSize.y, bitsPerComponent: 8, bytesPerRow: Int(8*imageSize.x), space: CGColorSpaceCreateDeviceRGB(), bitmapInfo: RGBA32.bitmapInfo)
+        let finalImage = NSImage(cgImage: (context?.makeImage()!)!, size: NSSize(width: imageSize.x, height: imageSize.y))
+//        let byteCount = imageSize.x * imageSize.y * 2
+//        let output = (pixelBuffer.contents().bindMemory(to: RGBA32.self, capacity: byteCount))
+//
+//        let context = CGContext(data: output,
+//                                width: imageSize.x,
+//                                height: imageSize.y,
+//                                bitsPerComponent: 8,
+//                                bytesPerRow: Int(8 * imageSize.x),
+//                                space: CGColorSpaceCreateDeviceRGB(),
+//                                bitmapInfo: RGBA32.bitmapInfo)
+//        let image = context!.makeImage()
+//        let finalImage = NSImage(cgImage: image!, size: NSSize(width: CGFloat(imageSize.x), height: CGFloat(imageSize.y)))
         return finalImage
 //        return nil
     }
     
     func handleWriting(image: NSImage) {
+        if let _ = savingPath {} else {
+            createDirectory()
+        }
         do {
-            if let url = URL(string: (savingPath ?? (createDirectory() ?? ""))+"/\(frame).tiff") {
-                try image.tiffRepresentation?.write(to: url)
-            } else {
-                print("Failed saving \(frame)–couldn't make URL")
-            }
+            let url = savingPath!.appendingPathComponent(renderer!.name +  " \(frameIndex).tiff")
+            try image.tiffRepresentation?.write(to: url)
+//            } else {
+//                print(savingPath)
+//                print("Failed saving \(frameIndex)–couldn't make URL")
+//            }
         } catch {
-            print("Failed saving \(frame)", error)
+            print(savingPath)
+            print("Failed saving \(frameIndex)", error)
         }
     }
     
-    func createDirectory() -> String? {
-        let paths = NSSearchPathForDirectoriesInDomains(.desktopDirectory, .userDomainMask, true)
-        let desktopDirectory = paths[0]
-        let docURL = URL(string: desktopDirectory)!
-        let dataPath = docURL.appendingPathComponent((renderer?.name ?? "") + NSDate().description)
-        if !FileManager.default.fileExists(atPath: dataPath.path) {
-            do {
-                try FileManager.default.createDirectory(atPath: dataPath.path, withIntermediateDirectories: true, attributes: nil)
-                self.savingPath = desktopDirectory+"/"+dataPath.path
-                return self.savingPath!
-            } catch {
-                print(error.localizedDescription)
-            }
-        }
-        return nil
+    func createDirectory() -> URL? {
+        let desktopURL = FileManager.default.urls(for: .desktopDirectory, in: .userDomainMask).first!
+        savingPath = desktopURL
+        return desktopURL
+//        let paths = NSSearchPathForDirectoriesInDomains(.desktopDirectory, .userDomainMask, true)
+//        let desktopDirectory = paths[0]
+//        let docURL = URL(string: desktopDirectory)!
+//        let dataPath = docURL.appendingPathComponent((renderer?.name ?? ""))
+//        if !FileManager.default.fileExists(atPath: dataPath.path) {
+//            do {
+//                try FileManager.default.createDirectory(atPath: dataPath.path, withIntermediateDirectories: true, attributes: nil)
+//                self.savingPath = desktopDirectory+"/"+dataPath.path
+//                return self.savingPath!
+//            } catch {
+//                print(error.localizedDescription)
+//            }
+//        }
+//        self.savingPath = desktopDirectory+"/"+dataPath.path
+//        return self.savingPath
     }
     
+}
+
+extension RenderingView {
+    override func mouseDown(with event: NSEvent) {
+        renderer?.inputManager.mouseDown(event: event)
+    }
+    override func mouseDragged(with event: NSEvent) {
+        renderer?.inputManager.mouseDragged(event: event)
+    }
+    override func mouseMoved(with event: NSEvent) {
+        renderer?.inputManager.mouseMoved(event: event)
+    }
+    override func keyDown(with event: NSEvent) {
+        renderer?.inputManager.keyDown(event: event)
+    }
+    override func scrollWheel(with event: NSEvent) {
+        renderer?.inputManager.scrollWheel(event: event)
+    }
 }
