@@ -10,6 +10,7 @@ using namespace metal;
 #include "SharedDataTypes.h"
 
 // TODO: Add spiral shiftedTid
+// TODO: Add rotation
 uint2 shiftedTid(uint2 tid,
                  int2 imageSize,
                  int2 computeSize,

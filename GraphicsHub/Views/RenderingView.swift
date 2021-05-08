@@ -138,7 +138,7 @@ extension RenderingView: MTKViewDelegate {
         guard let renderer = renderer else { return }
         renderer.drawableSizeDidChange(size: size)
     }
-    
+    // TODO: DONT DRAW UNLESS NECESSARY!
     func draw(in view: MTKView) {
         if let renderPassDescriptor = view.currentRenderPassDescriptor, let renderer = renderer {
             semaphore.wait()

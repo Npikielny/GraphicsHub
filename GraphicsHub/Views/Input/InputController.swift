@@ -23,12 +23,12 @@ class InputController: NSViewController {
         fatalError("init(coder:) has not been implemented")
     }
     
-    
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do view setup here.
         var last = view.topAnchor
         inputs.forEach {
+//            let resetButton = NSButton(title: "Reset", target: self, action: #selector($0))
             view.addSubview($0)
             $0.topAnchor.constraint(equalTo: last, constant: padding).isActive = true
             last = $0.bottomAnchor
@@ -37,5 +37,14 @@ class InputController: NSViewController {
         }
         inputs.last?.bottomAnchor.constraint(lessThanOrEqualTo: view.bottomAnchor, constant: -padding).isActive = true
     }
+    
+}
+
+class InputContainer: NSView {
+    
+    lazy var resetButton = NSButton(title: "Reset", target: self, action: #selector(reset))
+    @objc func reset() {}
+    lazy var addKeyFrameButton = NSButton(title: "+", target: self, action: #selector(addKeyFrame))
+    @objc func addKeyFrame() {}
     
 }

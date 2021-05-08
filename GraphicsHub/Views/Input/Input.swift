@@ -30,7 +30,7 @@ protocol Animateable {
     associatedtype OutputType
     func lerpSet(a: OutputType, b: OutputType, p: Double)
 }
-// Sliders
+// MARK: Sliders
 class SliderInput: NSView, Animateable, Containable, Input {
     var name: String
     
@@ -61,8 +61,6 @@ class SliderInput: NSView, Animateable, Containable, Input {
         let tv = NSTextView()
         tv.backgroundColor = .clear
         tv.delegate = self
-//        tv.isEditable = false
-//        tv.isSelectable = false
         return tv
     }()
     private var titleLabel: NSTextView = {
@@ -164,9 +162,9 @@ extension SliderInput: NSTextViewDelegate {
         }
     }
 }
-// Text Input
+// TODO: Text Input
 
-// Color
+// MARK: Color
 class ColorInput: NSView, Input, Animateable, Containable {
     var name: String
     
@@ -284,7 +282,7 @@ class ColorInput: NSView, Input, Animateable, Containable {
     
 }
 
-// TODO: 2D Inputs
+// MARK: Dimensional Inputs
 internal class DimensionalInput<T>: NSView, Input {
     
     var output: T {
@@ -353,20 +351,26 @@ internal class DimensionalInput<T>: NSView, Input {
     
     func setupViews() {
         displayView.wantsLayer = true
-        displayView.layer?.borderWidth = 1
+        displayView.layer?.borderWidth = 2
         displayView.layer?.borderColor = .black
         [xSlider, ySlider, displayView].forEach {
             addSubview($0)
             $0.translatesAutoresizingMaskIntoConstraints = false
-            $0.leadingAnchor.constraint(equalTo: leadingAnchor).isActive = true
-            $0.trailingAnchor.constraint(equalTo: trailingAnchor).isActive = true
+            if let _ = $0 as? SliderInput {
+                $0.leadingAnchor.constraint(equalTo: leadingAnchor).isActive = true
+                $0.trailingAnchor.constraint(equalTo: trailingAnchor).isActive = true
+            }
         }
         NSLayoutConstraint.activate([
             xSlider.topAnchor.constraint(equalTo: topAnchor),
             ySlider.topAnchor.constraint(equalTo: xSlider.bottomAnchor),
             displayView.topAnchor.constraint(equalTo: ySlider.bottomAnchor),
             displayView.bottomAnchor.constraint(equalTo: bottomAnchor),
-            displayView.heightAnchor.constraint(lessThanOrEqualToConstant: 100)
+            displayView.widthAnchor.constraint(equalTo: displayView.heightAnchor, multiplier: CGFloat((xSlider.maxValue - xSlider.minValue)/(ySlider.maxValue - ySlider.minValue))),
+            displayView.centerXAnchor.constraint(equalTo: centerXAnchor),
+            displayView.heightAnchor.constraint(greaterThanOrEqualToConstant: 50),
+            displayView.heightAnchor.constraint(lessThanOrEqualToConstant: 100),
+            displayView.widthAnchor.constraint(lessThanOrEqualTo: widthAnchor, multiplier: 1)
         ])
     }
     
@@ -384,8 +388,8 @@ internal class DimensionalInput<T>: NSView, Input {
         draw()
     }
     func setSliders(event: NSEvent) {
-        xSlider.setValue(percent: Double((event.locationInWindow.x - frame.minX)/(displayView.bounds.size.width)))
-        ySlider.setValue(percent: Double((event.locationInWindow.y - frame.minY)/(displayView.bounds.size.height)))
+        xSlider.setValue(percent: Double((event.locationInWindow.x - frame.minX - displayView.frame.minX)/(displayView.bounds.size.width)))
+        ySlider.setValue(percent: Double((event.locationInWindow.y - frame.minY - displayView.frame.minY)/(displayView.bounds.size.height)))
     }
     var indicator = CAShapeLayer()
     private func draw() {
@@ -398,7 +402,6 @@ internal class DimensionalInput<T>: NSView, Input {
         displayView.layer?.addSublayer(indicator)
     }
 }
-
 
 class PointInput: DimensionalInput<CGPoint>, Animateable {
     override var output: CGPoint {
@@ -468,46 +471,9 @@ class SizeInput: DimensionalInput<CGSize>, Animateable {
         fatalError("init(coder:) has not been implemented")
     }
     
-//    override func draw(_ dirtyRect: NSRect) {
-//        let blackColor = NSColor(red: 0.0, green: 0.0, blue: 0.0, alpha: 1.0)
-//        blackColor.set()
-////        let fillPath = CGMutablePath()
-////        let centerPoint = CGPoint(x: 25 + 10, y: 25 + 10)
-////        fillPath.addArc(center: centerPoint, radius: 25, startAngle: 0 + CGFloat.pi/2, endAngle: CGFloat.pi * 2 + CGFloat.pi/2, clockwise: false)
-//        let lastPressed = toCGCoords(size: lastPressed)
-//        let circlePath = NSBezierPath(ovalIn: NSRect(x: lastPressed.x, y: lastPressed.y, width: 50, height: 50))
-//        circlePath.lineWidth = 4
-//        circlePath.stroke()
-////
-////        var bPath: NSBezierPath = NSBezierPath(rect:dirtyRect)
-////        bPath.move(to: NSMakePoint(20, 20))
-////        bPath.line(to: NSMakePoint(dirtyRect.size.width - 20, 20))
-////        bPath.lineWidth = 10.0
-////        bPath.stroke()
-////
-////
-////        bPath = NSBezierPath(rect:dirtyRect)
-////        let lineDash:[CGFloat] = [20.0,5.0,5.0]
-////        bPath.move(to: NSMakePoint(20, 75))
-////        bPath.line(to: NSMakePoint(dirtyRect.size.width - 20, 75))
-////        bPath.lineWidth = 10.0
-////        bPath.setLineDash(lineDash, count: 3, phase: 0.0)
-////        bPath.stroke()
-////
-////
-////        bPath = NSBezierPath(rect:dirtyRect)
-////        bPath.move(to: NSMakePoint(20, 125))
-////        bPath.curve(to: NSMakePoint(dirtyRect.size.width - 20, 125), controlPoint1: NSMakePoint(100, 200), controlPoint2: NSMakePoint(150, 200))
-////        bPath.lineWidth = 4.0
-////        bPath.stroke()
-//    }
 }
 
-//class Color2D: DimensionalInput<SIMD3<Float>> {
-//
-//}
-
-// TODO: Y / N BUTTON
+// State Input
 class StateInput: NSView, Input, Containable {
     
     typealias OutputType = Bool
@@ -584,9 +550,12 @@ class StateInput: NSView, Input, Containable {
         hidingConstraint = stateButton.heightAnchor.constraint(equalToConstant: 0)
     }
 }
+
 // Switch
 // TODO: Switch
+
 // TODO: Increment
+
 // Lists
 class ListInput<inputType: Input & Containable>: NSView, Input {
     var name: String
