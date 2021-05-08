@@ -37,6 +37,8 @@
 		30CC8732263B482D0002B0B8 /* SharedDataTypes.metal in Sources */ = {isa = PBXBuildFile; fileRef = 30CC8731263B482D0002B0B8 /* SharedDataTypes.metal */; };
 		30CC8734263B492C0002B0B8 /* TesterCappedRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30CC8733263B492C0002B0B8 /* TesterCappedRenderer.swift */; };
 		30D52282263FA08500DA75F6 /* TextureOutput.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30D52281263FA08500DA75F6 /* TextureOutput.swift */; };
+		30E26260264648CE00311F44 /* SlimeMoldRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30E2625F264648CD00311F44 /* SlimeMoldRenderer.swift */; };
+		30E262622646494200311F44 /* SlimeMoldRendering.metal in Sources */ = {isa = PBXBuildFile; fileRef = 30E262612646494200311F44 /* SlimeMoldRendering.metal */; };
 		30FCB999263BA82200910FED /* Conway.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30FCB998263BA82200910FED /* Conway.swift */; };
 		30FCB99B263BA94B00910FED /* ConwayRendering.metal in Sources */ = {isa = PBXBuildFile; fileRef = 30FCB99A263BA94B00910FED /* ConwayRendering.metal */; };
 /* End PBXBuildFile section */
@@ -97,6 +99,8 @@
 		30CC8731263B482D0002B0B8 /* SharedDataTypes.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = SharedDataTypes.metal; sourceTree = "<group>"; };
 		30CC8733263B492C0002B0B8 /* TesterCappedRenderer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TesterCappedRenderer.swift; sourceTree = "<group>"; };
 		30D52281263FA08500DA75F6 /* TextureOutput.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextureOutput.swift; sourceTree = "<group>"; };
+		30E2625F264648CD00311F44 /* SlimeMoldRenderer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SlimeMoldRenderer.swift; sourceTree = "<group>"; };
+		30E262612646494200311F44 /* SlimeMoldRendering.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = SlimeMoldRendering.metal; sourceTree = "<group>"; };
 		30FCB998263BA82200910FED /* Conway.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Conway.swift; sourceTree = "<group>"; };
 		30FCB99A263BA94B00910FED /* ConwayRendering.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = ConwayRendering.metal; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -175,6 +179,7 @@
 				30AEDA27263A247D007ED421 /* Tester */,
 				30FCB99C263BA95F00910FED /* Conway */,
 				309B4019263BC40800300BBE /* ComplexRenderer */,
+				30E2625E2646487300311F44 /* SlimeMold */,
 				30AED9F7263A1F16007ED421 /* Assets.xcassets */,
 				30AED9F9263A1F16007ED421 /* MainMenu.xib */,
 				30AED9FC263A1F16007ED421 /* Info.plist */,
@@ -241,6 +246,15 @@
 				309B401C263BCE0E00300BBE /* Input */,
 			);
 			path = Views;
+			sourceTree = "<group>";
+		};
+		30E2625E2646487300311F44 /* SlimeMold */ = {
+			isa = PBXGroup;
+			children = (
+				30E2625F264648CD00311F44 /* SlimeMoldRenderer.swift */,
+				30E262612646494200311F44 /* SlimeMoldRendering.metal */,
+			);
+			path = SlimeMold;
 			sourceTree = "<group>";
 		};
 		30FCB99C263BA95F00910FED /* Conway */ = {
@@ -393,6 +407,7 @@
 				30AEDA26263A2314007ED421 /* Renderer.swift in Sources */,
 				30AEDA2D263A27B7007ED421 /* RenderPipeline.metal in Sources */,
 				30AEDA36263A54A2007ED421 /* LaunchPad.swift in Sources */,
+				30E26260264648CE00311F44 /* SlimeMoldRenderer.swift in Sources */,
 				30FCB999263BA82200910FED /* Conway.swift in Sources */,
 				30AEDA29263A248C007ED421 /* TesterBaseRenderer.swift in Sources */,
 				30AEDA2B263A261F007ED421 /* TesterRendering.metal in Sources */,
@@ -408,6 +423,7 @@
 				309B401B263BC4AE00300BBE /* ComplexRendering.metal in Sources */,
 				309B401E263BCE1600300BBE /* Input.swift in Sources */,
 				30AEDA24263A1F99007ED421 /* RenderingView.swift in Sources */,
+				30E262622646494200311F44 /* SlimeMoldRendering.metal in Sources */,
 				30CC8732263B482D0002B0B8 /* SharedDataTypes.metal in Sources */,
 				3028F1AA263C9529006922F0 /* TemplateController.swift in Sources */,
 			);

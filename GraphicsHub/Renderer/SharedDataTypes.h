@@ -36,4 +36,6 @@ float2 lerp(float2 a, float2 b, float p);
 float3 lerp(float3 a, float3 b, float p);
 
 float4 lerp(float4 a, float4 b, float p);
+
+float hash(uint seed);
 #endif /* SharedDataTypes_h */

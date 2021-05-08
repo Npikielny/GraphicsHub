@@ -94,10 +94,10 @@ class ConwayRenderer: Renderer {
         self.inputManager = BasicInputManager(imageSize: size)
         let functions = createFunctions(names: "conwayCalculate", "conwayDraw", "conwayCopy")
         do {
-            self.cellPipeline = try device.makeComputePipelineState(function: functions[0]!)
-            self.drawPipeline = try device.makeComputePipelineState(function: functions[1]!)
-            self.copyPipeline = try device.makeComputePipelineState(function: functions[2]!)
-            self.recordPipeline = try getRecordPipeline()
+            cellPipeline = try device.makeComputePipelineState(function: functions[0]!)
+            drawPipeline = try device.makeComputePipelineState(function: functions[1]!)
+            copyPipeline = try device.makeComputePipelineState(function: functions[2]!)
+            recordPipeline = try getRecordPipeline()
         } catch {
             print(error)
             fatalError()

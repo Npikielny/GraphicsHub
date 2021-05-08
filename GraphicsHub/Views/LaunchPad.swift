@@ -52,7 +52,7 @@ class LaunchPad: NSViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        setupBackgroundView()
+//        setupBackgroundView()
         
         [titleLabel, graphicsOption].forEach {
             $0.translatesAutoresizingMaskIntoConstraints = false

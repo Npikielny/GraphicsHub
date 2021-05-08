@@ -45,3 +45,12 @@ float4 lerp(float4 a, float4 b, float p) {
     return (b - a) * p + a;
 }
 
+float hash(uint seed) {
+    seed ^= 2747636419u;
+    seed *= 2654435769u;
+    seed ^= seed >> 16;
+    seed *= 2654435769u;
+    seed ^= seed >> 16;
+    seed *= 2654435769u;
+    return float(seed)/4294967295.0;
+}
