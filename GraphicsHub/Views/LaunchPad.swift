@@ -12,7 +12,9 @@ class LaunchPad: NSViewController {
     var options: [(String, Renderer.Type)] = [("Tester",TesterBaseRenderer.self),
                                               ("Tester Capped Renderer",TesterCappedRenderer.self),
                                               ("Conway's Game of Life",ConwayRenderer.self),
-                                              ("Complex Image Generator",ComplexRenderer.self)]
+                                              ("Complex Image Generator",ComplexRenderer.self),
+                                              ("Testing Inputs", TestInputRenderer.self)
+    ]
     
     lazy var graphicsOption: NSCollectionView = {
         let cv = NSCollectionView(frame: .zero)
@@ -108,6 +110,8 @@ extension LaunchPad: NSCollectionViewDelegate {
             let editor = EditorViewController(controller: controller)
             
             let window = NSWindow(contentViewController: editor)
+            let screenSize = NSScreen.main?.frame
+            window.setFrame(screenSize ?? NSRect(x: 0, y: 0, width: 1000, height: 600), display: true, animate: false)
             window.title = rendererOptions.0
             window.styleMask = [window.styleMask, .fullSizeContentView]
             window.titlebarAppearsTransparent = true

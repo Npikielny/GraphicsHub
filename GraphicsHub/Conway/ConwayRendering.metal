@@ -14,8 +14,8 @@ int toIndex(int2 tid, int2 imageSize) {
 
 kernel void conwayCalculate(uint2 tid [[thread_position_in_grid]],
                             constant int2 & cellCount [[buffer(0)]],
-                            device int * cells [[buffer(1)]],
-                            constant int * oldCells [[buffer(2)]]) {
+                            constant int * oldCells [[buffer(1)]],
+                            device int * cells [[buffer(2)]]) {
     device int & cell = cells[toIndex(int2(tid), cellCount)];
     int count = 0;
     for (int x = -1; x < 2; x ++) {
@@ -41,53 +41,27 @@ kernel void conwayCalculate(uint2 tid [[thread_position_in_grid]],
             cell = 0;
         }
     }
-    
-//    device int & cell = cells[tid];
-//    int count = 0;
-//    for (int x = -1; x <= 1; x ++) {
-//        for (int y = -1; y <= 1; y ++) {
-//            if (!(x == 0 && y == 0)) {
-////                int2 neighbor = int2(tid) + int2(x,y);
-//                int2 neighbor = int2(tid) + int2(x,y);
-//                if (neighbor.x >= 0 && neighbor.x < cellCount.x &&
-//                    neighbor.y >= 0 && neighbor.y < cellCount.y) {
-//                    if (oldCells[toIndex(neighbor, cellCount)] > 0) {
-//                        count += 1;
-//                    }
-//                }
-//            }
-//        }
-//    }
-//    if (count < 2 || count > 3) {
-//        cell = 0;
-//    } else {
-//        cell = (cell == 0) ? 1 : 2;
-//    }
-//    cell = 2;
-//    if (oldCells[tid] == 0) {
-//        cell = 1;
-//    }else if (oldCells[tid] == 1) {
-//        cell = 2;
-//    } else {
-//        cell = 0;
-//    }
 }
 
 kernel void conwayDraw(uint2 tid [[thread_position_in_grid]],
                        constant int2 & imageSize[[buffer(0)]],
                        constant int2 & cellCount[[buffer(1)]],
                        constant int * cells [[buffer(2)]],
+                       constant float3 * colors [[buffer(3)]],
                        texture2d<float, access::read_write>Image) {
     float2 conversion = float2(cellCount) / float2(imageSize);
     int index = toIndex(int2(conversion * float2(tid)), cellCount);
     if (index < cellCount.x * cellCount.y) {
         int value = cells[index];
         if (value == 0) {
-            Image.write(float4(float3(0),1), tid);
+            Image.write(float4(0,0,0,1), tid);
+//            Image.write(float4(colors[0],1), tid);
         } else if (value == 1) {
             Image.write(float4(1,0,0,1), tid);
+//            Image.write(float4(colors[1],1), tid);
         } else {
             Image.write(float4(1), tid);
+//            Image.write(float4(colors[2],1), tid);
         }
     } else {
         Image.write(float4(float3(0),1), tid);

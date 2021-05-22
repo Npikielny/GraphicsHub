@@ -7,7 +7,9 @@
 
 import MetalKit
 
-class SlimeMoldRenderer: Renderer {
+class SlimeMoldRenderer: SimpleRenderer {
+    var url: URL?
+    
     var name: String = "Slime Mold Simulation"
     
     var device: MTLDevice

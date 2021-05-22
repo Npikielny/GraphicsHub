@@ -30,6 +30,28 @@ extension CappedRenderer {
     func getCappedGroupSize() -> MTLSize {
         return MTLSize(width: (Int(maxRenderSize.width) + 7)/8 , height: (Int(maxRenderSize.height) + 7)/8, depth: 1)
     }
+    func getDirectory(frameIndex: Int) throws -> URL {
+        if let url = url {
+            return url
+        } else {
+            let paths = NSSearchPathForDirectoriesInDomains(.desktopDirectory, .userDomainMask, true)
+            let desktopDirectory = paths[0]
+            let docURL = URL(string: desktopDirectory)!
+            let dataPath = docURL.appendingPathComponent("\(name)-\(frameIndex)")
+            if !FileManager.default.fileExists(atPath: dataPath.path) {
+                do {
+                    try FileManager.default.createDirectory(atPath: dataPath.path, withIntermediateDirectories: true, attributes: nil)
+                    return dataPath
+                } catch {
+                    print(error.localizedDescription)
+                    throw error
+                }
+            }
+            print(dataPath)
+            // TODO: FIX THIS
+            return dataPath
+        }
+    }
 }
 
 class SinglyCappedRenderer: CappedRenderer {
@@ -39,6 +61,8 @@ class SinglyCappedRenderer: CappedRenderer {
     var recordPipeline: MTLComputePipelineState!
     
     var inputManager: InputManager
+    
+    var url: URL?
     
     func synchronizeInputs() {
         if inputManager.size() != size {
@@ -122,5 +146,32 @@ class DoublyCappedenderer: SinglyCappedRenderer {
             self.images[i] = createTexture(size: size)!
         }
         frame = 0
+    }
+}
+
+protocol SimpleRenderer: Renderer {}
+
+extension SimpleRenderer {
+    func getDirectory(frameIndex: Int) throws -> URL {
+        if let url = url {
+            return url
+        } else {
+            let paths = NSSearchPathForDirectoriesInDomains(.desktopDirectory, .userDomainMask, true)
+            let desktopDirectory = paths[0]
+            let docURL = URL(string: desktopDirectory)!
+            let dataPath = docURL.appendingPathComponent("\(name)-\(frameIndex)")
+            if !FileManager.default.fileExists(atPath: dataPath.path) {
+                do {
+                    try FileManager.default.createDirectory(atPath: dataPath.path, withIntermediateDirectories: true, attributes: nil)
+                    return dataPath
+                } catch {
+                    print(error.localizedDescription)
+                    throw error
+                }
+            }
+            // TODO: Implement Error
+//            fatalError()
+            return dataPath
+        }
     }
 }

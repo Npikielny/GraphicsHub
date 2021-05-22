@@ -7,6 +7,13 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		3023A02926543AC30062D011 /* ImageController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3023A02726543AC30062D011 /* ImageController.swift */; };
+		3023A02A26543AC30062D011 /* ImageController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 3023A02826543AC30062D011 /* ImageController.xib */; };
+		3024E44F2655A0E600DD195D /* ColorInput.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3024E44E2655A0E600DD195D /* ColorInput.swift */; };
+		3024E4512655A11900DD195D /* DimensionalInput.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3024E4502655A11900DD195D /* DimensionalInput.swift */; };
+		3024E4532655A14200DD195D /* StateInput.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3024E4522655A14200DD195D /* StateInput.swift */; };
+		3024E4552655A15D00DD195D /* ListInput.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3024E4542655A15D00DD195D /* ListInput.swift */; };
+		3024E4672655A4BE00DD195D /* SliderInput.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3024E4662655A4BE00DD195D /* SliderInput.swift */; };
 		3028F1A6263C93E0006922F0 /* EditorViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3028F1A4263C93E0006922F0 /* EditorViewController.swift */; };
 		3028F1A7263C93E0006922F0 /* EditorViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 3028F1A5263C93E0006922F0 /* EditorViewController.xib */; };
 		3028F1AA263C9529006922F0 /* TemplateController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3028F1A8263C9529006922F0 /* TemplateController.swift */; };
@@ -33,6 +40,7 @@
 		30AEDA37263A54A2007ED421 /* LaunchPad.xib in Resources */ = {isa = PBXBuildFile; fileRef = 30AEDA35263A54A2007ED421 /* LaunchPad.xib */; };
 		30AEDA3B263A5B5B007ED421 /* RenderingOption.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30AEDA39263A5B5B007ED421 /* RenderingOption.swift */; };
 		30AEDA3C263A5B5B007ED421 /* RenderingOption.xib in Resources */ = {isa = PBXBuildFile; fileRef = 30AEDA3A263A5B5B007ED421 /* RenderingOption.xib */; };
+		30BADFBB2656EB1C006719F7 /* TestInputRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30BADFBA2656EB1B006719F7 /* TestInputRenderer.swift */; };
 		30CC8730263B43650002B0B8 /* CappedRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30CC872F263B43650002B0B8 /* CappedRenderer.swift */; };
 		30CC8732263B482D0002B0B8 /* SharedDataTypes.metal in Sources */ = {isa = PBXBuildFile; fileRef = 30CC8731263B482D0002B0B8 /* SharedDataTypes.metal */; };
 		30CC8734263B492C0002B0B8 /* TesterCappedRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30CC8733263B492C0002B0B8 /* TesterCappedRenderer.swift */; };
@@ -61,6 +69,13 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		3023A02726543AC30062D011 /* ImageController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageController.swift; sourceTree = "<group>"; };
+		3023A02826543AC30062D011 /* ImageController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ImageController.xib; sourceTree = "<group>"; };
+		3024E44E2655A0E600DD195D /* ColorInput.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorInput.swift; sourceTree = "<group>"; };
+		3024E4502655A11900DD195D /* DimensionalInput.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DimensionalInput.swift; sourceTree = "<group>"; };
+		3024E4522655A14200DD195D /* StateInput.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StateInput.swift; sourceTree = "<group>"; };
+		3024E4542655A15D00DD195D /* ListInput.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListInput.swift; sourceTree = "<group>"; };
+		3024E4662655A4BE00DD195D /* SliderInput.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SliderInput.swift; sourceTree = "<group>"; };
 		3028F1A4263C93E0006922F0 /* EditorViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditorViewController.swift; sourceTree = "<group>"; };
 		3028F1A5263C93E0006922F0 /* EditorViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = EditorViewController.xib; sourceTree = "<group>"; };
 		3028F1A8263C9529006922F0 /* TemplateController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TemplateController.swift; sourceTree = "<group>"; };
@@ -95,6 +110,7 @@
 		30AEDA35263A54A2007ED421 /* LaunchPad.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = LaunchPad.xib; sourceTree = "<group>"; };
 		30AEDA39263A5B5B007ED421 /* RenderingOption.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RenderingOption.swift; sourceTree = "<group>"; };
 		30AEDA3A263A5B5B007ED421 /* RenderingOption.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = RenderingOption.xib; sourceTree = "<group>"; };
+		30BADFBA2656EB1B006719F7 /* TestInputRenderer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestInputRenderer.swift; sourceTree = "<group>"; };
 		30CC872F263B43650002B0B8 /* CappedRenderer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CappedRenderer.swift; sourceTree = "<group>"; };
 		30CC8731263B482D0002B0B8 /* SharedDataTypes.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = SharedDataTypes.metal; sourceTree = "<group>"; };
 		30CC8733263B492C0002B0B8 /* TesterCappedRenderer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TesterCappedRenderer.swift; sourceTree = "<group>"; };
@@ -130,6 +146,46 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		3024E4472655A05200DD195D /* SliderInput */ = {
+			isa = PBXGroup;
+			children = (
+				3024E4662655A4BE00DD195D /* SliderInput.swift */,
+			);
+			path = SliderInput;
+			sourceTree = "<group>";
+		};
+		3024E4482655A05C00DD195D /* ColorInput */ = {
+			isa = PBXGroup;
+			children = (
+				3024E44E2655A0E600DD195D /* ColorInput.swift */,
+			);
+			path = ColorInput;
+			sourceTree = "<group>";
+		};
+		3024E4492655A08B00DD195D /* DimensionalInput */ = {
+			isa = PBXGroup;
+			children = (
+				3024E4502655A11900DD195D /* DimensionalInput.swift */,
+			);
+			path = DimensionalInput;
+			sourceTree = "<group>";
+		};
+		3024E44A2655A0A000DD195D /* StateInput */ = {
+			isa = PBXGroup;
+			children = (
+				3024E4522655A14200DD195D /* StateInput.swift */,
+			);
+			path = StateInput;
+			sourceTree = "<group>";
+		};
+		3024E44B2655A0B000DD195D /* ListInput */ = {
+			isa = PBXGroup;
+			children = (
+				3024E4542655A15D00DD195D /* ListInput.swift */,
+			);
+			path = ListInput;
+			sourceTree = "<group>";
+		};
 		309B4019263BC40800300BBE /* ComplexRenderer */ = {
 			isa = PBXGroup;
 			children = (
@@ -143,6 +199,11 @@
 			isa = PBXGroup;
 			children = (
 				309B401D263BCE1600300BBE /* Input.swift */,
+				3024E44B2655A0B000DD195D /* ListInput */,
+				3024E44A2655A0A000DD195D /* StateInput */,
+				3024E4492655A08B00DD195D /* DimensionalInput */,
+				3024E4482655A05C00DD195D /* ColorInput */,
+				3024E4472655A05200DD195D /* SliderInput */,
 				309B401F263BDDBE00300BBE /* InputController.swift */,
 				309B4020263BDDBE00300BBE /* InputController.xib */,
 				3092B3212641DB5700902BB6 /* InputManager.swift */,
@@ -176,7 +237,7 @@
 				30AED9F5263A1F15007ED421 /* AppDelegate.swift */,
 				30AEDA38263A54B9007ED421 /* Views */,
 				30AEDA33263A2BC3007ED421 /* Renderer */,
-				30AEDA27263A247D007ED421 /* Tester */,
+				30AEDA27263A247D007ED421 /* Tests */,
 				30FCB99C263BA95F00910FED /* Conway */,
 				309B4019263BC40800300BBE /* ComplexRenderer */,
 				30E2625E2646487300311F44 /* SlimeMold */,
@@ -206,14 +267,17 @@
 			path = GraphicsHubUITests;
 			sourceTree = "<group>";
 		};
-		30AEDA27263A247D007ED421 /* Tester */ = {
+		30AEDA27263A247D007ED421 /* Tests */ = {
 			isa = PBXGroup;
 			children = (
 				30AEDA28263A248C007ED421 /* TesterBaseRenderer.swift */,
 				30CC8733263B492C0002B0B8 /* TesterCappedRenderer.swift */,
 				30AEDA2A263A261F007ED421 /* TesterRendering.metal */,
+				3023A02726543AC30062D011 /* ImageController.swift */,
+				3023A02826543AC30062D011 /* ImageController.xib */,
+				30BADFBA2656EB1B006719F7 /* TestInputRenderer.swift */,
 			);
-			path = Tester;
+			path = Tests;
 			sourceTree = "<group>";
 		};
 		30AEDA33263A2BC3007ED421 /* Renderer */ = {
@@ -376,6 +440,7 @@
 				30AEDA3C263A5B5B007ED421 /* RenderingOption.xib in Resources */,
 				30AEDA37263A54A2007ED421 /* LaunchPad.xib in Resources */,
 				309B4022263BDDBE00300BBE /* InputController.xib in Resources */,
+				3023A02A26543AC30062D011 /* ImageController.xib in Resources */,
 				30AEDA22263A1F2E007ED421 /* MainController.xib in Resources */,
 				3028F1AB263C9529006922F0 /* TemplateController.xib in Resources */,
 			);
@@ -403,24 +468,31 @@
 			buildActionMask = 2147483647;
 			files = (
 				3092B3222641DB5700902BB6 /* InputManager.swift in Sources */,
+				3024E4512655A11900DD195D /* DimensionalInput.swift in Sources */,
 				30D52282263FA08500DA75F6 /* TextureOutput.swift in Sources */,
+				3024E44F2655A0E600DD195D /* ColorInput.swift in Sources */,
 				30AEDA26263A2314007ED421 /* Renderer.swift in Sources */,
 				30AEDA2D263A27B7007ED421 /* RenderPipeline.metal in Sources */,
 				30AEDA36263A54A2007ED421 /* LaunchPad.swift in Sources */,
 				30E26260264648CE00311F44 /* SlimeMoldRenderer.swift in Sources */,
+				3024E4532655A14200DD195D /* StateInput.swift in Sources */,
 				30FCB999263BA82200910FED /* Conway.swift in Sources */,
 				30AEDA29263A248C007ED421 /* TesterBaseRenderer.swift in Sources */,
 				30AEDA2B263A261F007ED421 /* TesterRendering.metal in Sources */,
 				309B4021263BDDBE00300BBE /* InputController.swift in Sources */,
 				30CC8730263B43650002B0B8 /* CappedRenderer.swift in Sources */,
+				30BADFBB2656EB1C006719F7 /* TestInputRenderer.swift in Sources */,
 				3028F1A6263C93E0006922F0 /* EditorViewController.swift in Sources */,
 				30FCB99B263BA94B00910FED /* ConwayRendering.metal in Sources */,
 				30AEDA21263A1F2E007ED421 /* MainController.swift in Sources */,
+				3024E4672655A4BE00DD195D /* SliderInput.swift in Sources */,
+				3024E4552655A15D00DD195D /* ListInput.swift in Sources */,
 				30AEDA3B263A5B5B007ED421 /* RenderingOption.swift in Sources */,
 				30CC8734263B492C0002B0B8 /* TesterCappedRenderer.swift in Sources */,
 				309B4018263BC40000300BBE /* ComplexRenderer.swift in Sources */,
 				30AED9F6263A1F15007ED421 /* AppDelegate.swift in Sources */,
 				309B401B263BC4AE00300BBE /* ComplexRendering.metal in Sources */,
+				3023A02926543AC30062D011 /* ImageController.swift in Sources */,
 				309B401E263BCE1600300BBE /* Input.swift in Sources */,
 				30AEDA24263A1F99007ED421 /* RenderingView.swift in Sources */,
 				30E262622646494200311F44 /* SlimeMoldRendering.metal in Sources */,

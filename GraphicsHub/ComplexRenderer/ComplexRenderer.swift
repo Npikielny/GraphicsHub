@@ -104,16 +104,16 @@ class ComplexInputManager: CappedInputManager {
         }
     }
     var colors: [SIMD3<Float>] {
-        (getInput(4) as! ListInput<ColorInput>).output.map { $0.toVector() }
+        (getInput(4) as! ListInput<ColorPickerInput>).output.map { $0.toVector() }
     }
     convenience init(size: CGSize) {
         let c = PointInput(name: "C", xName: "C Imaginary", yName: "C Real", origin: CGPoint(x: 0, y: 0), size: CGSize(width: 4, height: 4))
         let zoom = SliderInput(name: "Zoom", minValue: 1, currentValue: 20, maxValue: 10000)
         let origin = PointInput(name: "Origin", origin: CGPoint(x: 0, y: 0), size: CGSize(width: 1000000, height: 1000000))
         let scalingFactor = SliderInput(name: "Scaling Factor", minValue: 0.1, currentValue: 1, maxValue: 10)
-        let colorList = ListInput<ColorInput>(name: "Colors", inputs: [
-            ColorInput(name: "Color 1", defaultColor: NSColor(red: 1, green: 1, blue: 1, alpha: 1)),
-            ColorInput(name: "Color 2", defaultColor: NSColor(red: 0, green: 0, blue: 0, alpha: 1)),
+        let colorList = ListInput<ColorPickerInput>(name: "Colors", inputs: [
+            ColorPickerInput(name: "Color 1", defaultColor: NSColor(red: 1, green: 1, blue: 1, alpha: 1)),
+            ColorPickerInput(name: "Color 2", defaultColor: NSColor(red: 0, green: 0, blue: 0, alpha: 1)),
         ])
         self.init(renderSpecificInputs: [c,
                                          zoom,
@@ -150,41 +150,5 @@ class ComplexInputManager: CappedInputManager {
     enum SetType {
         case mandelBrot
         case juliaSet
-    }
-}
-
-
-extension NSColor {
-    convenience init(color: SIMD3<Float>) {
-        self.init(red: CGFloat(color.x),
-                  green: CGFloat(color.y),
-                  blue: CGFloat(color.z),
-                  alpha: 1)
-    }
-    func toVector() -> SIMD3<Float> {
-        return SIMD3<Float>(Float(redComponent),
-                            Float(greenComponent),
-                            Float(blueComponent))
-    }
-}
-
-extension CGColor {
-    func toVector() -> SIMD3<Float> {
-        if numberOfComponents >= 3 {
-            guard let components = components else {
-                return SIMD3<Float>(1,1,1)
-            }
-            return SIMD3<Float>(Float(components[0]),Float(components[1]),Float(components[2]))
-        }
-        return SIMD3<Float>(1,1,1)
-    }
-}
-
-extension CGPoint {
-    func toVector() -> SIMD2<Float> {
-        return SIMD2<Float>(Float(x),Float(y))
-    }
-    func toInverseVector() -> SIMD2<Float> {
-        return SIMD2<Float>(Float(y),Float(x))
     }
 }

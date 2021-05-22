@@ -15,7 +15,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
     func applicationDidFinishLaunching(_ aNotification: Notification) {
         // Insert code here to initialize your application
-//        let controller = MainController(nibName: "MainController", bundle: nil)
         let controller = LaunchPad(nibName: "LaunchPad", bundle: nil)
         window.contentViewController = controller
         window.styleMask = [window.styleMask, .fullSizeContentView]

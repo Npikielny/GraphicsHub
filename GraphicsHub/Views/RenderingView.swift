@@ -167,11 +167,11 @@ extension RenderingView: MTKViewDelegate {
                 self.semaphore.signal()
             }
             renderer.inputManager.handlePerFrameChecks()
-            
             if let commandBuffer = commandBuffer {
                 renderer.synchronizeInputs()
                 renderer.draw(commandBuffer: commandBuffer, view: self)
-                renderer.handleRecording(commandBuffer: commandBuffer, frame: &frameIndex)
+                self.renderer!.handleRecording(commandBuffer: commandBuffer, frameIndex: &frameIndex)
+//                self.renderer!.handleRecording(commandBuffer: commandBuffer, frameIndex: &frameIndex)
 //                if renderer.inputManager.recording && renderer.recordable {
 //                    if let pixelBuffer = pixelBuffer {
 //                        renderer.copyToBuffer(commandBuffer: commandBuffer, pixelBuffer: pixelBuffer)
@@ -181,6 +181,9 @@ extension RenderingView: MTKViewDelegate {
 //                    }
 //                }
             }
+            
+//            renderer.handleRecording(frameIndex: &frameIndex, commandBuffer: commandBuffer)
+            
             
             let renderEncoder = commandBuffer?.makeRenderCommandEncoder(descriptor: renderPassDescriptor)!
             if let pipeline = renderer.renderPipelineState {
@@ -194,7 +197,7 @@ extension RenderingView: MTKViewDelegate {
             
             commandBuffer?.present(view.currentDrawable!)
             commandBuffer?.commit()
-            
+            commandBuffer?.waitUntilCompleted()
         }
     }
     

@@ -7,7 +7,8 @@
 
 import MetalKit
 
-class ConwayRenderer: Renderer {
+class ConwayRenderer: SimpleRenderer {
+    var url: URL?
     
     var name: String = "Conway's Game of Life"
     
@@ -36,32 +37,33 @@ class ConwayRenderer: Renderer {
         self.size = size
         // TODO: Cell Count
         self.outputImage = createTexture(size: size)
-        self.oldCellBuffer = device.makeBuffer(length: MemoryLayout<Int32>.stride * Int(cellCount.x * cellCount.y), options: .storageModeManaged)
-        self.cellBuffer = device.makeBuffer(length: MemoryLayout<Int32>.stride * Int(cellCount.x * cellCount.y), options: .storageModeManaged)
+        let cellSize = Int(cellCount.x * cellCount.y)
+        
+        cellBuffers = []
         
         var values = [Int32]()
-        for _ in 0..<Int(cellCount.x * cellCount.y) {
+        for _ in 0..<Int(cellSize) {
             values.append(Int32.random(in: -10...1))
         }
-        
-        memcpy(oldCellBuffer!.contents(), values, MemoryLayout<Int32>.stride * Int(cellCount.x * cellCount.y))
-        oldCellBuffer!.didModifyRange(0..<oldCellBuffer!.length)
+        cellBuffers.append(device.makeBuffer(bytes: values, length: MemoryLayout<Int32>.stride * values.count, options: .storageModeManaged)!)
+        cellBuffers.append(device.makeBuffer(length: MemoryLayout<Int32>.stride * cellSize, options: .storageModeManaged)!)
     }
     
     var cellCount: SIMD2<Int32>
-    var oldCellBuffer: MTLBuffer?
-    var cellBuffer: MTLBuffer?
+//    var oldCellBuffer: MTLBuffer?
+//    var cellBuffer: MTLBuffer?
+    var cellBuffers = [MTLBuffer]()
     var cellPipeline: MTLComputePipelineState!
     var drawPipeline: MTLComputePipelineState!
     var copyPipeline: MTLComputePipelineState!
     
     func draw(commandBuffer: MTLCommandBuffer, view: MTKView) {
-        if let buffer = cellBuffer, let oldBuffer = oldCellBuffer {
+        if cellBuffers.count == 2 {
             let cellEncoder = commandBuffer.makeComputeCommandEncoder()
             cellEncoder?.setComputePipelineState(cellPipeline)
             cellEncoder?.setBytes([cellCount], length: MemoryLayout<SIMD2<Int32>>.stride, index: 0)
-            cellEncoder?.setBuffer(buffer, offset: 0, index: 1)
-            cellEncoder?.setBuffer(oldBuffer, offset: 0, index: 2)
+            cellEncoder?.setBuffer(cellBuffers[0], offset: 0, index: 1)
+            cellEncoder?.setBuffer(cellBuffers[1], offset: 0, index: 2)
             cellEncoder?.dispatchThreadgroups(getThreadGroupSize(size: cellCount, ThreadSize: MTLSize(width: 8, height: 8, depth: 1)), threadsPerThreadgroup: MTLSize(width: 8, height: 8, depth: 1))
             cellEncoder?.endEncoding()
             
@@ -70,18 +72,14 @@ class ConwayRenderer: Renderer {
             drawEncoder?.setBytes([SIMD2<Int32>(Int32(size.width), Int32(size.height))],
                                   length: MemoryLayout<SIMD2<Int32>>.stride, index: 0)
             drawEncoder?.setBytes([cellCount], length: MemoryLayout<SIMD2<Int32>>.stride, index: 1)
-            drawEncoder?.setBuffer(buffer, offset: 0, index: 2)
+            drawEncoder?.setBuffer(cellBuffers[1], offset: 0, index: 2)
             drawEncoder?.setTexture(outputImage, index: 0)
+            
+            let colors = (inputManager as! ConwayInputManager).colors
+            drawEncoder?.setBytes([colors], length: MemoryLayout<SIMD3<Float>>.stride * colors.count, index: 3)
             drawEncoder?.dispatchThreadgroups(getImageGroupSize(), threadsPerThreadgroup: MTLSize(width: 8, height: 8, depth: 1))
             drawEncoder?.endEncoding()
-            
-            let copyEncoder = commandBuffer.makeComputeCommandEncoder()
-            copyEncoder?.setComputePipelineState(copyPipeline)
-            copyEncoder?.setBytes([cellCount], length: MemoryLayout<SIMD2<Int32>>.stride, index: 0)
-            copyEncoder?.setBuffer(buffer, offset: 0, index: 1)
-            copyEncoder?.setBuffer(oldBuffer, offset: 0, index: 2)
-            copyEncoder?.dispatchThreadgroups(getThreadGroupSize(size: cellCount, ThreadSize: MTLSize(width: 1, height: 1, depth: 1)), threadsPerThreadgroup: MTLSize(width: 1, height: 1, depth: 1))
-            copyEncoder?.endEncoding()
+            cellBuffers.swapAt(0, 1)
         }
     }
     
@@ -91,7 +89,7 @@ class ConwayRenderer: Renderer {
         self.device = device
         self.size = size
         self.cellCount = SIMD2<Int32>(512,512)
-        self.inputManager = BasicInputManager(imageSize: size)
+        self.inputManager = ConwayInputManager(imageSize: size)
         let functions = createFunctions(names: "conwayCalculate", "conwayDraw", "conwayCopy")
         do {
             cellPipeline = try device.makeComputePipelineState(function: functions[0]!)
@@ -108,6 +106,26 @@ class ConwayRenderer: Renderer {
         case Dead = 0
         case Alive = 1
         case Old = 2
+    }
+    
+}
+
+class ConwayInputManager: BasicInputManager {
+    var colors: [SIMD3<Float>] {
+        (getInput(1) as! ListInput<ColorPickerInput>).output.map { $0.toVector() }
+    }
+    override init(renderSpecificInputs: [NSView] = [], imageSize: CGSize?) {
+        var inputs = renderSpecificInputs
+        let colorTester = ColorInput(name: "Test", defaultColor: SIMD4<Float>(1,1,0,1))
+        inputs.insert(colorTester, at: 0)
+        let colorList = ListInput<ColorPickerInput>(name: "Colors", inputs: [
+            ColorPickerInput(name: "Background", defaultColor: NSColor(red: 0, green: 0, blue: 0, alpha: 1)),
+            ColorPickerInput(name: "New Cell", defaultColor: NSColor(red: 1, green: 0, blue: 0, alpha: 1)),
+            ColorPickerInput(name: "Old Cell", defaultColor: NSColor(red: 1, green: 1, blue: 1, alpha: 1))
+        
+        ])
+        inputs.insert(colorList, at: 1)
+        super.init(renderSpecificInputs: inputs, imageSize: imageSize)
     }
     
 }

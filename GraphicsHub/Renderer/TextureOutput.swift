@@ -23,6 +23,8 @@ struct RGBA32 {
         return lhs.color == rhs.color
     }
     
+    static let size = MemoryLayout<RGBA32>.stride
+    
     var redComponent: UInt8 {
         return UInt8((color >> 24) & 255)
     }
@@ -40,7 +42,7 @@ struct RGBA32 {
     }
     
     var colorComponents: (UInt8,UInt8,UInt8,UInt8) {
-        return (self.redComponent,self.greenComponent,self.blueComponent,self.alphaComponent)
+        return (redComponent,greenComponent,blueComponent,alphaComponent)
     }
     
 }

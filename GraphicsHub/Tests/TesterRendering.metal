@@ -28,16 +28,16 @@ int requiredFrames(int2 imageSize,
     return shift.x * shift.y;
 }
 
-kernel void testerSinglyCapped(uint2 tid [[thread_position_in_grid]],
-                               constant int &frame                        [[buffer(0)]],
-                               constant int2 &imageSize                   [[buffer(1)]],
-                               constant int2 &computeSize                 [[buffer(2)]],
+kernel void testerSinglyCapped(uint2    tid                               [[thread_position_in_grid]],
+                               constant int  & frame                      [[buffer(0)]],
+                               constant int2 & imageSize                  [[buffer(1)]],
+                               constant int2 & computeSize                [[buffer(2)]],
+                               constant int  & seed                       [[buffer(3)]],
                                texture2d<float, access::read_write>image [[texture(0)]]) {
     tid = shiftedTid(tid, imageSize, computeSize, frame);
     
     
     float2 percents = float2(tid) / float2(imageSize);
-    int seed = frame / requiredFrames(imageSize, computeSize);
     float3 zeroColor = randomColor(seed);
     float3 xColor = lerp(zeroColor, randomColor(seed * 3 + 1), percents.x);
     float3 yColor = lerp(zeroColor, randomColor(seed * 7), percents.y);

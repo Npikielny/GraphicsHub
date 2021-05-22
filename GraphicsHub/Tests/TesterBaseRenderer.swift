@@ -7,7 +7,10 @@
 
 import MetalKit
 
-class TesterBaseRenderer: Renderer {
+class TesterBaseRenderer: SimpleRenderer {
+    
+    var url: URL?
+    
     var name: String = "TesterBaseRenderer"
     
     var recordPipeline: MTLComputePipelineState!
@@ -20,7 +23,6 @@ class TesterBaseRenderer: Renderer {
     }
     var recordable: Bool = true
     
-    
     var renderPipelineState: MTLRenderPipelineState?
     
     var device: MTLDevice
@@ -29,24 +31,6 @@ class TesterBaseRenderer: Renderer {
     var size: CGSize
     var outputImage: MTLTexture!
     var resizeable: Bool = true
-    
-    required init(View: RenderingView, size: CGSize) {
-        self.inputManager = BasicInputManager(imageSize: size)
-        self.device = View.device!
-        self.size = size
-        do {
-            let library = device.makeDefaultLibrary()!
-            if let vertexFunction = getDefaultVertexFunction(library: library), let fragmentFunction = library.makeFunction(name: "testerFragment") {
-                self.renderPipelineState = try createRenderPipelineState(vertexFunction: vertexFunction, fragmentFunction: fragmentFunction)
-            }
-        } catch {
-            print(error)
-        }
-        guard let texture = createTexture(size: size) else {
-            fatalError("Failed to create texture")
-        }
-        self.outputImage = texture
-    }
     
     required init(device: MTLDevice, size: CGSize) {
         self.inputManager = BasicInputManager(imageSize: size)

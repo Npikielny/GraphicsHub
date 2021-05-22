@@ -21,6 +21,10 @@ vertex CopyVertexOut copyVertex(unsigned short vid [[vertex_id]]) {
     return out;
 }
 
+struct Pixel {
+    uint32_t color;
+};
+
 // Simple fragment shader which copies a texture and applies a simple tonemapping function
 fragment float4 copyFragment(CopyVertexOut in [[stage_in]],
                              texture2d<float> tex)
@@ -47,15 +51,70 @@ uint8_t toInt(float value) {
     return int(value * 255);
 }
 
+uint32_t createEntry(float4 color) {
+    return createEntry(toInt(color.x),
+                       toInt(color.y),
+                       toInt(color.z),
+                       toInt(color.w));
+}
+
+uint8_t redComponent (uint32_t color) {
+    return ((color >> 24) & 255);
+}
+
+uint8_t greenComponent (uint32_t color) {
+    return ((color >> 16) & 255);
+}
+
+uint8_t blueComponent (uint32_t color) {
+    return ((color >> 8) & 255);
+}
+
+uint8_t alphaComponent(uint32_t color) {
+    return ((color >> 0) & 255);
+}
+//
+//kernel void encodeImage(uint2 tid [[thread_position_in_grid]],
+//                    device Pixel * pixels [[buffer(0)]],
+//                    constant int & imageWidth [[buffer(1)]],
+//                    texture2d<float, access::read_write>Image) {
+//    float4 value = Image.read(uint2(tid.x,tid.y));
+////    float4 value = float4(1,0,0,1);
+////    pixels[tid.x + tid.y * imageWidth] = createEntry(toInt(value.x),
+////                                                     toInt(value.y),
+////                                                     toInt(value.z),
+////                                                     toInt(value.w));
+////    pixels[tid.x + tid.y * imageWidth].color = createEntry(value);
+//    pixels[tid.x + tid.y * imageWidth].color = createEntry(0, 0, 0, 255);
+////    device Pixel & pixel = pixels[tid.x + tid.y * imageWidth];
+////    Image.write(float4(float(redComponent(pixel.color))/255.0f,
+////                       float(greenComponent(pixel.color))/255.0f,
+////                       float(blueComponent(pixel.color))/255.0f,
+////                       float(alphaComponent(pixel.color))/255.0f), uint2(tid.x, tid.y));
+//}
+
+
 kernel void encodeImage(uint2 tid [[thread_position_in_grid]],
-                    device uint32_t * pixels [[buffer(0)]],
+                    device Pixel * pixels [[buffer(0)]],
                     constant int & imageWidth [[buffer(1)]],
                     texture2d<float, access::read_write>Image) {
-//    float4 value = Image.read(tid);
+    float4 value = Image.read(uint2(tid.x,tid.y));
 //    float4 value = float4(1,0,0,1);
 //    pixels[tid.x + tid.y * imageWidth] = createEntry(toInt(value.x),
 //                                                     toInt(value.y),
 //                                                     toInt(value.z),
 //                                                     toInt(value.w));
-    pixels[tid.x + tid.y * imageWidth] = createEntry(0, 255, 0, 255);
+//    pixels[tid.x + tid.y * imageWidth].color = createEntry(value);
+    pixels[tid.x + tid.y * imageWidth].color = createEntry(255, 0, 0, 255);
+    uint32_t color = pixels[tid.x + tid.y * imageWidth].color;
+    Image.write(float4(redComponent(color)/255.0,
+                       greenComponent(color)/255.0,
+                       blueComponent(color)/255.0,
+                       alphaComponent(color)/255.0),
+                tid);
+//    device Pixel & pixel = pixels[tid.x + tid.y * imageWidth];
+//    Image.write(float4(float(redComponent(pixel.color))/255.0f,
+//                       float(greenComponent(pixel.color))/255.0f,
+//                       float(blueComponent(pixel.color))/255.0f,
+//                       float(alphaComponent(pixel.color))/255.0f), uint2(tid.x, tid.y));
 }
