@@ -71,13 +71,18 @@ class ColorPickerInput: NSView, Input, Animateable, Containable {
         return cp
     }()
 
-    convenience init(name: String, defaultColor: NSColor) {
-        self.init(name: name)
+     init(name: String, defaultColor: NSColor) {
+        titleLabel.string = name
+        self.name = name
+        super.init(frame: .zero)
+        
         self.defaultColor = defaultColor
-        _ = self.didChange
-        colorView.layer?.backgroundColor = defaultColor.cgColor
+        
+        reset()
+        
+        setupViews()
     }
-
+    
     required init(name: String) {
         titleLabel.string = name
         self.name = name
@@ -85,6 +90,10 @@ class ColorPickerInput: NSView, Input, Animateable, Containable {
 
         reset()
 
+        setupViews()
+    }
+
+    fileprivate func setupViews() {
         translatesAutoresizingMaskIntoConstraints = false
         [titleLabel, colorView].forEach { view in
             addSubview(view)
@@ -98,21 +107,21 @@ class ColorPickerInput: NSView, Input, Animateable, Containable {
         NSLayoutConstraint.activate([
             titleLabel.leadingAnchor.constraint(equalTo: leadingAnchor),
             titleLabel.widthAnchor.constraint(equalToConstant: 150),
-
+            
             setColorButton.centerYAnchor.constraint(equalTo: centerYAnchor),
             setColorButton.trailingAnchor.constraint(equalTo: trailingAnchor),
-
+            
             colorView.leadingAnchor.constraint(equalTo: titleLabel.trailingAnchor, constant: 5),
             colorView.trailingAnchor.constraint(equalTo: setColorButton.leadingAnchor, constant: -5),
-
+            
             heightAnchorConstraint
         ])
-
+        
         output = defaultColor
         colorView.layer?.backgroundColor = defaultColor.cgColor
         colorPicker.color = defaultColor
     }
-
+    
     @objc func setColor() {
         colorPicker.makeKeyAndOrderFront(self)
     }

@@ -19,6 +19,12 @@ class ConwayRenderer: SimpleRenderer {
         if inputManager.size() != size {
             drawableSizeDidChange(size: inputManager.size())
         }
+        if let inputManager = inputManager as? ConwayInputManager {
+            if inputManager.colorsDidChange {
+                memcpy(colorBuffer.contents(), inputManager.colors, colorBuffer.length)
+                colorBuffer.didModifyRange(0..<colorBuffer.length)
+            }
+        }
     }
     
     var device: MTLDevice
@@ -50,12 +56,13 @@ class ConwayRenderer: SimpleRenderer {
     }
     
     var cellCount: SIMD2<Int32>
-//    var oldCellBuffer: MTLBuffer?
-//    var cellBuffer: MTLBuffer?
     var cellBuffers = [MTLBuffer]()
+    var colorBuffer: MTLBuffer!
+    
     var cellPipeline: MTLComputePipelineState!
     var drawPipeline: MTLComputePipelineState!
     var copyPipeline: MTLComputePipelineState!
+    
     
     func draw(commandBuffer: MTLCommandBuffer, view: MTKView) {
         if cellBuffers.count == 2 {
@@ -73,10 +80,11 @@ class ConwayRenderer: SimpleRenderer {
                                   length: MemoryLayout<SIMD2<Int32>>.stride, index: 0)
             drawEncoder?.setBytes([cellCount], length: MemoryLayout<SIMD2<Int32>>.stride, index: 1)
             drawEncoder?.setBuffer(cellBuffers[1], offset: 0, index: 2)
+            
+            drawEncoder?.setBuffer(colorBuffer, offset: 0, index: 3)
+            
             drawEncoder?.setTexture(outputImage, index: 0)
             
-            let colors = (inputManager as! ConwayInputManager).colors
-            drawEncoder?.setBytes([colors], length: MemoryLayout<SIMD3<Float>>.stride * colors.count, index: 3)
             drawEncoder?.dispatchThreadgroups(getImageGroupSize(), threadsPerThreadgroup: MTLSize(width: 8, height: 8, depth: 1))
             drawEncoder?.endEncoding()
             cellBuffers.swapAt(0, 1)
@@ -88,7 +96,7 @@ class ConwayRenderer: SimpleRenderer {
     required init(device: MTLDevice, size: CGSize) {
         self.device = device
         self.size = size
-        self.cellCount = SIMD2<Int32>(512,512)
+        self.cellCount = SIMD2<Int32>(256,256) // TODO: Cell Count Resizing
         self.inputManager = ConwayInputManager(imageSize: size)
         let functions = createFunctions(names: "conwayCalculate", "conwayDraw", "conwayCopy")
         do {
@@ -100,6 +108,7 @@ class ConwayRenderer: SimpleRenderer {
             print(error)
             fatalError()
         }
+        colorBuffer = device.makeBuffer(length: MemoryLayout<SIMD3<Float>>.stride * 4, options: .storageModeManaged)
     }
     
     enum State: Int32 {
@@ -114,6 +123,7 @@ class ConwayInputManager: BasicInputManager {
     var colors: [SIMD3<Float>] {
         (getInput(1) as! ListInput<ColorPickerInput>).output.map { $0.toVector() }
     }
+    var colorsDidChange: Bool { (getInput(1) as! ListInput<ColorPickerInput>).didChange }
     override init(renderSpecificInputs: [NSView] = [], imageSize: CGSize?) {
         var inputs = renderSpecificInputs
         let colorTester = ColorInput(name: "Test", defaultColor: SIMD4<Float>(1,1,0,1))
@@ -121,8 +131,8 @@ class ConwayInputManager: BasicInputManager {
         let colorList = ListInput<ColorPickerInput>(name: "Colors", inputs: [
             ColorPickerInput(name: "Background", defaultColor: NSColor(red: 0, green: 0, blue: 0, alpha: 1)),
             ColorPickerInput(name: "New Cell", defaultColor: NSColor(red: 1, green: 0, blue: 0, alpha: 1)),
-            ColorPickerInput(name: "Old Cell", defaultColor: NSColor(red: 1, green: 1, blue: 1, alpha: 1))
-        
+            ColorPickerInput(name: "Old Cell", defaultColor: NSColor(red: 0, green: 0, blue: 1, alpha: 1)),
+            ColorPickerInput(name: "Outline", defaultColor: NSColor(red: 1, green: 1, blue: 1, alpha: 1))
         ])
         inputs.insert(colorList, at: 1)
         super.init(renderSpecificInputs: inputs, imageSize: imageSize)

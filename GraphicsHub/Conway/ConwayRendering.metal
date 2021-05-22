@@ -54,17 +54,21 @@ kernel void conwayDraw(uint2 tid [[thread_position_in_grid]],
     if (index < cellCount.x * cellCount.y) {
         int value = cells[index];
         if (value == 0) {
-            Image.write(float4(0,0,0,1), tid);
-//            Image.write(float4(colors[0],1), tid);
-        } else if (value == 1) {
-            Image.write(float4(1,0,0,1), tid);
-//            Image.write(float4(colors[1],1), tid);
+            Image.write(float4(colors[0],1), tid);
         } else {
-            Image.write(float4(1), tid);
-//            Image.write(float4(colors[2],1), tid);
+            if (value == 1) {
+                Image.write(float4(colors[1],1), tid);
+            } else {
+                Image.write(float4(colors[2],1), tid);
+            }
+            float2 remainder = conversion * float2(tid) - float2(int2(conversion * float2(tid))) - 0.5;
+            if (max(abs(remainder.x),abs(remainder.y)) > 0.45) {
+                Image.write(float4(colors[3],1), tid);
+            }
+                
         }
     } else {
-        Image.write(float4(float3(0),1), tid);
+        Image.write(float4(colors[0],1), tid);
     }
 }
 
