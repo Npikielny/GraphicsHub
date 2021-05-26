@@ -7,10 +7,6 @@
 
 import Cocoa
 
-enum AnimationType {
-    case sinusoidal
-    case linear
-}
 protocol Containable {
     init(name: String)
 }
@@ -28,8 +24,24 @@ protocol Input: InputShell {
     var transform: ((OutputType) -> OutputType)? { get }
 }
 protocol Animateable {
-    associatedtype OutputType
+//    func getPlots() -> [[Int: Double]]
+}
+protocol AnimateableInput: Input, Animateable {
     func lerpSet(a: OutputType, b: OutputType, p: Double)
+    var keyFrames: [Int: OutputType] { get set }
+}
+
+extension Animateable {}
+
+extension AnimateableInput {
+    
+    mutating func addKeyFame(index: Int) {
+        keyFrames[index] = output
+    }
+    
+    func addAnimationButtons(rightAnchor: NSLayoutXAxisAnchor) {
+        
+    }
 }
 // TODO: Text Input
 
@@ -45,10 +57,10 @@ extension NSColor {
                   blue: CGFloat(color.z),
                   alpha: CGFloat(color.w))
     }
-    convenience init(color: SIMD3<Float>) {
-        self.init(red: CGFloat(color.x),
-                  green: CGFloat(color.y),
-                  blue: CGFloat(color.z),
+    convenience init(vector: SIMD3<Float>) {
+        self.init(red: CGFloat(vector.x),
+                  green: CGFloat(vector.y),
+                  blue: CGFloat(vector.z),
                   alpha: 1)
     }
     func toVector() -> SIMD4<Float> {

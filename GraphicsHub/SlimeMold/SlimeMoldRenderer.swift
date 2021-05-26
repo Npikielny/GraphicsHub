@@ -8,6 +8,7 @@
 import MetalKit
 
 class SlimeMoldRenderer: SimpleRenderer {
+    
     var url: URL?
     
     var name: String = "Slime Mold Simulation"
@@ -39,14 +40,17 @@ class SlimeMoldRenderer: SimpleRenderer {
     
     var moldBuffer: MTLBuffer!
     
+    var frameStable: Bool { false }
+    var frame: Int = 0
+    
     func drawableSizeDidChange(size: CGSize) {
         self.size = size
         outputImage = createTexture(size: size)
-        
+        frame = 0
     }
     
     func draw(commandBuffer: MTLCommandBuffer, view: MTKView) {
-        
+        frame += 1
     }
     
     var renderPipelineState: MTLRenderPipelineState?

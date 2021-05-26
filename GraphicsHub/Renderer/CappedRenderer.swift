@@ -100,6 +100,7 @@ class SinglyCappedRenderer: CappedRenderer {
     var resizeable: Bool { false }
     
     var frame: Int = 0
+    var frameStable: Bool { false }
     
     func drawableSizeDidChange(size: CGSize) {
         self.size = size
@@ -108,7 +109,9 @@ class SinglyCappedRenderer: CappedRenderer {
         frame = 0
     }
     
-    func draw(commandBuffer: MTLCommandBuffer, view: MTKView) {}
+    func draw(commandBuffer: MTLCommandBuffer, view: MTKView) {
+        frame += 1
+    }
     
     var renderPipelineState: MTLRenderPipelineState?
     

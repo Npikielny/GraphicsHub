@@ -31,13 +31,13 @@ fragment float4 copyFragment(CopyVertexOut in [[stage_in]],
 {
     constexpr sampler sam(min_filter::nearest, mag_filter::nearest, mip_filter::none);
     
-    float3 color = tex.sample(sam, in.uv).xyz;
+    float4 color = tex.sample(sam, in.uv);
     
     // Apply a very simple tonemapping function to reduce the dynamic range of the
     // input image into a range which can be displayed on screen.
 //    color = color / (1.0f + color);
     
-    return float4(color, 1.0f);
+    return color;
 }
 
 uint32_t createEntry(uint8_t red,

@@ -8,6 +8,7 @@
 import MetalKit
 
 class ConwayRenderer: SimpleRenderer {
+    
     var url: URL?
     
     var name: String = "Conway's Game of Life"
@@ -25,6 +26,7 @@ class ConwayRenderer: SimpleRenderer {
                 colorBuffer.didModifyRange(0..<colorBuffer.length)
             }
         }
+        updateAllInputs()
     }
     
     var device: MTLDevice
@@ -38,6 +40,17 @@ class ConwayRenderer: SimpleRenderer {
     var outputImage: MTLTexture!
     
     var resizeable: Bool = false
+    
+    var cellCount: SIMD2<Int32>
+    var cellBuffers = [MTLBuffer]()
+    var colorBuffer: MTLBuffer!
+    
+    var cellPipeline: MTLComputePipelineState!
+    var drawPipeline: MTLComputePipelineState!
+    var copyPipeline: MTLComputePipelineState!
+    
+    var frameStable: Bool { false }
+    var frame: Int = 0
     
     func drawableSizeDidChange(size: CGSize) {
         self.size = size
@@ -53,16 +66,9 @@ class ConwayRenderer: SimpleRenderer {
         }
         cellBuffers.append(device.makeBuffer(bytes: values, length: MemoryLayout<Int32>.stride * values.count, options: .storageModeManaged)!)
         cellBuffers.append(device.makeBuffer(length: MemoryLayout<Int32>.stride * cellSize, options: .storageModeManaged)!)
+        
+        frame = 0
     }
-    
-    var cellCount: SIMD2<Int32>
-    var cellBuffers = [MTLBuffer]()
-    var colorBuffer: MTLBuffer!
-    
-    var cellPipeline: MTLComputePipelineState!
-    var drawPipeline: MTLComputePipelineState!
-    var copyPipeline: MTLComputePipelineState!
-    
     
     func draw(commandBuffer: MTLCommandBuffer, view: MTKView) {
         if cellBuffers.count == 2 {
@@ -89,6 +95,7 @@ class ConwayRenderer: SimpleRenderer {
             drawEncoder?.endEncoding()
             cellBuffers.swapAt(0, 1)
         }
+        frame += 1
     }
     
     var renderPipelineState: MTLRenderPipelineState?
@@ -108,7 +115,7 @@ class ConwayRenderer: SimpleRenderer {
             print(error)
             fatalError()
         }
-        colorBuffer = device.makeBuffer(length: MemoryLayout<SIMD3<Float>>.stride * 4, options: .storageModeManaged)
+        colorBuffer = device.makeBuffer(length: MemoryLayout<SIMD4<Float>>.stride * 4, options: .storageModeManaged)
     }
     
     enum State: Int32 {
@@ -120,7 +127,7 @@ class ConwayRenderer: SimpleRenderer {
 }
 
 class ConwayInputManager: BasicInputManager {
-    var colors: [SIMD3<Float>] {
+    var colors: [SIMD4<Float>] {
         (getInput(1) as! ListInput<ColorPickerInput>).output.map { $0.toVector() }
     }
     var colorsDidChange: Bool { (getInput(1) as! ListInput<ColorPickerInput>).didChange }

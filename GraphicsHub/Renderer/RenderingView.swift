@@ -97,7 +97,7 @@ class RenderingView: MTKView {
         textLayer.foregroundColor = .white
         frameLayer.addSublayer(textLayer)
         
-        if let renderer = renderer as? CappedRenderer {
+        if let renderer = renderer {
             let frameText = CATextLayer()
             frameText.font = NSFont.boldSystemFont(ofSize: 15)
             frameText.fontSize = 10
@@ -163,7 +163,6 @@ extension RenderingView: MTKViewDelegate {
                 DispatchQueue.main.async {
                     animateLayer(FPS: 1/(commandBuffer.gpuEndTime - commandBuffer.gpuStartTime))
                 }
-//                print("Max Potential FPS: ",1/(cp.gpuEndTime - cp.gpuStartTime))
                 self.semaphore.signal()
             }
             renderer.inputManager.handlePerFrameChecks()

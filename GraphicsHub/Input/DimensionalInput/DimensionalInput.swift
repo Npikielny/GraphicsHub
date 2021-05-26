@@ -131,7 +131,8 @@ class DimensionalInput<T>: NSView, Input {
     }
 }
 
-class PointInput: DimensionalInput<CGPoint>, Animateable {
+class PointInput: DimensionalInput<CGPoint>, AnimateableInput {
+    
     override var output: CGPoint {
         get {
             dimensionalTransform(xSlider.output,ySlider.output)
@@ -143,6 +144,8 @@ class PointInput: DimensionalInput<CGPoint>, Animateable {
     }
     var x: CGFloat { get { CGFloat(xSlider.output) } set { xSlider.setValue(value: Double(newValue)) } }
     var y: CGFloat { get { CGFloat(ySlider.output) } set { ySlider.setValue(value: Double(newValue)) } }
+    
+    var keyFrames = [Int : CGPoint]()
     
     func lerpSet(a: CGPoint, b: CGPoint, p: Double) {
         output = CGPoint(x: (b.x - a.x) * CGFloat(p) + a.x,
@@ -160,9 +163,11 @@ class PointInput: DimensionalInput<CGPoint>, Animateable {
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
+    
 }
 
-class SizeInput: DimensionalInput<CGSize>, Animateable {
+class SizeInput: DimensionalInput<CGSize>, AnimateableInput {
+    
     override var output: CGSize {
         get {
             dimensionalTransform(xSlider.output,ySlider.output)
@@ -181,6 +186,8 @@ class SizeInput: DimensionalInput<CGSize>, Animateable {
         get { CGFloat(ySlider.output) }
         set { ySlider.setValue(value: Double(newValue))}
     }
+    
+    var keyFrames = [Int : CGSize]()
     
     func lerpSet(a: CGSize, b: CGSize, p: Double) {
         output = CGSize(width: (b.width - a.width) * CGFloat(p) + a.width,

@@ -7,7 +7,7 @@
 
 import Cocoa
 
-class ColorPickerInput: NSView, Input, Animateable, Containable {
+class ColorPickerInput: NSView, Input, AnimateableInput, Containable {
     
     var name: String
 
@@ -63,11 +63,14 @@ class ColorPickerInput: NSView, Input, Animateable, Containable {
 
     private var heightAnchorConstraint: NSLayoutConstraint!
 
+    var keyFrames = [Int : NSColor]()
+    
     var colorPicker: NSColorPanel = {
         let cp = NSColorPanel()
         cp.color = NSColor(red: 1, green: 1, blue: 1, alpha: 1)
         cp.isContinuous = true
         cp.mode = .wheel
+        cp.showsAlpha = true
         return cp
     }()
 
@@ -177,6 +180,8 @@ class ColorInput: NSView, Input {
     func expand() {
         
     }
+    
+    var keyFrames = [Int : NSColor]()
     
     var colorWheel: NSView = {
         let view = NSView()

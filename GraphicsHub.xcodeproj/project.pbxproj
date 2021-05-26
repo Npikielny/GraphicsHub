@@ -18,6 +18,9 @@
 		3028F1A7263C93E0006922F0 /* EditorViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 3028F1A5263C93E0006922F0 /* EditorViewController.xib */; };
 		3028F1AA263C9529006922F0 /* TemplateController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3028F1A8263C9529006922F0 /* TemplateController.swift */; };
 		3028F1AB263C9529006922F0 /* TemplateController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 3028F1A9263C9529006922F0 /* TemplateController.xib */; };
+		304299FF265B449700F0FFAC /* InputHolder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 304299FE265B449700F0FFAC /* InputHolder.swift */; };
+		3061CF31265C2FAA00D48CFA /* AnimatorController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3061CF2F265C2FAA00D48CFA /* AnimatorController.swift */; };
+		3061CF32265C2FAA00D48CFA /* AnimatorController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 3061CF30265C2FAA00D48CFA /* AnimatorController.xib */; };
 		3092B3222641DB5700902BB6 /* InputManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3092B3212641DB5700902BB6 /* InputManager.swift */; };
 		309B4018263BC40000300BBE /* ComplexRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 309B4017263BC40000300BBE /* ComplexRenderer.swift */; };
 		309B401B263BC4AE00300BBE /* ComplexRendering.metal in Sources */ = {isa = PBXBuildFile; fileRef = 309B401A263BC4AE00300BBE /* ComplexRendering.metal */; };
@@ -80,6 +83,9 @@
 		3028F1A5263C93E0006922F0 /* EditorViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = EditorViewController.xib; sourceTree = "<group>"; };
 		3028F1A8263C9529006922F0 /* TemplateController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TemplateController.swift; sourceTree = "<group>"; };
 		3028F1A9263C9529006922F0 /* TemplateController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = TemplateController.xib; sourceTree = "<group>"; };
+		304299FE265B449700F0FFAC /* InputHolder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InputHolder.swift; sourceTree = "<group>"; };
+		3061CF2F265C2FAA00D48CFA /* AnimatorController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnimatorController.swift; sourceTree = "<group>"; };
+		3061CF30265C2FAA00D48CFA /* AnimatorController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = AnimatorController.xib; sourceTree = "<group>"; };
 		3092B3212641DB5700902BB6 /* InputManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InputManager.swift; sourceTree = "<group>"; };
 		309B4017263BC40000300BBE /* ComplexRenderer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ComplexRenderer.swift; sourceTree = "<group>"; };
 		309B401A263BC4AE00300BBE /* ComplexRendering.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = ComplexRendering.metal; sourceTree = "<group>"; };
@@ -207,6 +213,9 @@
 				309B401F263BDDBE00300BBE /* InputController.swift */,
 				309B4020263BDDBE00300BBE /* InputController.xib */,
 				3092B3212641DB5700902BB6 /* InputManager.swift */,
+				304299FE265B449700F0FFAC /* InputHolder.swift */,
+				3061CF2F265C2FAA00D48CFA /* AnimatorController.swift */,
+				3061CF30265C2FAA00D48CFA /* AnimatorController.xib */,
 			);
 			path = Input;
 			sourceTree = "<group>";
@@ -236,6 +245,7 @@
 			children = (
 				30AED9F5263A1F15007ED421 /* AppDelegate.swift */,
 				30AEDA38263A54B9007ED421 /* Views */,
+				309B401C263BCE0E00300BBE /* Input */,
 				30AEDA33263A2BC3007ED421 /* Renderer */,
 				30AEDA27263A247D007ED421 /* Tests */,
 				30FCB99C263BA95F00910FED /* Conway */,
@@ -283,6 +293,7 @@
 		30AEDA33263A2BC3007ED421 /* Renderer */ = {
 			isa = PBXGroup;
 			children = (
+				30AEDA23263A1F99007ED421 /* RenderingView.swift */,
 				30AEDA32263A2B18007ED421 /* SharedDataTypes.h */,
 				30CC8731263B482D0002B0B8 /* SharedDataTypes.metal */,
 				30AEDA25263A2314007ED421 /* Renderer.swift */,
@@ -304,10 +315,8 @@
 				30AEDA3A263A5B5B007ED421 /* RenderingOption.xib */,
 				30AEDA1F263A1F2E007ED421 /* MainController.swift */,
 				30AEDA20263A1F2E007ED421 /* MainController.xib */,
-				30AEDA23263A1F99007ED421 /* RenderingView.swift */,
 				3028F1A8263C9529006922F0 /* TemplateController.swift */,
 				3028F1A9263C9529006922F0 /* TemplateController.xib */,
-				309B401C263BCE0E00300BBE /* Input */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -440,6 +449,7 @@
 				30AEDA3C263A5B5B007ED421 /* RenderingOption.xib in Resources */,
 				30AEDA37263A54A2007ED421 /* LaunchPad.xib in Resources */,
 				309B4022263BDDBE00300BBE /* InputController.xib in Resources */,
+				3061CF32265C2FAA00D48CFA /* AnimatorController.xib in Resources */,
 				3023A02A26543AC30062D011 /* ImageController.xib in Resources */,
 				30AEDA22263A1F2E007ED421 /* MainController.xib in Resources */,
 				3028F1AB263C9529006922F0 /* TemplateController.xib in Resources */,
@@ -485,6 +495,7 @@
 				3028F1A6263C93E0006922F0 /* EditorViewController.swift in Sources */,
 				30FCB99B263BA94B00910FED /* ConwayRendering.metal in Sources */,
 				30AEDA21263A1F2E007ED421 /* MainController.swift in Sources */,
+				3061CF31265C2FAA00D48CFA /* AnimatorController.swift in Sources */,
 				3024E4672655A4BE00DD195D /* SliderInput.swift in Sources */,
 				3024E4552655A15D00DD195D /* ListInput.swift in Sources */,
 				30AEDA3B263A5B5B007ED421 /* RenderingOption.swift in Sources */,
@@ -492,6 +503,7 @@
 				309B4018263BC40000300BBE /* ComplexRenderer.swift in Sources */,
 				30AED9F6263A1F15007ED421 /* AppDelegate.swift in Sources */,
 				309B401B263BC4AE00300BBE /* ComplexRendering.metal in Sources */,
+				304299FF265B449700F0FFAC /* InputHolder.swift in Sources */,
 				3023A02926543AC30062D011 /* ImageController.swift in Sources */,
 				309B401E263BCE1600300BBE /* Input.swift in Sources */,
 				30AEDA24263A1F99007ED421 /* RenderingView.swift in Sources */,

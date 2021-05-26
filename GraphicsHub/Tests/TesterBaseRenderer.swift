@@ -20,6 +20,7 @@ class TesterBaseRenderer: SimpleRenderer {
         if inputManager.size() != size {
             drawableSizeDidChange(size: inputManager.size())
         }
+        updateAllInputs()
     }
     var recordable: Bool = true
     
@@ -51,6 +52,9 @@ class TesterBaseRenderer: SimpleRenderer {
         self.outputImage = texture
     }
     
+    var frameStable: Bool { true }
+    var frame: Int = 0
+    
     func drawableSizeDidChange(size: CGSize) {
         self.size = size
         guard let texture = createTexture(size: size) else {
@@ -58,7 +62,10 @@ class TesterBaseRenderer: SimpleRenderer {
             return
         }
         self.outputImage = texture
+        frame = 0
     }
     
-    func draw(commandBuffer: MTLCommandBuffer, view: MTKView) {}
+    func draw(commandBuffer: MTLCommandBuffer, view: MTKView) {
+        frame += 1
+    }
 }

@@ -55,8 +55,7 @@ class ComplexRenderer: SinglyCappedRenderer {
             juliaEncoder?.dispatchThreadgroups(getCappedGroupSize(), threadsPerThreadgroup: MTLSize(width: 8, height: 8, depth: 1))
             juliaEncoder?.endEncoding()
         }
-
-        frame += 1
+        super.draw(commandBuffer: commandBuffer, view: view)
     }
 }
 

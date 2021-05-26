@@ -8,6 +8,7 @@
 import MetalKit
 
 class TestInputRenderer: Renderer {
+    
     var name: String = "Test Input Renderer"
     
     var device: MTLDevice
@@ -30,13 +31,20 @@ class TestInputRenderer: Renderer {
     
     var resizeable: Bool = false
     
+    var frameStable: Bool { true }
+    var frame: Int = 0
+    
     func drawableSizeDidChange(size: CGSize) {
         if inputManager.size() != size {
             drawableSizeDidChange(size: inputManager.size())
+            frame = 0
         }
+        updateAllInputs()
     }
     
-    func draw(commandBuffer: MTLCommandBuffer, view: MTKView) {}
+    func draw(commandBuffer: MTLCommandBuffer, view: MTKView) {
+        frame += 1
+    }
     
     var renderPipelineState: MTLRenderPipelineState?
     
@@ -56,7 +64,6 @@ class TestInputRenderer: Renderer {
     func getDirectory(frameIndex: Int) throws -> URL {
         fatalError()
     }
-    
     
 }
 

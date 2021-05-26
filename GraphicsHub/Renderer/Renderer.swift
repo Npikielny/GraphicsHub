@@ -7,11 +7,19 @@
 
 import MetalKit
 
-import CoreGraphics
-import GLKit
+//import CoreGraphics
+//import GLKit
 import Accelerate
 
-protocol Renderer {
+protocol RendererInfo {
+    
+    var frameStable: Bool { get }
+    
+    var frame: Int { get }
+    
+}
+
+protocol Renderer: RendererInfo {
     
     var name: String { get set}
     
@@ -51,6 +59,12 @@ var defaultSizes: [(Renderer.Type, CGSize)] = [
 extension Renderer {
     func loadLibrary(name: String) {}
     func record() {}
+    func updateAllInputs() {
+        (inputManager.inputs as! [InputShell]).forEach {
+            _ = $0.didChange
+        }
+    }
+    
     func createTexture(size: CGSize) -> MTLTexture? {
         let renderTargetDescriptor = MTLTextureDescriptor()
         renderTargetDescriptor.pixelFormat = MTLPixelFormat.rgba32Float
@@ -203,7 +217,7 @@ extension Renderer {
 //                let window = NSWindow(contentViewController: ImageController(image: image))
 //                window.orderFront(nil)
 //            }
-//            try! image.tiffRepresentation!.write(to: imagePath)
+            try! image.tiffRepresentation!.write(to: imagePath)
         }
     }
     
@@ -298,8 +312,25 @@ extension Renderer {
         let texture = createReadableTexture(size: size)!
         let blitEncoder = commandBuffer.makeBlitCommandEncoder()
         blitEncoder?.copy(from: outputImage, to: texture)
+        blitEncoder?.synchronize(resource: texture)
         blitEncoder?.endEncoding()
         return texture
+    }
+    
+    func blitToBuffer(commandBuffer: MTLCommandBuffer) -> MTLBuffer {
+        let buffer = device.makeBuffer(length: MemoryLayout<RGBA32>.stride * Int(size.width * size.height), options: .storageModeManaged)!
+        let copyEncoder = commandBuffer.makeComputeCommandEncoder()
+        copyEncoder?.setComputePipelineState(recordPipeline)
+        copyEncoder?.setTexture(outputImage, index: 0)
+        copyEncoder?.setBuffer(buffer, offset: 0, index: 0)
+        copyEncoder?.setBytes([Int32(size.width)], length: MemoryLayout<Int32>.stride, index: 1)
+        copyEncoder?.dispatchThreads(getImageGroupSize(), threadsPerThreadgroup: MTLSize(width: 8, height: 8, depth: 1))
+        copyEncoder?.endEncoding()
+        
+        let blitEncoder = commandBuffer.makeBlitCommandEncoder()
+        blitEncoder?.synchronize(resource: buffer)
+        blitEncoder?.endEncoding()
+        return buffer
     }
     
 }
@@ -335,12 +366,9 @@ extension MTLTexture {
     func toImage() -> NSImage? {
         
         assert (pixelFormat == .rgba32Float)
-        let width = width
-        let height = height
         let sourceRowBytes = width * MemoryLayout<SIMD4<Float>>.size
         let floatValues = UnsafeMutablePointer<SIMD4<Float>>.allocate(capacity: width * height)
         defer {
-            
             floatValues.deallocate()
         }
         
@@ -348,13 +376,25 @@ extension MTLTexture {
                          bytesPerRow: sourceRowBytes,
                          from: MTLRegionMake2D(0, 0, width, height),
                          mipmapLevel: 0)
-        for _ in 0...10 {
-            print(floatValues[Int.random(in: 0...self.width*self.height)])
-        }
+        
+        // MARK: Stack overflow solution
+        
         var sourceBuffer = vImage_Buffer(data: floatValues,
                                          height: vImagePixelCount(height),
                                          width: vImagePixelCount(width),
                                          rowBytes: sourceRowBytes)
+        
+        var rgbaSourcePlanarBuffers: [vImage_Buffer] = (0 ..< 4).map { _ in
+            guard let buffer = try? vImage_Buffer(width: Int(sourceBuffer.width),
+                                                  height: Int(sourceBuffer.height),
+                                                  bitsPerPixel: UInt32(MemoryLayout<SIMD4<Float>>.stride * 8)) else {
+                                                    fatalError("Error creating source buffers.")
+            }
+            
+            return buffer
+        }
+        
+        
         let destRowBytes = width
         let byteValues = malloc(width * height)!
         var destBuffer = vImage_Buffer(data: byteValues,
@@ -362,7 +402,7 @@ extension MTLTexture {
                                        width: vImagePixelCount(width),
                                        rowBytes: destRowBytes)
         
-        vImageConvert_PlanarFtoPlanar8(&sourceBuffer, &destBuffer, 1.0, 0.0, vImage_Flags(kvImageNoFlags))
+        vImageConvert_PlanarFtoPlanar8(&rgbaSourcePlanarBuffers[2], &destBuffer, 1.0, 0.0, vImage_Flags(kvImageNoFlags))
         let bytesPtr = byteValues.assumingMemoryBound(to: UInt8.self)
         let provider = CGDataProvider(data: CFDataCreateWithBytesNoCopy(kCFAllocatorDefault,
                                                                         bytesPtr,
@@ -381,10 +421,76 @@ extension MTLTexture {
                             decode: nil,
                             shouldInterpolate: false,
                             intent: .defaultIntent)!
-        
+
         let image = NSImage(cgImage: cgimage, size: NSSize(width: width, height: height))
         return image
-
+        
+        
+//        let cgImage = try! sourceBuffer.createCGImage(format: vImage_CGImageFormat.init(bitsPerComponent: MemoryLayout<Float>.stride * 8,
+//                                                                                 bitsPerPixel: MemoryLayout<SIMD4<Float>>.stride * 8,
+//                                                                                 colorSpace: CGColorSpaceCreateDeviceRGB(),
+//                                                                                 bitmapInfo: CGBitmapInfo(rawValue: CGImageAlphaInfo.last.rawValue | CGBitmapInfo.floatComponents.rawValue))!)
+//        return NSImage(cgImage: cgImage, size: NSSize(width: width, height: height))
+        
+        // MARK: Interactive Solution
+        
+//        let provider = CGDataProvider(dataInfo: nil,
+//                                      data: floatValues,
+//                                      size: MemoryLayout<SIMD4<Float>>.stride * width * height,
+//                                      releaseData: {_,_,_ in})!
+//
+//        let cImage = CGImage(width: width,
+//                             height: height,
+//                             bitsPerComponent: MemoryLayout<Float>.stride * 8,
+//                             bitsPerPixel: MemoryLayout<SIMD4<Float>>.stride * 8,
+//                             bytesPerRow: MemoryLayout<SIMD4<Float>>.stride * width,
+//                             space: CGColorSpaceCreateDeviceRGB(),
+//                             bitmapInfo: CGBitmapInfo(rawValue: CGImageAlphaInfo.premultipliedLast.rawValue | CGBitmapInfo.floatInfoMask.rawValue),
+//                             provider: provider,
+//                             decode: nil,
+//                             shouldInterpolate: false,
+//                             intent: .defaultIntent)
+//        return NSImage(cgImage: cImage!, size: NSSize(width: width, height: height))
+//        let content = CGContext(data: floatValues,
+//                                width: width,
+//                                height: height,
+//                                bitsPerComponent: MemoryLayout<Float>.stride * 8,
+//                                bytesPerRow: MemoryLayout<SIMD4<Float>>.stride * width,
+//                                space: CGColorSpaceCreateDeviceRGB(),
+//                                bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue | CGBitmapInfo.floatComponents.rawValue)
+//        return NSImage(cgImage: (content?.makeImage())!, size: NSSize(width: width, height: height))
+        
+        // MARK: Experimetanl
+        
+//        vImageConvert_PlanarFtoPlanar8(&sourceBuffer, &destBuffer, 1.0, 0.0, vImage_Flags(kvImageNoFlags))
+//        let bytesPtr = byteValues.assumingMemoryBound(to: UInt8.self)
+//        let provider = CGDataProvider(data: CFDataCreateWithBytesNoCopy(kCFAllocatorDefault,
+//                                                                        bytesPtr,
+//                                                                        width * height,
+//                                                                        kCFAllocatorDefault))!
+//        let colorSpace = CGColorSpace(name: CGColorSpace.linearGray)!
+//        let bitmapInfo = CGBitmapInfo(rawValue: CGImageAlphaInfo.none.rawValue)
+//        let cgimage = CGImage(width: width,
+//                            height: height,
+//                            bitsPerComponent: 8,
+//                            bitsPerPixel: 8,
+//                            bytesPerRow: destRowBytes,
+//                            space: colorSpace,
+//                            bitmapInfo: bitmapInfo,
+//                            provider: provider,
+//                            decode: nil,
+//                            shouldInterpolate: false,
+//                            intent: .defaultIntent)!
+//
+//        let image = NSImage(cgImage: cgimage, size: NSSize(width: width, height: height))
+//        return image
+        
+        // MARK: IDK
+        
+        
+        
+        
+        
         // MARK: .r32Float
 //        let width = texture.width
 //        let height = texture.height
