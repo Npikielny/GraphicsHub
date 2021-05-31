@@ -7,20 +7,19 @@
 
 import Cocoa
 
-class DimensionalInput<T>: NSView, Input {
+class DimensionalInput<T>: Animateable<T> {
     
-    var output: T {
+    override var output: T {
         get {
             dimensionalTransform(xSlider.output,ySlider.output)
         }
     }
     
-    var transform: ((T) -> T)?
     var dimensionalTransform: (Double, Double) -> T
     
     var getDescription: (T) -> String
     
-    var didChange: Bool {
+    override var didChange: Bool {
         if xSlider.didChange || ySlider.didChange {
             draw()
             return true
@@ -30,22 +29,22 @@ class DimensionalInput<T>: NSView, Input {
     
     typealias OutputType = T
     
-    func reset() {
+    override func reset() {
         xSlider.reset()
         ySlider.reset()
     }
     
-    func collapse() {
+    override func collapse() {
         xSlider.collapse()
         ySlider.collapse()
+        super.collapse()
     }
     
-    func expand() {
+    override func expand() {
         xSlider.expand()
         ySlider.expand()
+        super.collapse()
     }
-    
-    var name: String
     
     var xSlider: SliderInput
     var ySlider: SliderInput
@@ -60,14 +59,14 @@ class DimensionalInput<T>: NSView, Input {
     var displayView = NSView()
     
     init(name: String, xSlider: SliderInput, ySlider: SliderInput, dimensionalTransform: @escaping (Double, Double) -> T, transform: ((T) -> T)? = nil, getDescription: @escaping (T) -> String) {
-        self.name = name
         self.xSlider = xSlider
         self.ySlider = ySlider
         self.dimensionalTransform = dimensionalTransform
-        self.transform = transform
         self.getDescription = getDescription
-        super.init(frame: .zero)
-        translatesAutoresizingMaskIntoConstraints = false
+        super.init(name: name,
+                   defaultValue: dimensionalTransform(xSlider.output, ySlider.output),
+                   transform: transform,
+                   expectedHeight: 150)
         setupViews()
         draw()
         
@@ -77,21 +76,24 @@ class DimensionalInput<T>: NSView, Input {
         displayView.wantsLayer = true
         displayView.layer?.borderWidth = 2
         displayView.layer?.borderColor = .black
+        displayView.translatesAutoresizingMaskIntoConstraints = false
         [xSlider, ySlider, displayView].forEach {
             addSubview($0)
-            $0.translatesAutoresizingMaskIntoConstraints = false
             if let _ = $0 as? SliderInput {
                 $0.trailingAnchor.constraint(equalTo: trailingAnchor).isActive = true
             }
         }
         NSLayoutConstraint.activate([
+            displayView.leadingAnchor.constraint(equalTo: leadingAnchor),
+            displayView.topAnchor.constraint(equalTo: topAnchor),
+            displayView.widthAnchor.constraint(equalTo: displayView.heightAnchor, multiplier: CGFloat((xSlider.maxValue - xSlider.minValue)/(ySlider.maxValue - ySlider.minValue))),
+            
             xSlider.topAnchor.constraint(equalTo: topAnchor),
             xSlider.leadingAnchor.constraint(equalTo: displayView.trailingAnchor, constant: 5),
-            ySlider.leadingAnchor.constraint(equalTo: displayView.trailingAnchor, constant: 5),
             ySlider.topAnchor.constraint(equalTo: xSlider.bottomAnchor),
-            displayView.topAnchor.constraint(equalTo: topAnchor),
+            ySlider.leadingAnchor.constraint(equalTo: displayView.trailingAnchor, constant: 5),
+            
             displayView.bottomAnchor.constraint(equalTo: bottomAnchor),
-            displayView.widthAnchor.constraint(equalTo: displayView.heightAnchor, multiplier: CGFloat((xSlider.maxValue - xSlider.minValue)/(ySlider.maxValue - ySlider.minValue))),
             displayView.heightAnchor.constraint(greaterThanOrEqualToConstant: 50),
             displayView.heightAnchor.constraint(lessThanOrEqualToConstant: 100),
             displayView.widthAnchor.constraint(lessThanOrEqualTo: widthAnchor, multiplier: 1),
@@ -131,7 +133,7 @@ class DimensionalInput<T>: NSView, Input {
     }
 }
 
-class PointInput: DimensionalInput<CGPoint>, AnimateableInput {
+class PointInput: DimensionalInput<CGPoint> {
     
     override var output: CGPoint {
         get {
@@ -145,9 +147,8 @@ class PointInput: DimensionalInput<CGPoint>, AnimateableInput {
     var x: CGFloat { get { CGFloat(xSlider.output) } set { xSlider.setValue(value: Double(newValue)) } }
     var y: CGFloat { get { CGFloat(ySlider.output) } set { ySlider.setValue(value: Double(newValue)) } }
     
-    var keyFrames = [Int : CGPoint]()
     
-    func lerpSet(a: CGPoint, b: CGPoint, p: Double) {
+    override func lerpSet(a: CGPoint, b: CGPoint, p: Double) {
         output = CGPoint(x: (b.x - a.x) * CGFloat(p) + a.x,
                        y: (b.x - a.x) * CGFloat(p) + a.y)
     }
@@ -166,7 +167,7 @@ class PointInput: DimensionalInput<CGPoint>, AnimateableInput {
     
 }
 
-class SizeInput: DimensionalInput<CGSize>, AnimateableInput {
+class SizeInput: DimensionalInput<CGSize> {
     
     override var output: CGSize {
         get {
@@ -187,17 +188,21 @@ class SizeInput: DimensionalInput<CGSize>, AnimateableInput {
         set { ySlider.setValue(value: Double(newValue))}
     }
     
-    var keyFrames = [Int : CGSize]()
-    
-    func lerpSet(a: CGSize, b: CGSize, p: Double) {
+    override func lerpSet(a: CGSize, b: CGSize, p: Double) {
         output = CGSize(width: (b.width - a.width) * CGFloat(p) + a.width,
                         height: (b.height - a.height) * CGFloat(p) + a.height)
     }
     
     init(name: String, prefix: String?, minSize: CGSize = CGSize(width: 0, height: 0), size: CGSize, maxSize: CGSize) {
         super.init(name: name,
-                   xSlider: SliderInput(name: (prefix ?? "") + " Width", minValue: Double(minSize.width), currentValue: Double(size.width), maxValue: Double(maxSize.width)),
-                   ySlider: SliderInput(name: (prefix ?? "") + " Height", minValue: Double(minSize.height), currentValue: Double(size.height), maxValue: Double(maxSize.height)),
+                   xSlider: SliderInput(name: (prefix ?? "") + " Width",
+                                        minValue: Double(minSize.width),
+                                        currentValue: Double(size.width),
+                                        maxValue: Double(maxSize.width)),
+                   ySlider: SliderInput(name: (prefix ?? "") + " Height",
+                                        minValue: Double(minSize.height),
+                                        currentValue: Double(size.height),
+                                        maxValue: Double(maxSize.height)),
                    dimensionalTransform: { width, height in CGSize(width: CGFloat(width), height: CGFloat(height))},
                    getDescription: { size in "\(size.width) x \(size.height)"})
     }

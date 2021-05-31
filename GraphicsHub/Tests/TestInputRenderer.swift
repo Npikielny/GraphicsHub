@@ -49,7 +49,7 @@ class TestInputRenderer: Renderer {
     var renderPipelineState: MTLRenderPipelineState?
     
     required init(device: MTLDevice, size: CGSize) {
-        self.inputManager = TestInputManager(imageSize: size)
+        self.inputManager = TestInputManager(size: size)
         self.device = device
         self.size = size
         
@@ -67,6 +67,51 @@ class TestInputRenderer: Renderer {
     
 }
 
-class TestInputManager: BasicInputManager {
+class TestInputManager: InputManager {
+    var imageWidth: CGFloat
+    
+    var imageHeight: CGFloat
+    
+    var recording: Bool = false
+    
+    var renderWidth: CGFloat?
+    
+    var renderHeight: CGFloat?
+    
+    var inputs: [NSView]
+    
+    var inputOffset: Int
+    
+    init(size: CGSize) {
+        imageWidth = size.width
+        imageHeight = size.height
+        inputs = [
+            StateInput(name: "Recording"),
+            SliderInput(name: "X", minValue: -10, currentValue: 0, maxValue: 10),
+            SliderInput(name: "Y", minValue: -10, currentValue: 0, maxValue: 10),
+            SizeInput(name: "Size", prefix: nil, minSize: CGSize(width: 0, height: 0), size: CGSize(width: 10, height: 10), maxSize: CGSize(width: 100, height: 100))
+        
+        ]
+        inputOffset = inputs.count
+    }
+    
+    func handlePerFrameChecks() {
+        inputs.forEach({
+            if let input = $0 as? InputShell {
+                _ = input.didChange
+            }
+        })
+    }
+    
+    func keyDown(event: NSEvent) {}
+    
+    func mouseDown(event: NSEvent) {}
+    
+    func mouseDragged(event: NSEvent) {}
+    
+    func mouseMoved(event: NSEvent) {}
+    
+    func scrollWheel(event: NSEvent) {}
+    
     
 }

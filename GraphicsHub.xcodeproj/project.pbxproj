@@ -18,7 +18,6 @@
 		3028F1A7263C93E0006922F0 /* EditorViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 3028F1A5263C93E0006922F0 /* EditorViewController.xib */; };
 		3028F1AA263C9529006922F0 /* TemplateController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3028F1A8263C9529006922F0 /* TemplateController.swift */; };
 		3028F1AB263C9529006922F0 /* TemplateController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 3028F1A9263C9529006922F0 /* TemplateController.xib */; };
-		304299FF265B449700F0FFAC /* InputHolder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 304299FE265B449700F0FFAC /* InputHolder.swift */; };
 		3061CF31265C2FAA00D48CFA /* AnimatorController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3061CF2F265C2FAA00D48CFA /* AnimatorController.swift */; };
 		3061CF32265C2FAA00D48CFA /* AnimatorController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 3061CF30265C2FAA00D48CFA /* AnimatorController.xib */; };
 		3092B3222641DB5700902BB6 /* InputManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3092B3212641DB5700902BB6 /* InputManager.swift */; };
@@ -83,7 +82,6 @@
 		3028F1A5263C93E0006922F0 /* EditorViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = EditorViewController.xib; sourceTree = "<group>"; };
 		3028F1A8263C9529006922F0 /* TemplateController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TemplateController.swift; sourceTree = "<group>"; };
 		3028F1A9263C9529006922F0 /* TemplateController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = TemplateController.xib; sourceTree = "<group>"; };
-		304299FE265B449700F0FFAC /* InputHolder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InputHolder.swift; sourceTree = "<group>"; };
 		3061CF2F265C2FAA00D48CFA /* AnimatorController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnimatorController.swift; sourceTree = "<group>"; };
 		3061CF30265C2FAA00D48CFA /* AnimatorController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = AnimatorController.xib; sourceTree = "<group>"; };
 		3092B3212641DB5700902BB6 /* InputManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InputManager.swift; sourceTree = "<group>"; };
@@ -213,7 +211,6 @@
 				309B401F263BDDBE00300BBE /* InputController.swift */,
 				309B4020263BDDBE00300BBE /* InputController.xib */,
 				3092B3212641DB5700902BB6 /* InputManager.swift */,
-				304299FE265B449700F0FFAC /* InputHolder.swift */,
 				3061CF2F265C2FAA00D48CFA /* AnimatorController.swift */,
 				3061CF30265C2FAA00D48CFA /* AnimatorController.xib */,
 			);
@@ -503,7 +500,6 @@
 				309B4018263BC40000300BBE /* ComplexRenderer.swift in Sources */,
 				30AED9F6263A1F15007ED421 /* AppDelegate.swift in Sources */,
 				309B401B263BC4AE00300BBE /* ComplexRendering.metal in Sources */,
-				304299FF265B449700F0FFAC /* InputHolder.swift in Sources */,
 				3023A02926543AC30062D011 /* ImageController.swift in Sources */,
 				309B401E263BCE1600300BBE /* Input.swift in Sources */,
 				30AEDA24263A1F99007ED421 /* RenderingView.swift in Sources */,
@@ -687,6 +683,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
+				MACOSX_DEPLOYMENT_TARGET = 10.15;
 				PRODUCT_BUNDLE_IDENTIFIER = kelkamon.GraphicsHub;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
@@ -710,6 +707,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
+				MACOSX_DEPLOYMENT_TARGET = 10.15;
 				PRODUCT_BUNDLE_IDENTIFIER = kelkamon.GraphicsHub;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;

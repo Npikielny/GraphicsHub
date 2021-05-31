@@ -103,7 +103,7 @@ class ConwayRenderer: SimpleRenderer {
     required init(device: MTLDevice, size: CGSize) {
         self.device = device
         self.size = size
-        self.cellCount = SIMD2<Int32>(256,256) // TODO: Cell Count Resizing
+        self.cellCount = SIMD2<Int32>(512,512) // TODO: Cell Count Resizing
         self.inputManager = ConwayInputManager(imageSize: size)
         let functions = createFunctions(names: "conwayCalculate", "conwayDraw", "conwayCopy")
         do {
@@ -128,20 +128,18 @@ class ConwayRenderer: SimpleRenderer {
 
 class ConwayInputManager: BasicInputManager {
     var colors: [SIMD4<Float>] {
-        (getInput(1) as! ListInput<ColorPickerInput>).output.map { $0.toVector() }
+        (getInput(0) as! ListInput<NSColor, ColorPickerInput>).output.map { $0.toVector() }
     }
-    var colorsDidChange: Bool { (getInput(1) as! ListInput<ColorPickerInput>).didChange }
+    var colorsDidChange: Bool { (getInput(0) as! ListInput<NSColor, ColorPickerInput>).didChange }
     override init(renderSpecificInputs: [NSView] = [], imageSize: CGSize?) {
         var inputs = renderSpecificInputs
-        let colorTester = ColorInput(name: "Test", defaultColor: SIMD4<Float>(1,1,0,1))
-        inputs.insert(colorTester, at: 0)
-        let colorList = ListInput<ColorPickerInput>(name: "Colors", inputs: [
+        let colorList = ListInput<NSColor, ColorPickerInput>(name: "Colors", inputs: [
             ColorPickerInput(name: "Background", defaultColor: NSColor(red: 0, green: 0, blue: 0, alpha: 1)),
             ColorPickerInput(name: "New Cell", defaultColor: NSColor(red: 1, green: 0, blue: 0, alpha: 1)),
             ColorPickerInput(name: "Old Cell", defaultColor: NSColor(red: 0, green: 0, blue: 1, alpha: 1)),
             ColorPickerInput(name: "Outline", defaultColor: NSColor(red: 1, green: 1, blue: 1, alpha: 1))
         ])
-        inputs.insert(colorList, at: 1)
+        inputs.insert(colorList, at: 0)
         super.init(renderSpecificInputs: inputs, imageSize: imageSize)
     }
     

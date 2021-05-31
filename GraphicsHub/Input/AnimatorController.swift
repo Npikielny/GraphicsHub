@@ -12,12 +12,12 @@ class AnimatorController: NSViewController {
 
     override var acceptsFirstResponder: Bool { true }
     
-    var inputs: [Animateable]
+    var inputs: [AnimateableShell]
     
     var plots = [[Int: Double]]()
     var frameDimension = (0,0)
     
-    init(inputs: [Animateable]) {
+    init(inputs: [AnimateableShell]) {
         self.inputs = inputs
 
         for _ in 0...5 {

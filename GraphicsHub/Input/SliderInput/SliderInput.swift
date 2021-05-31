@@ -7,14 +7,13 @@
 
 import Cocoa
 
-class SliderInput: NSView, Input {
+class SliderInput: Animateable<Double> {
     
-    var name: String
     typealias OutputType = Double
 
     private var changed: Bool = true
-    var didChange: Bool { if changed { changed = false; return true } else { return false } }
-    var output: OutputType {
+    override var didChange: Bool { if changed { changed = false; return true } else { return false } }
+    override var output: OutputType {
         if let transform = transform {
             return transform(slider.doubleValue)
         } else {
@@ -23,12 +22,9 @@ class SliderInput: NSView, Input {
     }
 
     var percent: Double { (slider.doubleValue - minValue) / (maxValue - minValue) }
-    private var defaultValue: OutputType
-    var transform: ((Double) -> Double)?
 
-    func reset() {
-        slider.doubleValue = defaultValue
-        assignLabel()
+    override func reset() {
+        setValue(value: defaultValue)
     }
 
     private var slider: NSSlider!
@@ -47,18 +43,13 @@ class SliderInput: NSView, Input {
         return tv
     }()
 
-    private var heightAnchorConstraint: NSLayoutConstraint!
-
     required convenience init(name: String) {
         self.init(name: name, minValue: 0, currentValue: 5, maxValue: 10)
     }
     
     init(name: String, minValue: Double, currentValue: Double, maxValue: Double, tickMarks: Int? = nil, transform: ((OutputType) -> OutputType)? = nil) {
-        self.name = name
-        defaultValue = currentValue
+        super.init(name: name, defaultValue: currentValue, transform: transform, expectedHeight: 30)
         titleLabel.string = name
-        super.init(frame: .zero)
-
         slider = NSSlider(value: currentValue, minValue: minValue, maxValue: maxValue, target: self, action: #selector(valueChanged))
         slider.isContinuous = true
         if let tickMarks = tickMarks {
@@ -67,14 +58,13 @@ class SliderInput: NSView, Input {
         }
         assignLabel()
 
-        translatesAutoresizingMaskIntoConstraints = false
         ([titleLabel, slider, label] as [NSView]).forEach { view in
             view.translatesAutoresizingMaskIntoConstraints = false
             addSubview(view)
             view.topAnchor.constraint(equalTo: topAnchor).isActive = true
             view.bottomAnchor.constraint(equalTo: bottomAnchor).isActive = true
         }
-        heightAnchorConstraint = heightAnchor.constraint(equalToConstant: 30)
+        
         NSLayoutConstraint.activate([
             titleLabel.widthAnchor.constraint(equalToConstant: 150),
             titleLabel.leadingAnchor.constraint(equalTo: leadingAnchor),
@@ -85,7 +75,6 @@ class SliderInput: NSView, Input {
             label.topAnchor.constraint(equalTo: topAnchor),
             label.widthAnchor.constraint(equalToConstant: 50),
             label.trailingAnchor.constraint(equalTo: trailingAnchor),
-            heightAnchorConstraint
         ])
     }
 
@@ -114,28 +103,12 @@ class SliderInput: NSView, Input {
         setValue(value: (slider.maxValue - slider.minValue) * percent + slider.minValue)
     }
 
-
-    func collapse() {
-        heightAnchorConstraint.constant = 0
-    }
-
-    func expand() {
-        heightAnchorConstraint.constant = 30
-    }
-
     var minValue: Double { slider.minValue }
     var maxValue: Double { slider.maxValue }
 
-    var keyFrames = [Int : Double]()
-}
-
-extension SliderInput: Animateable {
-    
-    func lerpSet(a: Double, b: Double, p: Double) {
+    override func lerpSet(a: Double, b: Double, p: Double) {
         setValue(value: (b - a) * p + a)
     }
-    
-    
 }
 
 extension SliderInput: NSTextViewDelegate {

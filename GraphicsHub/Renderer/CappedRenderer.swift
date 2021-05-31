@@ -68,7 +68,7 @@ class SinglyCappedRenderer: CappedRenderer {
         if inputManager.size() != size {
             drawableSizeDidChange(size: inputManager.size())
         }
-        let inputManager = inputManager as! CappedInputManager
+        let inputManager = self.inputManager as! CappedInputManager
         let renderSize = inputManager.renderSize()
         if maxRenderSize != renderSize {
             maxRenderSize = renderSize

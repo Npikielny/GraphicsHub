@@ -103,14 +103,14 @@ class ComplexInputManager: CappedInputManager {
         }
     }
     var colors: [SIMD3<Float>] {
-        (getInput(4) as! ListInput<ColorPickerInput>).output.map { $0.toVector() }
+        (getInput(4) as! ListInput<NSColor, ColorPickerInput>).output.map { $0.toVector() }
     }
     convenience init(size: CGSize) {
         let c = PointInput(name: "C", xName: "C Imaginary", yName: "C Real", origin: CGPoint(x: 0, y: 0), size: CGSize(width: 4, height: 4))
         let zoom = SliderInput(name: "Zoom", minValue: 1, currentValue: 20, maxValue: 10000)
         let origin = PointInput(name: "Origin", origin: CGPoint(x: 0, y: 0), size: CGSize(width: 1000000, height: 1000000))
         let scalingFactor = SliderInput(name: "Scaling Factor", minValue: 0.1, currentValue: 1, maxValue: 10)
-        let colorList = ListInput<ColorPickerInput>(name: "Colors", inputs: [
+        let colorList = ListInput<NSColor, ColorPickerInput>(name: "Colors", inputs: [
             ColorPickerInput(name: "Color 1", defaultColor: NSColor(red: 1, green: 1, blue: 1, alpha: 1)),
             ColorPickerInput(name: "Color 2", defaultColor: NSColor(red: 0, green: 0, blue: 0, alpha: 1)),
         ])

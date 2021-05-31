@@ -38,7 +38,7 @@ class InputController: NSViewController {
             scrollView.topAnchor.constraint(equalTo: view.topAnchor),
             scrollView.bottomAnchor.constraint(lessThanOrEqualTo: view.bottomAnchor),
         ])
-        var last: NSLayoutYAxisAnchor = scrollView.contentView.safeAreaLayoutGuide.topAnchor
+        var last: NSLayoutYAxisAnchor = scrollView.contentView.topAnchor
         for input in inputs {
             scrollView.contentView.addSubview(input)
             NSLayoutConstraint.activate([
@@ -56,7 +56,7 @@ class InputController: NSViewController {
         if let animator = animator {
             animator.makeKeyAndOrderFront(nil)
         } else {
-            let animatableInputs: [Animateable] = inputs.compactMap({ $0 as? Animateable })
+            let animatableInputs: [AnimateableShell] = inputs.compactMap({ $0 as? AnimateableShell })
             animator = NSWindow(contentViewController: AnimatorController(inputs: animatableInputs))
             animator?.makeKeyAndOrderFront(nil)
         }
@@ -66,7 +66,7 @@ class InputController: NSViewController {
         super.viewDidLoad()
 //        setupCollectionView()
         setupScrollView()
-        if inputs.contains(where: { $0 is Animateable }) {
+        if inputs.contains(where: { $0 is Animateable<Any> }) {
             let animatorButton = NSButton(title: "Animate", target: self, action: #selector(showAnimator))
             animatorButton.translatesAutoresizingMaskIntoConstraints = false
             view.addSubview(animatorButton)

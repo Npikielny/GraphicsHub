@@ -7,12 +7,12 @@
 
 import Cocoa
 
-class StateInput: NSView, Input, Containable {
+class StateInput: Input<Bool>, Containable {
     
     typealias OutputType = Bool
     
     private var changed = false
-    var didChange: Bool {
+    override var didChange: Bool {
         get {
             if changed {
                 changed = false
@@ -22,7 +22,7 @@ class StateInput: NSView, Input, Containable {
         }
     }
     
-    var output: Bool {
+    override var output: Bool {
         get { stateButton.state == .on }
         set {
             if newValue {
@@ -33,21 +33,9 @@ class StateInput: NSView, Input, Containable {
         }
     }
     
-    var transform: ((Bool) -> Bool)?
-    
-    func reset() {
+    override func reset() {
         output = false
     }
-    
-    func collapse() {
-        hidingConstraint.isActive = true
-    }
-    
-    func expand() {
-        hidingConstraint.isActive = false
-    }
-    
-    var name: String
     
     private var stateButton: NSButton!
     @objc func stateChanged() {
@@ -56,12 +44,12 @@ class StateInput: NSView, Input, Containable {
     
     convenience init(name: String, defaultValue: Bool = false) {
         self.init(name: name)
+        self.defaultValue = defaultValue
         output = defaultValue
     }
     
     required init(name: String) {
-        self.name = name
-        super.init(frame: .zero)
+        super.init(name: name, defaultValue: false, transform: nil, expectedHeight: 20)
         self.stateButton = NSButton(checkboxWithTitle: name, target: self, action: #selector(stateChanged))
         setupView()
     }
@@ -73,7 +61,6 @@ class StateInput: NSView, Input, Containable {
     var hidingConstraint: NSLayoutConstraint!
     
     private func setupView() {
-        translatesAutoresizingMaskIntoConstraints = false
         stateButton.translatesAutoresizingMaskIntoConstraints = false
         addSubview(stateButton)
         stateButton.leadingAnchor.constraint(equalTo: leadingAnchor).isActive = true
