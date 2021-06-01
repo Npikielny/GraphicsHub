@@ -82,18 +82,6 @@ class AnimatorController: NSViewController {
         graphView.layer?.sublayers?.forEach {
             $0.removeFromSuperlayer()
         }
-//        if inputs.count == 0 { return }
-//        for currentInput in inputs {
-//            if let currentInput = currentInput as? SliderInput {
-//                animateSlider(slider: currentInput)
-//            } else if let currentInput = currentInput as? SizeInput {
-//                animateSlider(slider: currentInput.xSlider)
-//                animateSlider(slider: currentInput.ySlider)
-//            } else if let currentInput = currentInput as? PointInput {
-//                animateSlider(slider: currentInput.xSlider)
-//                animateSlider(slider: currentInput.ySlider)
-//            }
-//        }
         let minX = plots.min(by: { plot1, plot2 in
             plot1.min(by: { $0.key < $1.key })?.key ?? 0 < plot2.min(by: { $0.key < $1.key })?.key ?? 0
         })?.min(by: { $0.key < $1.key })?.key
@@ -107,7 +95,6 @@ class AnimatorController: NSViewController {
         for (index, plot) in plots.enumerated() {
             drawPlot(seed: index, points: plot.sorted(by: { $0.key < $1.key }))
         }
-//        animateSlider()
         
     }
     

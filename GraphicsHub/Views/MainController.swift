@@ -21,7 +21,6 @@ class MainController: NSViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        // Do view setup here.
         [renderingView].forEach {
             $0.translatesAutoresizingMaskIntoConstraints = false
             view.addSubview($0)

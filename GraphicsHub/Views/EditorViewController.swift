@@ -23,7 +23,6 @@ class EditorViewController: NSSplitViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        // Do view setup here.
         view.wantsLayer = true
         
         splitView.dividerStyle = .paneSplitter

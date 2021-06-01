@@ -144,45 +144,19 @@ extension RenderingView: MTKViewDelegate {
             semaphore.wait()
             let commandBuffer = commandQueue.makeCommandBuffer()
             commandBuffer?.addCompletedHandler { [self] commandBuffer in
-//                // TODO: This may need to be converted to main thread–depending on how bool-inputs are implemented
-//                if renderer.inputManager.recording && renderer.recordable {
-//                    if let pixelBuffer = pixelBuffer {
-//                        DispatchQueue.main.async {
-//                            semaphore.wait()
-//                            if let image = toImage(pixelBuffer: pixelBuffer.contents(), imageSize: SIMD2<Int>(renderer.outputImage.width, renderer.outputImage.height)) {
-//                                handleWriting(image: image)
-//                            }
-//                            semaphore.signal()
-//                        }
-//                        frameIndex += 1
-//                    }
-//                } else if !renderer.inputManager.recording {
-//                    savingPath = nil
-//                    frameIndex = 0
-//                }
                 DispatchQueue.main.async {
-                    animateLayer(FPS: 1/(commandBuffer.gpuEndTime - commandBuffer.gpuStartTime))
+                    if !renderer.inputManager.paused {
+                        animateLayer(FPS: 1/(commandBuffer.gpuEndTime - commandBuffer.gpuStartTime))
+                    }
                 }
                 self.semaphore.signal()
             }
             renderer.inputManager.handlePerFrameChecks()
             if let commandBuffer = commandBuffer {
                 renderer.synchronizeInputs()
-                renderer.draw(commandBuffer: commandBuffer, view: self)
+                renderer.handleDrawing(commandBuffer: commandBuffer, view: self)
                 self.renderer!.handleRecording(commandBuffer: commandBuffer, frameIndex: &frameIndex)
-//                self.renderer!.handleRecording(commandBuffer: commandBuffer, frameIndex: &frameIndex)
-//                if renderer.inputManager.recording && renderer.recordable {
-//                    if let pixelBuffer = pixelBuffer {
-//                        renderer.copyToBuffer(commandBuffer: commandBuffer, pixelBuffer: pixelBuffer)
-//                    } else {
-//                        self.pixelBuffer = device?.makeBuffer(length: renderer.outputImage.width * renderer.outputImage.height * MemoryLayout<RGBA32>.stride, options: .storageModeManaged)
-//                        renderer.copyToBuffer(commandBuffer: commandBuffer, pixelBuffer: pixelBuffer!)
-//                    }
-//                }
             }
-            
-//            renderer.handleRecording(frameIndex: &frameIndex, commandBuffer: commandBuffer)
-            
             
             let renderEncoder = commandBuffer?.makeRenderCommandEncoder(descriptor: renderPassDescriptor)!
             if let pipeline = renderer.renderPipelineState {
@@ -199,70 +173,6 @@ extension RenderingView: MTKViewDelegate {
             commandBuffer?.waitUntilCompleted()
         }
     }
-    
-    func toImage(pixelBuffer: UnsafeMutableRawPointer, imageSize: SIMD2<Int>) -> NSImage? {
-        let byteCount = Int(imageSize.x * imageSize.y * 2)
-        let context = CGContext(data: pixelBuffer, width: imageSize.x, height: imageSize.y, bitsPerComponent: 8, bytesPerRow: Int(8*imageSize.x), space: CGColorSpaceCreateDeviceRGB(), bitmapInfo: RGBA32.bitmapInfo)
-        let finalImage = NSImage(cgImage: (context?.makeImage()!)!, size: NSSize(width: imageSize.x, height: imageSize.y))
-//        let byteCount = imageSize.x * imageSize.y * 2
-//        let output = (pixelBuffer.contents().bindMemory(to: RGBA32.self, capacity: byteCount))
-//
-//        let context = CGContext(data: output,
-//                                width: imageSize.x,
-//                                height: imageSize.y,
-//                                bitsPerComponent: 8,
-//                                bytesPerRow: Int(8 * imageSize.x),
-//                                space: CGColorSpaceCreateDeviceRGB(),
-//                                bitmapInfo: RGBA32.bitmapInfo)
-//        let image = context!.makeImage()
-//        let finalImage = NSImage(cgImage: image!, size: NSSize(width: CGFloat(imageSize.x), height: CGFloat(imageSize.y)))
-        return finalImage
-//        return nil
-    }
-    
-    func handleWriting(image: NSImage) {
-        if let _ = savingPath {} else {
-            _ = createDirectory()
-        }
-        do {
-            if let savingPath = savingPath {
-                print(savingPath.path)
-                let url = savingPath.appendingPathComponent("\(frameIndex).tiff")
-                try image.tiffRepresentation?.write(to: url)
-            }
-//            } else {
-//                print(savingPath)
-//                print("Failed saving \(frameIndex)–couldn't make URL")
-//            }
-        } catch {
-            print(savingPath)
-            print("Failed saving \(frameIndex)", error)
-        }
-    }
-    
-    func createDirectory() -> URL? {
-        let desktopURL = FileManager.default.urls(for: .desktopDirectory, in: .userDomainMask).first!
-//        savingPath = desktopURL
-//        return desktopURL
-//        let paths = NSSearchPathForDirectoriesInDomains(.desktopDirectory, .userDomainMask, true)
-//        let desktopDirectory = paths[0]
-//        let docURL = URL(string: desktopDirectory)!
-//        let dataPath = docURL.appendingPathComponent((renderer?.name ?? ""))
-        let folderUrl = desktopURL.appendingPathComponent(renderer?.name ?? ""  + " \(frameIndex)")
-        if !FileManager.default.fileExists(atPath: folderUrl.path) {
-            do {
-                try FileManager.default.createDirectory(atPath: folderUrl.path, withIntermediateDirectories: true, attributes: nil)
-                self.savingPath = folderUrl
-                return self.savingPath!
-            } catch {
-                print(error.localizedDescription)
-            }
-        }
-//        self.savingPath = desktopDirectory+"/"+dataPath.path
-//        return self.savingPath
-        return nil
-    }
-    
 }
 
 extension RenderingView {

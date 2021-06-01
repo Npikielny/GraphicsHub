@@ -57,6 +57,13 @@ var defaultSizes: [(Renderer.Type, CGSize)] = [
 ]
 
 extension Renderer {
+    func handleDrawing(commandBuffer: MTLCommandBuffer, view: MTKView) {
+        if !inputManager.paused {
+            self.draw(commandBuffer: commandBuffer, view: view)
+        }
+    }
+
+    
     func loadLibrary(name: String) {}
     func record() {}
     func updateAllInputs() {

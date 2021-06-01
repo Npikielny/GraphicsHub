@@ -12,6 +12,7 @@ protocol InputManager {
     var imageHeight: CGFloat { get set }
     
     var recording: Bool { get set}
+    var paused: Bool { get set }
     
     var renderWidth: CGFloat? { get set }
     var renderHeight: CGFloat? { get set }
@@ -55,6 +56,11 @@ class BasicInputManager: InputManager {
         set { (inputs[1] as! StateInput).output = newValue }
     }
     
+    var paused: Bool {
+        get { (inputs[2] as! StateInput).output }
+        set { (inputs[2] as! StateInput).output = newValue }
+    }
+    
     var renderWidth: CGFloat?
     
     var renderHeight: CGFloat?
@@ -64,6 +70,7 @@ class BasicInputManager: InputManager {
     init(renderSpecificInputs: [NSView] = [], imageSize: CGSize?) {
         inputs.append(ScreenSizeInput(name: "Image Size", minSize: CGSize(width: 1, height: 1), size: CGSize(width: 2048, height: 2048)))
         inputs.append(StateInput(name: "Recording"))
+        inputs.append(StateInput(name: "Paused"))
         inputOffset = inputs.count
         inputs.append(contentsOf: renderSpecificInputs)
     }
@@ -81,7 +88,6 @@ class CappedInputManager: InputManager {
     
     var inputOffset: Int
     
-//    private var imageWidthSlider: SliderInput { inputs[0] as! SliderInput }
     var imageWidth: CGFloat {
         get { (inputs[0] as! ScreenSizeInput).width }
         set { (inputs[0] as! ScreenSizeInput).width = newValue }
@@ -104,6 +110,10 @@ class CappedInputManager: InputManager {
     var recording: Bool {
         get { (inputs[2] as! StateInput).output }
         set { (inputs[2] as! StateInput).output = newValue }
+    }
+    var paused: Bool {
+        get { (inputs[3] as! StateInput).output }
+        set { (inputs[3] as! StateInput).output = newValue }
     }
     var inputs = [NSView]()
     

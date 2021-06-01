@@ -90,7 +90,8 @@ class DimensionalInput<T>: Animateable<T> {
             
             xSlider.topAnchor.constraint(equalTo: topAnchor),
             xSlider.leadingAnchor.constraint(equalTo: displayView.trailingAnchor, constant: 5),
-            ySlider.topAnchor.constraint(equalTo: xSlider.bottomAnchor),
+            
+            ySlider.topAnchor.constraint(equalTo: xSlider.bottomAnchor, constant: 5),
             ySlider.leadingAnchor.constraint(equalTo: displayView.trailingAnchor, constant: 5),
             
             displayView.bottomAnchor.constraint(equalTo: bottomAnchor),

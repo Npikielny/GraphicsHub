@@ -68,11 +68,13 @@ class TestInputRenderer: Renderer {
 }
 
 class TestInputManager: InputManager {
+    
     var imageWidth: CGFloat
     
     var imageHeight: CGFloat
     
     var recording: Bool = false
+    var paused: Bool = false
     
     var renderWidth: CGFloat?
     
