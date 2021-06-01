@@ -97,24 +97,30 @@ uint8_t alphaComponent(uint32_t color) {
 kernel void encodeImage(uint2 tid [[thread_position_in_grid]],
                     device Pixel * pixels [[buffer(0)]],
                     constant int & imageWidth [[buffer(1)]],
+                    constant int & imageHeight [[buffer(2)]],
                     texture2d<float, access::read_write>Image) {
     float4 value = Image.read(uint2(tid.x,tid.y));
-//    float4 value = float4(1,0,0,1);
-//    pixels[tid.x + tid.y * imageWidth] = createEntry(toInt(value.x),
-//                                                     toInt(value.y),
-//                                                     toInt(value.z),
-//                                                     toInt(value.w));
-//    pixels[tid.x + tid.y * imageWidth].color = createEntry(value);
-    pixels[tid.x + tid.y * imageWidth].color = createEntry(255, 0, 0, 255);
-    uint32_t color = pixels[tid.x + tid.y * imageWidth].color;
-    Image.write(float4(redComponent(color)/255.0,
-                       greenComponent(color)/255.0,
-                       blueComponent(color)/255.0,
-                       alphaComponent(color)/255.0),
-                tid);
-//    device Pixel & pixel = pixels[tid.x + tid.y * imageWidth];
-//    Image.write(float4(float(redComponent(pixel.color))/255.0f,
-//                       float(greenComponent(pixel.color))/255.0f,
-//                       float(blueComponent(pixel.color))/255.0f,
-//                       float(alphaComponent(pixel.color))/255.0f), uint2(tid.x, tid.y));
+    pixels[tid.x + (imageHeight-tid.y) * imageWidth].color = createEntry(value);
+    
+//    pixels[tid.x + tid.y * imageWidth].color = createEntry(255, 0, 0, 255);
+//    pixels[tid.x + tid.y * imageWidth].color = createEntry(255, 0, 0, 255);
+    
+////    float4 value = float4(1,0,0,1);
+////    pixels[tid.x + tid.y * imageWidth] = createEntry(toInt(value.x),
+////                                                     toInt(value.y),
+////                                                     toInt(value.z),
+////                                                     toInt(value.w));
+////    pixels[tid.x + tid.y * imageWidth].color = createEntry(value);
+//    pixels[tid.x + tid.y * imageWidth].color = createEntry(255, 0, 0, 255);
+//    uint32_t color = pixels[tid.x + tid.y * imageWidth].color;
+//    Image.write(float4(redComponent(color)/255.0,
+//                       greenComponent(color)/255.0,
+//                       blueComponent(color)/255.0,
+//                       alphaComponent(color)/255.0),
+//                tid);
+////    device Pixel & pixel = pixels[tid.x + tid.y * imageWidth];
+////    Image.write(float4(float(redComponent(pixel.color))/255.0f,
+////                       float(greenComponent(pixel.color))/255.0f,
+////                       float(blueComponent(pixel.color))/255.0f,
+////                       float(alphaComponent(pixel.color))/255.0f), uint2(tid.x, tid.y));
 }

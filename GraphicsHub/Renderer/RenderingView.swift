@@ -222,11 +222,14 @@ extension RenderingView: MTKViewDelegate {
     
     func handleWriting(image: NSImage) {
         if let _ = savingPath {} else {
-            createDirectory()
+            _ = createDirectory()
         }
         do {
-            let url = savingPath!.appendingPathComponent(renderer!.name +  " \(frameIndex).tiff")
-            try image.tiffRepresentation?.write(to: url)
+            if let savingPath = savingPath {
+                print(savingPath.path)
+                let url = savingPath.appendingPathComponent("\(frameIndex).tiff")
+                try image.tiffRepresentation?.write(to: url)
+            }
 //            } else {
 //                print(savingPath)
 //                print("Failed saving \(frameIndex)–couldn't make URL")
@@ -239,23 +242,25 @@ extension RenderingView: MTKViewDelegate {
     
     func createDirectory() -> URL? {
         let desktopURL = FileManager.default.urls(for: .desktopDirectory, in: .userDomainMask).first!
-        savingPath = desktopURL
-        return desktopURL
+//        savingPath = desktopURL
+//        return desktopURL
 //        let paths = NSSearchPathForDirectoriesInDomains(.desktopDirectory, .userDomainMask, true)
 //        let desktopDirectory = paths[0]
 //        let docURL = URL(string: desktopDirectory)!
 //        let dataPath = docURL.appendingPathComponent((renderer?.name ?? ""))
-//        if !FileManager.default.fileExists(atPath: dataPath.path) {
-//            do {
-//                try FileManager.default.createDirectory(atPath: dataPath.path, withIntermediateDirectories: true, attributes: nil)
-//                self.savingPath = desktopDirectory+"/"+dataPath.path
-//                return self.savingPath!
-//            } catch {
-//                print(error.localizedDescription)
-//            }
-//        }
+        let folderUrl = desktopURL.appendingPathComponent(renderer?.name ?? ""  + " \(frameIndex)")
+        if !FileManager.default.fileExists(atPath: folderUrl.path) {
+            do {
+                try FileManager.default.createDirectory(atPath: folderUrl.path, withIntermediateDirectories: true, attributes: nil)
+                self.savingPath = folderUrl
+                return self.savingPath!
+            } catch {
+                print(error.localizedDescription)
+            }
+        }
 //        self.savingPath = desktopDirectory+"/"+dataPath.path
 //        return self.savingPath
+        return nil
     }
     
 }

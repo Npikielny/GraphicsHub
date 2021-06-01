@@ -106,22 +106,25 @@ class DimensionalInput<T>: Animateable<T> {
     }
     
     override var acceptsFirstResponder: Bool { true }
+    
     override func mouseDown(with event: NSEvent) {
         setSliders(event: event)
         draw()
     }
+    
     override func mouseDragged(with event: NSEvent) {
         setSliders(event: event)
         draw()
     }
+    
     func setSliders(event: NSEvent) {
-//        let position = displayView.convertToLayer(event.locationInWindow)
         let position = self.superview?.convert(event.locationInWindow, to: self.displayView)
         xSlider.setValue(percent: Double((position?.x ?? 0)/(displayView.bounds.size.width)))
         ySlider.setValue(percent: Double((position?.y ?? 0)/(displayView.bounds.size.height)))
     }
-    var indicator = CAShapeLayer()
-    private func draw() {
+    
+    internal var indicator = CAShapeLayer()
+    internal func draw() {
         let fillPath = CGMutablePath()
         let centerPoint = CGPoint(x: displayView.frame.width * CGFloat(xSlider.percent), y: displayView.frame.height * CGFloat(ySlider.percent))
         fillPath.addArc(center: centerPoint, radius: 5, startAngle: 0, endAngle: CGFloat.pi * 2, clockwise: false)
@@ -211,4 +214,74 @@ class SizeInput: DimensionalInput<CGSize> {
         fatalError("init(coder:) has not been implemented")
     }
     
+}
+
+class ScreenSizeInput: SizeInput {
+    
+    static let screenSize: [CGSize] = [
+        CGSize(width: 256, height: 256),
+        CGSize(width: 512, height: 512),
+        CGSize(width: 1024, height: 1024),
+        CGSize(width: 2048, height: 2048),
+        CGSize(width: 4096, height: 4096),
+        CGSize(width: 8192, height: 8192),
+        CGSize(width: 1280, height: 1024),
+        CGSize(width: 1600, height: 1200),
+        CGSize(width: 1680, height: 1050),
+        CGSize(width: 1900, height: 1200),
+        CGSize(width: 3840, height: 2160),
+        CGSize(width: 3840 * 2, height: 2160 * 2),
+        CGSize(width: 3840 * 4, height: 2160 * 4),
+    ]
+    
+    init(name: String, minSize: CGSize = CGSize(width: 0, height: 0), size: CGSize) {
+        super.init(name: name, prefix: nil, minSize: minSize, size: size, maxSize: CGSize(width: 3840 * 4, height: 2160 * 4))
+        displayView.layer?.addSublayer(indicator)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
+    override func setSliders(event: NSEvent) {
+        super.setSliders(event: event)
+        let mouseSize = toSize(x: xSlider.percent, y: ySlider.percent)
+        if let closestSize = ScreenSizeInput.screenSize.min(by: { distance(size1: mouseSize, size2: $0) < distance(size1: mouseSize, size2: $1) }) {
+            xSlider.setValue(value: Double(closestSize.width))
+            ySlider.setValue(value: Double(closestSize.height))
+        }
+    }
+    
+    private func toPercent(size: CGSize) -> (Double, Double) {
+        let dWidth = xSlider.maxValue - xSlider.minValue
+        let dHeight = ySlider.maxValue - ySlider.minValue
+        return ((Double(size.width) - xSlider.minValue) / dWidth, (Double(size.height) - ySlider.minValue) / dHeight)
+    }
+    
+    private func toSize(x: Double, y: Double) -> CGSize {
+        let dWidth = xSlider.maxValue - xSlider.minValue
+        let dHeight = ySlider.maxValue - ySlider.minValue
+        return CGSize(width: x * dWidth + xSlider.minValue, height: y * dHeight + ySlider.minValue)
+    }
+    
+    private func distance(size1: CGSize, size2: CGSize) -> CGFloat {
+        return pow(pow(size2.width - size1.width, 2) + pow(size2.height - size1.height, 2), 0.5)
+    }
+    
+    override internal func draw() {
+        indicator.sublayers?.forEach { $0.removeFromSuperlayer() }
+        let closestSize = ScreenSizeInput.screenSize.first(where: { $0 == toSize(x: xSlider.percent, y: ySlider.percent)})
+        for i in ScreenSizeInput.screenSize {
+            let fillPath = CGMutablePath()
+            let percent = toPercent(size: i)
+            let centerPoint = CGPoint(x: displayView.frame.width * CGFloat(percent.0), y: displayView.frame.height * CGFloat(percent.1))
+            fillPath.addArc(center: centerPoint, radius: 2.5, startAngle: 0, endAngle: CGFloat.pi * 2, clockwise: false)
+            let tempLayer = CAShapeLayer()
+            tempLayer.path = fillPath
+            tempLayer.strokeColor = i == closestSize ? NSColor.systemGreen.cgColor : NSColor.systemBlue.cgColor
+            tempLayer.lineWidth = 2.5
+            tempLayer.fillColor = .none
+            indicator.addSublayer(tempLayer)
+        }
+    }
 }

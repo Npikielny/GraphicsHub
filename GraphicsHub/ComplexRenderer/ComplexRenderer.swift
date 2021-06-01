@@ -31,6 +31,7 @@ class ComplexRenderer: SinglyCappedRenderer {
         } else {
             fatalError("Failed to make functions")
         }
+        name = "ComplexRenderer"
     }
     
     override func draw(commandBuffer: MTLCommandBuffer, view: MTKView) {

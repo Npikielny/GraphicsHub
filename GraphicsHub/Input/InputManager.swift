@@ -62,7 +62,7 @@ class BasicInputManager: InputManager {
     var inputs = [NSView]()
     
     init(renderSpecificInputs: [NSView] = [], imageSize: CGSize?) {
-        inputs.append(SizeInput(name: "Image Size", prefix: "Image", minSize: CGSize(width: 1, height: 1), size: CGSize(width: 2048, height: 204812), maxSize: CGSize(width: 4096, height: 4096)))
+        inputs.append(ScreenSizeInput(name: "Image Size", minSize: CGSize(width: 1, height: 1), size: CGSize(width: 2048, height: 2048)))
         inputs.append(StateInput(name: "Recording"))
         inputOffset = inputs.count
         inputs.append(contentsOf: renderSpecificInputs)
@@ -83,8 +83,8 @@ class CappedInputManager: InputManager {
     
 //    private var imageWidthSlider: SliderInput { inputs[0] as! SliderInput }
     var imageWidth: CGFloat {
-        get { (inputs[0] as! SizeInput).width }
-        set { (inputs[0] as! SizeInput).width = newValue }
+        get { (inputs[0] as! ScreenSizeInput).width }
+        set { (inputs[0] as! ScreenSizeInput).width = newValue }
     }
     
     var imageHeight: CGFloat {
@@ -108,7 +108,7 @@ class CappedInputManager: InputManager {
     var inputs = [NSView]()
     
     init(renderSpecificInputs: [NSView], imageSize: CGSize?) {
-        inputs.append(SizeInput(name: "Image Size", prefix: "Image", minSize: CGSize(width: 1, height: 1), size: CGSize(width: 2048, height: 2048), maxSize: CGSize(width: 4096 * 2, height: 4096 * 2)))
+        inputs.append(ScreenSizeInput(name: "Image Size", size: CGSize(width: 2048, height: 2048)))
         inputs.append(SizeInput(name: "Render Size", prefix: "Render", minSize: CGSize(width: 1, height: 1), size: CGSize(width: 512, height: 512), maxSize: CGSize(width: 4096, height: 4096)))
         inputs.append(StateInput(name: "Recording"))
         inputOffset = inputs.count

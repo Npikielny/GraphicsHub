@@ -25,6 +25,9 @@ class ConwayRenderer: SimpleRenderer {
                 memcpy(colorBuffer.contents(), inputManager.colors, colorBuffer.length)
                 colorBuffer.didModifyRange(0..<colorBuffer.length)
             }
+            if inputManager.cellCountDidChange {
+                resetCells()
+            }
         }
         updateAllInputs()
     }
@@ -41,7 +44,6 @@ class ConwayRenderer: SimpleRenderer {
     
     var resizeable: Bool = false
     
-    var cellCount: SIMD2<Int32>
     var cellBuffers = [MTLBuffer]()
     var colorBuffer: MTLBuffer!
     
@@ -54,26 +56,17 @@ class ConwayRenderer: SimpleRenderer {
     
     func drawableSizeDidChange(size: CGSize) {
         self.size = size
-        // TODO: Cell Count
+        
         self.outputImage = createTexture(size: size)
-        let cellSize = Int(cellCount.x * cellCount.y)
-        
-        cellBuffers = []
-        
-        var values = [Int32]()
-        for _ in 0..<Int(cellSize) {
-            values.append(Int32.random(in: -10...1))
-        }
-        cellBuffers.append(device.makeBuffer(bytes: values, length: MemoryLayout<Int32>.stride * values.count, options: .storageModeManaged)!)
-        cellBuffers.append(device.makeBuffer(length: MemoryLayout<Int32>.stride * cellSize, options: .storageModeManaged)!)
-        
-        frame = 0
+        resetCells()
     }
     
     func draw(commandBuffer: MTLCommandBuffer, view: MTKView) {
         if cellBuffers.count == 2 {
+            guard let inputManager = inputManager as? ConwayInputManager else { return }
             let cellEncoder = commandBuffer.makeComputeCommandEncoder()
             cellEncoder?.setComputePipelineState(cellPipeline)
+            let cellCount = SIMD2<Int32>(Int32(inputManager.cellSize.width), Int32(inputManager.cellSize.height))
             cellEncoder?.setBytes([cellCount], length: MemoryLayout<SIMD2<Int32>>.stride, index: 0)
             cellEncoder?.setBuffer(cellBuffers[0], offset: 0, index: 1)
             cellEncoder?.setBuffer(cellBuffers[1], offset: 0, index: 2)
@@ -86,8 +79,8 @@ class ConwayRenderer: SimpleRenderer {
                                   length: MemoryLayout<SIMD2<Int32>>.stride, index: 0)
             drawEncoder?.setBytes([cellCount], length: MemoryLayout<SIMD2<Int32>>.stride, index: 1)
             drawEncoder?.setBuffer(cellBuffers[1], offset: 0, index: 2)
-            
             drawEncoder?.setBuffer(colorBuffer, offset: 0, index: 3)
+            drawEncoder?.setBytes([inputManager.withOutline], length: MemoryLayout<Bool>.stride, index: 4)
             
             drawEncoder?.setTexture(outputImage, index: 0)
             
@@ -98,12 +91,28 @@ class ConwayRenderer: SimpleRenderer {
         frame += 1
     }
     
+    func resetCells() {
+        cellBuffers = []
+        
+        let inputManager = self.inputManager as! ConwayInputManager
+        let cellSize = inputManager.cellSize
+        let cellCount = Int(cellSize.width * cellSize.height)
+        
+        var values = [Int32]()
+        for _ in 0..<cellCount {
+            values.append(Int32.random(in: -100 + Int32(inputManager.spawnProbability)...1))
+        }
+        cellBuffers.append(device.makeBuffer(bytes: values, length: MemoryLayout<Int32>.stride * values.count, options: .storageModeManaged)!)
+        cellBuffers.append(device.makeBuffer(length: MemoryLayout<Int32>.stride * cellCount, options: .storageModeManaged)!)
+        
+        frame = 0
+    }
+    
     var renderPipelineState: MTLRenderPipelineState?
     
     required init(device: MTLDevice, size: CGSize) {
         self.device = device
         self.size = size
-        self.cellCount = SIMD2<Int32>(512,512) // TODO: Cell Count Resizing
         self.inputManager = ConwayInputManager(imageSize: size)
         let functions = createFunctions(names: "conwayCalculate", "conwayDraw", "conwayCopy")
         do {
@@ -116,6 +125,7 @@ class ConwayRenderer: SimpleRenderer {
             fatalError()
         }
         colorBuffer = device.makeBuffer(length: MemoryLayout<SIMD4<Float>>.stride * 4, options: .storageModeManaged)
+        resetCells()
     }
     
     enum State: Int32 {
@@ -127,19 +137,30 @@ class ConwayRenderer: SimpleRenderer {
 }
 
 class ConwayInputManager: BasicInputManager {
-    var colors: [SIMD4<Float>] {
-        (getInput(0) as! ListInput<NSColor, ColorPickerInput>).output.map { $0.toVector() }
-    }
-    var colorsDidChange: Bool { (getInput(0) as! ListInput<NSColor, ColorPickerInput>).didChange }
+    var cellSize: CGSize { (getInput(0) as! SizeInput).output }
+    var cellCountDidChange: Bool { (getInput(0) as! SizeInput).didChange }
+    
+    var spawnProbability: Double { (getInput(1) as! SliderInput).output }
+    var withOutline: Bool { (getInput(2) as! StateInput).output }
+    
+    var colors: [SIMD4<Float>] { (getInput(3) as! ListInput<NSColor, ColorPickerInput>).output.map { $0.toVector() } }
+    var colorsDidChange: Bool { (getInput(3) as! ListInput<NSColor, ColorPickerInput>).didChange }
+    
     override init(renderSpecificInputs: [NSView] = [], imageSize: CGSize?) {
         var inputs = renderSpecificInputs
+        let cellCount = SizeInput(name: "Cells", prefix: "Cell", minSize: CGSize(width: 1, height: 1), size: CGSize(width: 512, height: 512), maxSize: CGSize(width: 2048, height: 2048))
+        inputs.insert(cellCount, at: 0)
+        let spawnProbability = SliderInput(name: "Spawn Probability", minValue: 1, currentValue: 30, maxValue: 100, tickMarks: 100)
+        inputs.insert(spawnProbability, at: 1)
+        let outlineInput = StateInput(name: "Draw Outlines")
+        inputs.insert(outlineInput, at: 2)
         let colorList = ListInput<NSColor, ColorPickerInput>(name: "Colors", inputs: [
             ColorPickerInput(name: "Background", defaultColor: NSColor(red: 0, green: 0, blue: 0, alpha: 1)),
             ColorPickerInput(name: "New Cell", defaultColor: NSColor(red: 1, green: 0, blue: 0, alpha: 1)),
             ColorPickerInput(name: "Old Cell", defaultColor: NSColor(red: 0, green: 0, blue: 1, alpha: 1)),
             ColorPickerInput(name: "Outline", defaultColor: NSColor(red: 1, green: 1, blue: 1, alpha: 1))
         ])
-        inputs.insert(colorList, at: 0)
+        inputs.insert(colorList, at: 3)
         super.init(renderSpecificInputs: inputs, imageSize: imageSize)
     }
     

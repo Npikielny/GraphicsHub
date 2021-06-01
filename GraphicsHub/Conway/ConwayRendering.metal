@@ -48,6 +48,7 @@ kernel void conwayDraw(uint2 tid [[thread_position_in_grid]],
                        constant int2 & cellCount[[buffer(1)]],
                        constant int * cells [[buffer(2)]],
                        constant float4 * colors [[buffer(3)]],
+                       constant bool & drawOutline [[buffer(4)]],
                        texture2d<float, access::read_write>Image) {
     float2 conversion = float2(cellCount) / float2(imageSize);
     int index = toIndex(int2(conversion * float2(tid)), cellCount);
@@ -62,7 +63,7 @@ kernel void conwayDraw(uint2 tid [[thread_position_in_grid]],
                 Image.write(colors[2], tid);
             }
             float2 remainder = conversion * float2(tid) - float2(int2(conversion * float2(tid))) - 0.5;
-            if (max(abs(remainder.x),abs(remainder.y)) > 0.45) {
+            if (drawOutline && max(abs(remainder.x),abs(remainder.y)) > 0.45) {
                 Image.write(colors[3], tid);
             }
                 
