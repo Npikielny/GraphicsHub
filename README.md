@@ -3,7 +3,7 @@ A compilation of all of the graphics projects I have made over the last year.
 Every project will have easy to use inputs, as well as some generic inputs, which allow for recording (currently a directory of photos, but this will hopefully become a video in the comming months).
 ## Projects
 ### Complex Imager
-A pipeline to render Julia sets and the Mandelbrot set.
+Julia sets and the Mandelbrot sets
 ![Screen Shot 2021-06-01 at 12 55 10 AM](https://user-images.githubusercontent.com/42814781/120268687-471cd980-c274-11eb-8869-077aea90f9ff.jpg)
 
 
