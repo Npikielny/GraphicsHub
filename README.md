@@ -3,16 +3,21 @@ A compilation of all of the graphics projects I have made over the last year.
 Every project will have easy to use inputs, as well as some generic inputs, which allow for recording (currently a directory of photos, but this will hopefully become a video in the comming months).
 ## Projects
 ### Complex Imager
-A pipeline to render Julia sets and the Mandelbrot set.
-<img width="1792" alt="Screen Shot 2021-05-04 at 5 39 00 PM" src="https://user-images.githubusercontent.com/42814781/117073824-7afdf100-ad00-11eb-86f2-030492bdef3b.png">
+Julia sets and the Mandelbrot sets
+![Screen Shot 2021-06-01 at 12 55 10 AM](https://user-images.githubusercontent.com/42814781/120268687-471cd980-c274-11eb-8869-077aea90f9ff.jpg)
+
+
 
 ### Conway's Game Of Life
-<img width="1792" alt="Screen Shot 2021-05-04 at 5 46 09 PM" src="https://user-images.githubusercontent.com/42814781/117073982-b8fb1500-ad00-11eb-85c9-0640068baf36.png">
+<img width="2032" alt="Screen Shot 2021-06-01 at 12 52 20 AM" src="https://user-images.githubusercontent.com/42814781/120268787-7cc1c280-c274-11eb-8a04-20ffde5bfaa7.png">
+
+
 
 ### Tests
 So far I have written basic tests for rasterization and a pipeline that enables easy setup for any rendering engine, which should renderr images in segments to limit GPU load. 
-<img width="1792" alt="Screen Shot 2021-05-04 at 5 46 19 PM" src="https://user-images.githubusercontent.com/42814781/117073993-be585f80-ad00-11eb-976f-74cd64c7b0e3.png">
-<img width="1792" alt="Screen Shot 2021-05-04 at 5 46 33 PM" src="https://user-images.githubusercontent.com/42814781/117073997-c0222300-ad00-11eb-9279-66c9b11aadf8.png">
+<img width="2032" alt="Screen Shot 2021-06-01 at 12 51 00 AM" src="https://user-images.githubusercontent.com/42814781/120268764-6f0c3d00-c274-11eb-861a-97f595622940.png">
+<img width="2032" alt="Screen Shot 2021-06-01 at 12 49 34 AM" src="https://user-images.githubusercontent.com/42814781/120268783-792e3b80-c274-11eb-9bb1-8cf8aace02bd.png">
+
 
 ### Coming soon
 - Ray Tracing
