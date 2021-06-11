@@ -12,6 +12,7 @@ class SliderInput: Animateable<Double> {
     typealias OutputType = Double
 
     private var changed: Bool = true
+    
     override var didChange: Bool { if changed { changed = false; return true } else { return false } }
     override var output: OutputType {
         if let transform = transform {
@@ -28,8 +29,8 @@ class SliderInput: Animateable<Double> {
     }
 
     private var slider: NSSlider!
-    private lazy var label: NSTextView = {
-        let tv = NSTextView()
+    private lazy var label: NSTextField = {
+        let tv = NSTextField()
         tv.backgroundColor = .clear
         tv.delegate = self
         return tv
@@ -48,7 +49,7 @@ class SliderInput: Animateable<Double> {
     }
     
     init(name: String, minValue: Double, currentValue: Double, maxValue: Double, tickMarks: Int? = nil, transform: ((OutputType) -> OutputType)? = nil) {
-        super.init(name: name, defaultValue: currentValue, transform: transform, expectedHeight: 100)
+        super.init(name: name, defaultValue: currentValue, transform: transform, expectedHeight: 100, requiredAnimators: 1)
         titleLabel.string = name
         slider = NSSlider(value: currentValue, minValue: minValue, maxValue: maxValue, target: self, action: #selector(valueChanged))
         slider.isContinuous = true
@@ -83,7 +84,7 @@ class SliderInput: Animateable<Double> {
     }
 
     private func assignLabel() {
-        label.string = String(floor(output * 100)/100)
+        label.stringValue = String(floor(output * 100)/100)
     }
 
     @objc func valueChanged() {
@@ -93,6 +94,16 @@ class SliderInput: Animateable<Double> {
 
     func setValue(value: Double) {
         if slider.doubleValue != value {
+            slider.doubleValue = value
+            assignLabel()
+            changed = true
+        }
+    }
+    
+    func resizeableSet(value: Double) {
+        if slider.doubleValue != value {
+            slider.minValue = slider.minValue > value ? value : slider.minValue
+            slider.maxValue = slider.maxValue < value ? value : slider.maxValue
             slider.doubleValue = value
             assignLabel()
             changed = true
@@ -111,11 +122,11 @@ class SliderInput: Animateable<Double> {
     }
 }
 
-extension SliderInput: NSTextViewDelegate {
+extension SliderInput: NSTextFieldDelegate {
     
-    func textDidChange(_ notification: Notification) {
-        if label.string == "" { return }
-        if let value = Double(label.string) {
+    func controlTextDidChange(_ obj: Notification) {
+        if label.stringValue == "" { return }
+        if let value = Double(label.stringValue) {
             if value > slider.minValue && value < slider.maxValue {
                 slider.doubleValue = value
                 changed = true

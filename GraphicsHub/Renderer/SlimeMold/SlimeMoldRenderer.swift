@@ -17,7 +17,7 @@ class SlimeMoldRenderer: SimpleRenderer {
     
     var renderSpecificInputs: [NSView]?
     
-    var inputManager: InputManager
+    var inputManager: RendererInputManager
     
     func synchronizeInputs() {
         if inputManager.size() != size {

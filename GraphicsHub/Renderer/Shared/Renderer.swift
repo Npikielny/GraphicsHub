@@ -26,7 +26,7 @@ protocol Renderer: RendererInfo {
     var device: MTLDevice { get }
     // Holder for renderer's user inputs
     var renderSpecificInputs: [NSView]? { get }
-    var inputManager: InputManager { get set }
+    var inputManager: RendererInputManager { get set }
     func synchronizeInputs()
     
     var size: CGSize { get set }
@@ -187,7 +187,7 @@ extension Renderer {
     }
     
     mutating func handleRecording(commandBuffer: MTLCommandBuffer, frameIndex: inout Int) {
-        if inputManager.recording && recordable {
+        if inputManager.recording && !inputManager.paused && recordable {
             do {
                 let url = try getDirectory(frameIndex: frameIndex)
                 self.url = url

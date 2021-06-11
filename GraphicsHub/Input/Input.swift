@@ -45,6 +45,8 @@ class Input<T>: NSView, InputShell {
         }
     }
     
+    var animateable = false
+    
     init(name: String, defaultValue: T, transform: ((T) -> T)? = nil, expectedHeight: CGFloat) {
         self.transform = transform
         self.name = name
@@ -84,17 +86,57 @@ class Input<T>: NSView, InputShell {
     
 }
 
-protocol AnimateableShell {}
+protocol AnimateableInterface {
+    var name: String { get }
+    var animateable: Bool { get }
+    var requiredAnimators: Int { get }
+    var data: [(Int, [Double])] { get }
+    var doubleOutput: [Double]? { get }
+    
+    func set(_ value: [Double])
+}
 
-class Animateable<T>: Input<T>, AnimateableShell {
+class Animateable<T>: Input<T>, AnimateableInterface {
+    
+    var requiredAnimators: Int
+    var keyFrames = [(Int, T)]()
+    
+    var doubleOutput: [Double]? { convert(from: super.output) }
+    var data: [(Int, [Double])] {
+        keyFrames.compactMap {
+            if let value = convert(from: $0.1) {
+                return ($0.0, value)
+            }
+            return nil
+        }
+    }
+    
+    init(name: String, defaultValue: T, transform: ((T) -> T)? = nil, expectedHeight: CGFloat, requiredAnimators: Int) {
+        self.requiredAnimators = requiredAnimators
+        super.init(name: name, defaultValue: defaultValue, transform: transform, expectedHeight: expectedHeight)
+        animateable = true
+    }
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
+    func set(_ value: [Double]) {}
     func lerpSet(a: T, b: T, p: Double) {}
-    var keyFrames = [Int: T]()
     
     func addKeyFame(index: Int) {
-        keyFrames[index] = super.output
+        keyFrames.removeAll(where: { $0.0 == index })
+        keyFrames.append((index, super.output))
     }
     func addAnimationButtons(rightAnchor: NSLayoutXAxisAnchor) {
         
+    }
+    
+    func convert(to value: Double) -> T? {
+        return nil
+    }
+    
+    func convert(from value: T) -> [Double]? {
+        return nil
     }
 }
 
@@ -129,7 +171,14 @@ extension NSColor {
                             Float(greenComponent),
                             Float(blueComponent))
     }
-    
+    convenience init(seed: Int) {
+        // Legacy random color generator from:
+        // https://github.com/Npikielny/Final-Project/blob/master/finalproject.py
+        self.init(vector: SIMD3<Float>(
+                    abs(sin(0.89 * Float(seed) + 2.3)),
+                    abs(sin(0.44 * Float(seed) + 1.5)),
+                    abs(sin(0.25 * Float(seed) + 0.75))))
+    }
 }
 
 extension CGColor {

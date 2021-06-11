@@ -7,7 +7,7 @@
 
 #include <metal_stdlib>
 using namespace metal;
-#include "../Renderer/SharedDataTypes.h"
+#include "../Renderer/Shared/SharedDataTypes.h"
 
 // Simple fragment shader which copies a texture and applies a simple tonemapping function
 fragment float4 testerFragment(CopyVertexOut in [[stage_in]],

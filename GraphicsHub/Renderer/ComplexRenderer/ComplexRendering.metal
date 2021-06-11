@@ -7,7 +7,7 @@
 
 #include <metal_stdlib>
 using namespace metal;
-#include "../Renderer/SharedDataTypes.h"
+#include "../Shared/SharedDataTypes.h"
 
 float3 complexColor(constant float3 * colors, int colorCount, float percent) {
     if (percent >= 1) {

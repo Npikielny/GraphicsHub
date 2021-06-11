@@ -10,20 +10,24 @@ import Cocoa
 class InputController: NSViewController {
 
     var inputs: [NSView]
-    
+    var animator: AnimatorController?
+    private var animatorWindow: NSWindow?
     let padding: CGFloat = 20
     
-    init(inputs: [NSView]) {
-        self.inputs = inputs
+    init(inputManager: InputManager) {
+        self.inputs = inputManager.inputs
+        if let inputManager = inputManager as? RendererInputManager {
+            self.animator = AnimatorController(inputManager: inputManager)
+            animatorWindow = NSWindow(contentViewController: animator!)
+            animatorWindow?.title = "Animator"
+        }
         super.init(nibName: "InputController", bundle: nil)
-        
-        
     }
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
     
-    var scrollView: NSScrollView = {
+    let scrollView: NSScrollView = {
         let scrollView = NSScrollView()
         scrollView.wantsLayer = true
         scrollView.translatesAutoresizingMaskIntoConstraints = false
@@ -38,6 +42,9 @@ class InputController: NSViewController {
             scrollView.topAnchor.constraint(equalTo: view.topAnchor),
             scrollView.bottomAnchor.constraint(lessThanOrEqualTo: view.bottomAnchor),
         ])
+        scrollView.layer?.backgroundColor = NSColor.clear.cgColor
+        scrollView.backgroundColor = .clear
+        scrollView.documentView?.layer?.backgroundColor = NSColor.clear.cgColor
         var last: NSLayoutYAxisAnchor = scrollView.contentView.topAnchor
         for input in inputs {
             scrollView.contentView.addSubview(input)
@@ -51,21 +58,15 @@ class InputController: NSViewController {
         last.constraint(lessThanOrEqualTo: scrollView.bottomAnchor).isActive = true
     }
     
-    var animator: NSWindow?
     @objc func showAnimator() {
-        if let animator = animator {
-            animator.makeKeyAndOrderFront(nil)
-        } else {
-            let animatableInputs: [AnimateableShell] = inputs.compactMap({ $0 as? AnimateableShell })
-            animator = NSWindow(contentViewController: AnimatorController(inputs: animatableInputs))
-            animator?.makeKeyAndOrderFront(nil)
-        }
+        animatorWindow?.makeKeyAndOrderFront(nil)
     }
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        view.layer?.backgroundColor = NSColor.clear.cgColor
         setupScrollView()
-        if inputs.contains(where: { $0 is Animateable<Any> }) {
+        if inputs.contains(where: { $0 is AnimateableInterface }) {
             let animatorButton = NSButton(title: "Animate", target: self, action: #selector(showAnimator))
             animatorButton.translatesAutoresizingMaskIntoConstraints = false
             view.addSubview(animatorButton)

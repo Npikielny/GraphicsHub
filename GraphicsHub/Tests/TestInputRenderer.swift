@@ -15,7 +15,7 @@ class TestInputRenderer: Renderer {
     
     var renderSpecificInputs: [NSView]?
     
-    var inputManager: InputManager
+    var inputManager: RendererInputManager
     
     func synchronizeInputs() {
         inputManager.handlePerFrameChecks()
@@ -67,7 +67,7 @@ class TestInputRenderer: Renderer {
     
 }
 
-class TestInputManager: InputManager {
+class TestInputManager: RendererInputManager {
     
     var imageWidth: CGFloat
     
@@ -81,6 +81,7 @@ class TestInputManager: InputManager {
     var renderHeight: CGFloat?
     
     var inputs: [NSView]
+    lazy var animatorManager = AnimatorManager(manager: self)
     
     var inputOffset: Int
     

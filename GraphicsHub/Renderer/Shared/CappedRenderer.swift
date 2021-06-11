@@ -60,7 +60,7 @@ class SinglyCappedRenderer: CappedRenderer {
     
     var recordPipeline: MTLComputePipelineState!
     
-    var inputManager: InputManager
+    var inputManager: RendererInputManager
     
     var url: URL?
     

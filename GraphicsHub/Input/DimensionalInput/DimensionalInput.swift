@@ -66,10 +66,10 @@ class DimensionalInput<T>: Animateable<T> {
         super.init(name: name,
                    defaultValue: dimensionalTransform(xSlider.output, ySlider.output),
                    transform: transform,
-                   expectedHeight: 150)
+                   expectedHeight: 150,
+                   requiredAnimators: 2)
         setupViews()
         draw()
-        
     }
     
     func setupViews() {

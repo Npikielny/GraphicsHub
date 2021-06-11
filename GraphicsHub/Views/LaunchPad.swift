@@ -32,9 +32,7 @@ class LaunchPad: NSViewController {
         cv.dataSource = self
         
         cv.register(RenderingOption.self, forItemWithIdentifier: RenderingOption.id)
-        cv.wantsLayer = true
-        cv.layer?.cornerRadius = padding
-        cv.layer?.backgroundColor = NSColor.systemGray.cgColor
+        cv.translatesAutoresizingMaskIntoConstraints = false
         return cv
     }()
     
@@ -52,25 +50,45 @@ class LaunchPad: NSViewController {
     
     let padding: CGFloat = 20
     
+    lazy var scrollView: NSScrollView = {
+        let scrollView = NSScrollView()
+        scrollView.wantsLayer = true
+        scrollView.layer?.cornerRadius = padding
+        scrollView.translatesAutoresizingMaskIntoConstraints = false
+//        scrollView.scrollerStyle = .overlay
+//        scrollView.autohidesScrollers = false
+        scrollView.hasVerticalRuler = true
+        scrollView.hasVerticalScroller = true
+        return scrollView
+    }()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
 //        setupBackgroundView()
         
-        [titleLabel, graphicsOption].forEach {
+        [titleLabel, scrollView].forEach {
             $0.translatesAutoresizingMaskIntoConstraints = false
             view.addSubview($0)
         }
+        scrollView.contentView.addSubview(graphicsOption)
+        
         NSLayoutConstraint.activate([
             titleLabel.topAnchor.constraint(equalTo: view.topAnchor, constant: padding),
             titleLabel.heightAnchor.constraint(equalToConstant: 50),
             titleLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             titleLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             
-            graphicsOption.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: padding),
-            graphicsOption.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -padding),
-            graphicsOption.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: padding),
-            graphicsOption.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -padding),
-            graphicsOption.widthAnchor.constraint(greaterThanOrEqualToConstant: CGFloat(options.max(by: {$0.0 > $1.0})!.0.count) * 12.5 + 10 + padding * 2)
+            scrollView.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: padding),
+            scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -padding),
+            scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: padding),
+            scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -padding),
+            scrollView.widthAnchor.constraint(greaterThanOrEqualToConstant: CGFloat(options.max(by: {$0.0 > $1.0})!.0.count) * 12.5 + 10 + padding * 2),
+            
+            graphicsOption.topAnchor.constraint(equalTo: scrollView.contentView.topAnchor),
+            graphicsOption.bottomAnchor.constraint(equalTo: scrollView.contentView.bottomAnchor),
+            graphicsOption.leadingAnchor.constraint(equalTo: scrollView.contentView.leadingAnchor),
+            graphicsOption.trailingAnchor.constraint(equalTo: scrollView.contentView.trailingAnchor),
+            
         ])
     }
     

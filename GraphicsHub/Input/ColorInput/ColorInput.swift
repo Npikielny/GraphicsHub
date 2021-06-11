@@ -70,7 +70,7 @@ class ColorPickerInput: Animateable<NSColor>, Containable {
     }()
 
      init(name: String, defaultColor: NSColor) {
-        super.init(name: name, defaultValue: defaultColor, transform: nil, expectedHeight: 30)
+        super.init(name: name, defaultValue: defaultColor, transform: nil, expectedHeight: 30, requiredAnimators: 3)
         titleLabel.string = name
         
         self.defaultColor = defaultColor
@@ -84,7 +84,8 @@ class ColorPickerInput: Animateable<NSColor>, Containable {
         super.init(name: name,
                    defaultValue: NSColor(red: 1, green: 1, blue: 1, alpha: 1),
                    transform: nil,
-                   expectedHeight: 30)
+                   expectedHeight: 30,
+                   requiredAnimators: 3)
         titleLabel.string = name
 
         reset()

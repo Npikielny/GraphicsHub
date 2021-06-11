@@ -19,7 +19,6 @@ class EditorViewController: NSSplitViewController {
         fatalError("init(coder:) has not been implemented")
     }
     
-    var inputController: InputController?
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -32,8 +31,7 @@ class EditorViewController: NSSplitViewController {
             addSplitViewItem(NSSplitViewItem(contentListWithViewController: TemplateController(color: .systemPink)))
             return
         }
-        let inputController = InputController(inputs: renderer.inputManager.inputs)
-        self.inputController = inputController
+        let inputController = InputController(inputManager: renderer.inputManager)
         addSplitViewItem(NSSplitViewItem(contentListWithViewController: inputController))
         
         let itemA = NSSplitViewItem(contentListWithViewController: renderingController)
