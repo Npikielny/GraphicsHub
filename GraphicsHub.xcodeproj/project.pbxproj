@@ -52,6 +52,8 @@
 		30FCB999263BA82200910FED /* Conway.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30FCB998263BA82200910FED /* Conway.swift */; };
 		30FCB99B263BA94B00910FED /* ConwayRendering.metal in Sources */ = {isa = PBXBuildFile; fileRef = 30FCB99A263BA94B00910FED /* ConwayRendering.metal */; };
 		461200D6266EB4FF00AE750E /* RendererInputManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 461200D5266EB4FF00AE750E /* RendererInputManager.swift */; };
+		465FE21426752BF30038187F /* IncrementInput.swift in Sources */ = {isa = PBXBuildFile; fileRef = 465FE21326752BF30038187F /* IncrementInput.swift */; };
+		465FE21A267531EF0038187F /* Helpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 465FE219267531EF0038187F /* Helpers.swift */; };
 		467F4FA1266D98FD00C5A31A /* GraphView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 467F4FA0266D98FD00C5A31A /* GraphView.swift */; };
 		4695362E266702A400AFAFE7 /* AnimatorManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4695362D266702A400AFAFE7 /* AnimatorManager.swift */; };
 		46953638266703A500AFAFE7 /* AnimatorSetupController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 46953636266703A500AFAFE7 /* AnimatorSetupController.xib */; };
@@ -129,6 +131,8 @@
 		30FCB998263BA82200910FED /* Conway.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Conway.swift; sourceTree = "<group>"; };
 		30FCB99A263BA94B00910FED /* ConwayRendering.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = ConwayRendering.metal; sourceTree = "<group>"; };
 		461200D5266EB4FF00AE750E /* RendererInputManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RendererInputManager.swift; sourceTree = "<group>"; };
+		465FE21326752BF30038187F /* IncrementInput.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IncrementInput.swift; sourceTree = "<group>"; };
+		465FE219267531EF0038187F /* Helpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Helpers.swift; sourceTree = "<group>"; };
 		467F4FA0266D98FD00C5A31A /* GraphView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GraphView.swift; sourceTree = "<group>"; };
 		4695362D266702A400AFAFE7 /* AnimatorManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnimatorManager.swift; sourceTree = "<group>"; };
 		46953636266703A500AFAFE7 /* AnimatorSetupController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = AnimatorSetupController.xib; sourceTree = "<group>"; };
@@ -216,6 +220,7 @@
 				3092B3212641DB5700902BB6 /* InputManager.swift */,
 				461200D5266EB4FF00AE750E /* RendererInputManager.swift */,
 				3024E44B2655A0B000DD195D /* ListInput */,
+				465FE21226752BD00038187F /* IncrementInput */,
 				3024E44A2655A0A000DD195D /* StateInput */,
 				3024E4492655A08B00DD195D /* DimensionalInput */,
 				3024E4482655A05C00DD195D /* ColorInput */,
@@ -253,6 +258,7 @@
 				30AEDA38263A54B9007ED421 /* Views */,
 				309B401C263BCE0E00300BBE /* Input */,
 				30AEDA33263A2BC3007ED421 /* Renderer */,
+				465FE218267531DC0038187F /* Helpers */,
 				30AEDA27263A247D007ED421 /* Tests */,
 				30AED9F7263A1F16007ED421 /* Assets.xcassets */,
 				30AED9F9263A1F16007ED421 /* MainMenu.xib */,
@@ -337,6 +343,22 @@
 				30FCB99A263BA94B00910FED /* ConwayRendering.metal */,
 			);
 			path = Conway;
+			sourceTree = "<group>";
+		};
+		465FE21226752BD00038187F /* IncrementInput */ = {
+			isa = PBXGroup;
+			children = (
+				465FE21326752BF30038187F /* IncrementInput.swift */,
+			);
+			path = IncrementInput;
+			sourceTree = "<group>";
+		};
+		465FE218267531DC0038187F /* Helpers */ = {
+			isa = PBXGroup;
+			children = (
+				465FE219267531EF0038187F /* Helpers.swift */,
+			);
+			path = Helpers;
 			sourceTree = "<group>";
 		};
 		4695362C2667028300AFAFE7 /* InputController */ = {
@@ -536,7 +558,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				3092B3222641DB5700902BB6 /* InputManager.swift in Sources */,
+				465FE21A267531EF0038187F /* Helpers.swift in Sources */,
 				3024E4512655A11900DD195D /* DimensionalInput.swift in Sources */,
+				465FE21426752BF30038187F /* IncrementInput.swift in Sources */,
 				4695362E266702A400AFAFE7 /* AnimatorManager.swift in Sources */,
 				30D52282263FA08500DA75F6 /* TextureOutput.swift in Sources */,
 				3024E44F2655A0E600DD195D /* ColorInput.swift in Sources */,

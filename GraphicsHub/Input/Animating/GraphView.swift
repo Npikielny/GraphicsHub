@@ -9,6 +9,8 @@ import Cocoa
 
 class GraphView: NSView {
 
+    override var acceptsFirstResponder: Bool { true }
+    
     var animators: [InputAnimator]?
     
     var seed: Int = 0
@@ -45,6 +47,24 @@ class GraphView: NSView {
 //        }
         
         seed = 0
+    }
+    
+    override func mouseDown(with event: NSEvent) {}
+    override func mouseDragged(with event: NSEvent) {
+        if let animators = animators {
+            animators.forEach {
+                $0.mouseDragged(with: event, location: convert(event.locationInWindow, from: superview!), frame: frame)
+            }
+        }
+        self.display()
+    }
+    override func scrollWheel(with event: NSEvent) {
+        if let animators = animators {
+            animators.forEach {
+                $0.scrollWheel(with: event)
+            }
+        }
+        self.display()
     }
     
 }

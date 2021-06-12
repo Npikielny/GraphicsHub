@@ -14,18 +14,6 @@ protocol CappedRenderer: Renderer {
     var frame: Int { get set }
 }
 
-extension CGSize {
-    static func clamp(value: CGSize, minValue: CGSize, maxValue: CGSize) -> CGSize {
-        return Min(size1: maxValue, size2: Max(size1: value, size2: minValue))
-    }
-    static func Min(size1: CGSize, size2: CGSize) -> CGSize {
-        return CGSize(width: min(size1.width, size2.width), height: min(size1.height, size2.height))
-    }
-    static func Max(size1: CGSize, size2: CGSize) -> CGSize {
-        return CGSize(width: max(size1.width, size2.width), height: max(size1.height, size2.height))
-    }
-}
-
 extension CappedRenderer {
     func getCappedGroupSize() -> MTLSize {
         return MTLSize(width: (Int(maxRenderSize.width) + 7)/8 , height: (Int(maxRenderSize.height) + 7)/8, depth: 1)
