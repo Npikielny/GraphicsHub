@@ -21,6 +21,9 @@ class SliderInput: Animateable<Double> {
             return slider.doubleValue
         }
     }
+    override var doubleOutput: [Double]! {
+        [output]
+    }
 
     var percent: Double { (slider.doubleValue - minValue) / (maxValue - minValue) }
 

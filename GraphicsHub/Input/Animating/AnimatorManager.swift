@@ -16,10 +16,13 @@ class AnimatorManager {
     init(manager: RendererInputManager) {
         for input in manager.inputs {
             if let inputInterface = input as? AnimateableInterface {
-                animations[input] = Array(repeating: SinusoidalAnimator(input: inputInterface, manager: self), count: inputInterface.requiredAnimators)
+                var animators = [InputAnimator]()
+                for i in 0..<inputInterface.requiredAnimators {
+                    animators.append(SinusoidalAnimator(input: inputInterface, manager: self, index: i))
+                }
+                animations[input] = animators
             }
         }
-        print(animations)
     }
     
     func setFrame(frame: Int) {
@@ -30,4 +33,12 @@ class AnimatorManager {
         }
     }
     
+//    func addKeyframe(frame: Int, sender: InputAnimator) {
+//        for (input, animators) in animations {
+//            if animators.contains(where: { sender.id == $0.id }) {
+//                setFrame(frame: frame)
+//                (input as? AnimateableInterface)?.addKeyFrame(index: <#T##Int#>, frame: <#T##Int#>, value: <#T##Double#>)
+//            }
+//        }
+//    }
 }

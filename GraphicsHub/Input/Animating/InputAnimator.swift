@@ -7,44 +7,57 @@
 
 import Cocoa
 
+var inputIndex: Int = 0
 protocol InputAnimator {
     static var name: String { get }
+    var id: Int { get }
     var displayDomain: (Int, Int)? { get }
     var displayRange: (Double, Double)? { get }
     var input: AnimateableInterface { get }
     var manager: AnimatorManager { get }
-    init(input: AnimateableInterface, manager: AnimatorManager)
+    init(input: AnimateableInterface, manager: AnimatorManager, index: Int)
     
     func getFrame(_ frame: Int) -> Double
     func drawPath(_ frame: NSRect) -> NSBezierPath
     func drawPoints(_ frame: NSRect) -> [NSBezierPath]
-    func pointPaths(_ frame: NSRect) -> [(NSBezierPath, Bool)]
-    func mouseDown(location: CGPoint) -> Bool
-    func mouseDragged(with event: NSEvent, location: CGPoint, frame: NSRect)
+    func getDescription() -> NSString?
+    func leftMouseDown(location: CGPoint)
+    func leftMouseDragged(with event: NSEvent, location: CGPoint, frame: NSRect)
+    func rightMouseDown(location: CGPoint)
+    func rightMouseDragged(with event: NSEvent, location: CGPoint, frame: NSRect)
     func scrollWheel(with event: NSEvent)
 }
 
 extension InputAnimator {
     func getDomain() -> (Int?, Int?) {
-        let data = input.data.map({$0.0})
+        let data = input.keyFrames.reduce([], +).map({$0.0})
         return (data.min(), data.max())
     }
 
     func getRange() -> (Double?, Double?) {
-        if input.data.count == 0 {
+        if input.keyFrames.count == 0 {
             return (0, 1)
         }
-        let min = input.data.map({$0.1.min()!}).min()
-        let max = input.data.map({$0.1.max()!}).max()
+        let compactedData = input.keyFrames.reduce([], +).map({ $1 })
+        let min = compactedData.min()
+        let max = compactedData.max()
         return (min, max)
     }
     
     func getPosition(frame: NSRect, frameRange: (Int, Int), position: (Int, Double)) -> NSPoint {
         let dx = frameRange.1 - frameRange.0
+        if let displayRange = displayRange {
+            let height = 1.5 * (position.1 - (displayRange.1 + displayRange.0) / 2) / (displayRange.1 - displayRange.0)
+            return NSPoint(x: frame.width * CGFloat(position.0) / CGFloat(dx), y: CGFloat(height) * frame.height / 2 + frame.height / 2)
+        }
         return NSPoint(x: frame.width * CGFloat(position.0) / CGFloat(dx), y: CGFloat(position.1) + frame.height / 2)
     }
     
     func draw(frameRange: (Int, Int), frame: NSRect, points: Int...) -> NSBezierPath {
+        draw(frameRange: frameRange, frame: frame, points: points)
+    }
+    
+    func draw(frameRange: (Int, Int), frame: NSRect, points: [Int]) -> NSBezierPath {
         let path = NSBezierPath()
         path.lineWidth = 3
         if frameRange.1 - frameRange.0 == 0 {
@@ -61,12 +74,12 @@ extension InputAnimator {
     }
     
     func drawPoints(frameRange: (Int, Int), frame: NSRect, points: Int...) -> [NSBezierPath] {
-        return drawPoints(frameRange: frameRange, frame: frame, points: points)
+        return drawPoints(frameRange: frameRange, frame: frame, pointsList: points)
     }
     
-    func drawPoints(frameRange: (Int, Int), frame: NSRect, points: [Int]) -> [NSBezierPath] {
+    func drawPoints(frameRange: (Int, Int), frame: NSRect, pointsList: [Int]) -> [NSBezierPath] {
         var paths = [NSBezierPath]()
-        for point in points {
+        for point in pointsList {
             if frameRange.1 - frameRange.0 == 0 {
                 if point == frameRange.0 {
                     let pointPosition = NSPoint(x: frame.width / 2, y: CGFloat(getFrame(point)) + frame.height / 2)
@@ -96,100 +109,123 @@ extension InputAnimator {
     }
 }
 
-//class ConstantAnimator: InputAnimator {
-//    
-//    static var name: String = "Constant"
-//    
-//    var input: AnimateableInterface
-//    
-//    init(input: AnimateableInterface) {
-//        self.input = input
-//        let value = (input.doubleOutput ?? [0])[0]
-//        displayRange = (value, value)
-//    }
-//    
-//    var displayDomain: (Int, Int)? = nil
-//    var displayRange: (Double, Double)
-//    
-//    func setFrame(frame: Int) {}
-//    
-//    func draw(in view: NSView) {}
-//    
-//    func mouseDown(location: CGPoint) -> Bool {
-//        return false
-//    }
-//    
-//    func mouseMoved(location: CGPoint) {}
-//}
+class LinearAnimator: InputAnimator {
+    
+    static var name: String = "Linear Animator"
+    var id: Int
+    
+    var displayDomain: (Int, Int)?
+    
+    var displayRange: (Double, Double)?
+    
+    var input: AnimateableInterface
+    var index: Int
+    
+    var manager: AnimatorManager
+    
+    required init(input: AnimateableInterface, manager: AnimatorManager, index: Int) {
+        id = inputIndex
+        inputIndex += 1
+        self.input = input
+        self.manager = manager
+        self.index = index
+        if input.keyFrames.count == 0 {
+            let current = input.doubleOutput[index]
+            if current == 0 {
+                displayRange = (-5, 5)
+            } else {
+                displayRange = (current * 0.5, current * 1.5)
+            }
+        }
+    }
+    
+    func getFrame(_ frame: Int) -> Double {
+        if let item = input.keyFrames[index].first(where: { $0.0 == frame }) {
+            return item.1
+        }
+        let before = input.keyFrames[index].last(where: { $0.0 < frame })
+        let after = input.keyFrames[index].first(where: { $0.0 > frame })
+        if before == nil && after == nil {
+            return input.doubleOutput![index]
+        }
+        guard let beforeUnwrapped = before else { return after!.1 }
+        let beforeValue = beforeUnwrapped.1
+        guard let afterUnwrapped = before else { return beforeValue }
+        let afterValue = afterUnwrapped.1
+        
+        let p = (Double(frame) - Double(beforeUnwrapped.0))/(Double(afterUnwrapped.0) - Double(beforeUnwrapped.0))
+        return (afterValue - beforeValue) * p + beforeValue
+    }
+    
+    func drawPath(_ frame: NSRect) -> NSBezierPath {
+        return draw(frameRange: displayDomain ?? manager.frameRange, frame: frame, points: input.keyFrames[index].map({$0.0}))
+    }
+    
+    func drawPoints(_ frame: NSRect) -> [NSBezierPath] {
+        []
+    }
+    
+    func leftMouseDown(location: CGPoint) {
+        let frame: Int = 0
+        let data: Double = 1
+        input.addKeyFrame(index: index, frame: frame, value: data)
+    }
+    
+    func leftMouseDragged(with event: NSEvent, location: CGPoint, frame: NSRect) {
+        
+    }
+    
+    func rightMouseDown(location: CGPoint) {}
+    
+    func rightMouseDragged(with event: NSEvent, location: CGPoint, frame: NSRect) {}
+    
+    func scrollWheel(with event: NSEvent) {}
+    
+    func getDescription() -> NSString? {
+        nil
+    }
+}
 
-//class LinearAnimator: InputAnimator {
-//    static var name: String = "Linear"
-//
-//    var displayDomain: (Int, Int)?
-//    var displayRange: (Double, Double)!
-//    var input: AnimateableInterface
-//
-//    init(input: AnimateableInterface) {
-//        self.input = input
-//        let domain = getDomain()
-//        self.displayDomain = (
-//            {
-//                if let minRange = domain.0 {
-//                    return minRange
-//                }
-//                return 0
-//            }(),
-//            {
-//                if let maxRange = domain.1 {
-//                    return maxRange
-//                }
-//                return 0
-//            }()
-//        )
-//
-//    }
-//
-//    func setFrame(frame: Int) {}
-//
-//    func draw(in view: NSView) {}
-//
-//    func mouseDown(location: CGPoint) -> Bool {}
-//
-//    func mouseMoved(location: CGPoint) {}
-//}
 class SinusoidalAnimator: InputAnimator {
     
     static var name: String = "Sinusoidal"
-    
+    var id: Int
     var displayDomain: (Int, Int)? = nil
-    var displayRange: (Double, Double)?
+    var displayRange: (Double, Double)? {
+        (intercept - abs(amplitude), intercept + abs(amplitude))
+    }
     
     var input: AnimateableInterface
     
     var locus: Double
     var period: Double { didSet { handlePeriod() } }
     private func handlePeriod() {
-        if period == 0 {
-            period = 10
+        if period < 0 {
+            period = 0
         }
     }
+    var intercept: Double
     
     var amplitude: Double
     
     var manager: AnimatorManager
     
-    required init(input: AnimateableInterface, manager: AnimatorManager) {
+    required init(input: AnimateableInterface, manager: AnimatorManager, index: Int) {
+        id = inputIndex
+        inputIndex += 1
         self.input = input
         let frameRange = manager.frameRange
         period = Double(frameRange.1 - frameRange.0)
         locus = Double(frameRange.1 + frameRange.0) / 2
         amplitude = 50
+        intercept = input.doubleOutput[index]
         self.manager = manager
         handlePeriod()
     }
     
     func getFrame(_ frame: Int) -> Double {
-        return amplitude * sin((Double(frame) - locus) / period * (2 * Double.pi))
+        if period == 0 { return intercept }
+        return amplitude * sin((Double(frame) - locus) / period * (2 * Double.pi)) + intercept
     }
     
     func drawPath(_ frame: NSRect) -> NSBezierPath {
@@ -198,20 +234,40 @@ class SinusoidalAnimator: InputAnimator {
     
     func drawPoints(_ frame: NSRect) -> [NSBezierPath] {
         let points: [Int] = Array(manager.frameRange.0...manager.frameRange.1)
-        return drawPoints(frameRange: manager.frameRange, frame: frame, points: points)
+        return drawPoints(frameRange: manager.frameRange, frame: frame, pointsList: points)
     }
     
-    func pointPaths(_ frame: NSRect) -> [(NSBezierPath, Bool)] {
-        []
+    func getDescription() -> NSString? {
+        NSString(utf8String: """
+                    Locus: \(locus)
+                    Intercept: \(intercept),
+                    Amplitude: \(amplitude),
+                    Period: \(period)
+                    """)
     }
     
-    func mouseDown(location: CGPoint) -> Bool { return false }
+    func leftMouseDown(location: CGPoint) { }
     
-    func mouseDragged(with event: NSEvent, location: CGPoint, frame: NSRect) {
+    func leftMouseDragged(with event: NSEvent, location: CGPoint, frame: NSRect) {
         if manager.frameRange.1 - manager.frameRange.0 == 0 {
             locus = Double(manager.frameRange.0)
         } else {
             locus = Double(location.x / frame.width * CGFloat(manager.frameRange.1 - manager.frameRange.0))
+        }
+        intercept -= Double(event.deltaY)
+    }
+    
+    func rightMouseDown(location: CGPoint) {}
+    
+    func rightMouseDragged(with event: NSEvent, location: CGPoint, frame: NSRect) {
+        let delta = event.deltaX
+        if delta < 0 {
+            period -= 0.1
+        } else if delta > 0 {
+            period += 0.1
+        }
+        if period < 0 {
+            period = 0
         }
         amplitude -= Double(event.deltaY / frame.height) * 50
     }

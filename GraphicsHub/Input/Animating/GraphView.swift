@@ -23,7 +23,7 @@ class GraphView: NSView {
     override func draw(_ dirtyRect: NSRect) {
         super.draw(dirtyRect)
         if let animators = animators {
-            for animator in animators {
+            for (index, animator) in animators.enumerated() {
                 let path = animator.drawPath(dirtyRect)
                 let color = getColor()
                 color.setStroke()
@@ -34,6 +34,14 @@ class GraphView: NSView {
                     NSColor.gray.setStroke()
                     $0.stroke()
                     $0.fill()
+                }
+                if index == 0 {
+                    if let description = animator.getDescription() {
+                        description.draw(at: NSPoint(x: 5, y: 5), withAttributes: [
+                            .foregroundColor: NSColor.white,
+                            .font: NSFont.systemFont(ofSize: 10)
+                        ])
+                    }
                 }
             }
         }
@@ -53,11 +61,21 @@ class GraphView: NSView {
     override func mouseDragged(with event: NSEvent) {
         if let animators = animators {
             animators.forEach {
-                $0.mouseDragged(with: event, location: convert(event.locationInWindow, from: superview!), frame: frame)
+                $0.leftMouseDragged(with: event, location: convert(event.locationInWindow, from: superview!), frame: frame)
             }
         }
         self.display()
     }
+    override func rightMouseDown(with event: NSEvent) {}
+    override func rightMouseDragged(with event: NSEvent) {
+        if let animators = animators {
+            animators.forEach {
+                $0.rightMouseDragged(with: event, location: convert(event.locationInWindow, from: superview!), frame: frame)
+            }
+        }
+        self.display()
+    }
+    
     override func scrollWheel(with event: NSEvent) {
         if let animators = animators {
             animators.forEach {

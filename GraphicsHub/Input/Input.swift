@@ -90,31 +90,27 @@ protocol AnimateableInterface {
     var name: String { get }
     var animateable: Bool { get }
     var requiredAnimators: Int { get }
-    var data: [(Int, [Double])] { get }
-    var doubleOutput: [Double]? { get }
+    var keyFrames: [[(Int, Double)]] { get }
+    var doubleOutput: [Double]! { get }
     
     func set(_ value: [Double])
+    func addKeyFrame(index: Int, frame: Int, value: Double)
 }
 
 class Animateable<T>: Input<T>, AnimateableInterface {
+    var doubleOutput: [Double]! { nil }
+    
+    var keyFrames = [[(Int, Double)]]()
     
     var requiredAnimators: Int
-    var keyFrames = [(Int, T)]()
-    
-    var doubleOutput: [Double]? { convert(from: super.output) }
-    var data: [(Int, [Double])] {
-        keyFrames.compactMap {
-            if let value = convert(from: $0.1) {
-                return ($0.0, value)
-            }
-            return nil
-        }
-    }
     
     init(name: String, defaultValue: T, transform: ((T) -> T)? = nil, expectedHeight: CGFloat, requiredAnimators: Int) {
         self.requiredAnimators = requiredAnimators
         super.init(name: name, defaultValue: defaultValue, transform: transform, expectedHeight: expectedHeight)
         animateable = true
+        for _ in 0..<requiredAnimators {
+            keyFrames.append([])
+        }
     }
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
@@ -123,10 +119,11 @@ class Animateable<T>: Input<T>, AnimateableInterface {
     func set(_ value: [Double]) {}
     func lerpSet(a: T, b: T, p: Double) {}
     
-    func addKeyFame(index: Int) {
-        keyFrames.removeAll(where: { $0.0 == index })
-        keyFrames.append((index, super.output))
+    func addKeyFrame(index: Int, frame: Int, value: Double) {
+        keyFrames[index].removeAll(where: { $0.0 == frame })
+        keyFrames[index].append((frame, value))
     }
+    
     func addAnimationButtons(rightAnchor: NSLayoutXAxisAnchor) {
         
     }

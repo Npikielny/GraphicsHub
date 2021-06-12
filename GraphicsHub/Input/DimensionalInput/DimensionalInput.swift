@@ -10,11 +10,11 @@ import Cocoa
 class DimensionalInput<T>: Animateable<T> {
     
     override var output: T {
-        get {
-            dimensionalTransform(xSlider.output,ySlider.output)
-        }
+        dimensionalTransform(xSlider.output,ySlider.output)
     }
-    
+    override var doubleOutput: [Double]! {
+        [xSlider.output, ySlider.output]
+    }
     var dimensionalTransform: (Double, Double) -> T
     
     var getDescription: (T) -> String

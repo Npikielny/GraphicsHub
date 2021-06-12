@@ -27,6 +27,14 @@ class ColorPickerInput: Animateable<NSColor>, Containable {
             colorPicker.color = newValue
         }
     }
+    override var doubleOutput: [Double]! {
+        let color = colorPicker.color
+        return [
+            Double(color.redComponent),
+            Double(color.greenComponent),
+            Double(color.blueComponent),
+        ]
+    }
 
     lazy var colorView: NSView = {
         let view = NSView()
