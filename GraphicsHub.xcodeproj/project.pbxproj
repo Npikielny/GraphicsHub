@@ -226,7 +226,6 @@
 				3024E4482655A05C00DD195D /* ColorInput */,
 				3024E4472655A05200DD195D /* SliderInput */,
 				4695362C2667028300AFAFE7 /* InputController */,
-				46C75A242666FA80007A87E4 /* Animating */,
 			);
 			path = Input;
 			sourceTree = "<group>";
@@ -257,6 +256,7 @@
 				30AED9F5263A1F15007ED421 /* AppDelegate.swift */,
 				30AEDA38263A54B9007ED421 /* Views */,
 				309B401C263BCE0E00300BBE /* Input */,
+				46C75A242666FA80007A87E4 /* Animating */,
 				30AEDA33263A2BC3007ED421 /* Renderer */,
 				465FE218267531DC0038187F /* Helpers */,
 				30AEDA27263A247D007ED421 /* Tests */,

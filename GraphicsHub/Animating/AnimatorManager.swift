@@ -18,7 +18,7 @@ class AnimatorManager {
             if let inputInterface = input as? AnimateableInterface {
                 var animators = [InputAnimator]()
                 for i in 0..<inputInterface.requiredAnimators {
-                    animators.append(SinusoidalAnimator(input: inputInterface, manager: self, index: i))
+                    animators.append(LinearAnimator(input: inputInterface, manager: self, index: i))
                 }
                 animations[input] = animators
             }

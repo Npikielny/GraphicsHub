@@ -9,7 +9,7 @@ import MetalKit
 import Metal
 import Cocoa
 
-
+// TODO: Find the source
 struct RGBA32 {
     var color: UInt32
     

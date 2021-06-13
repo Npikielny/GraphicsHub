@@ -14,6 +14,7 @@ class GraphView: NSView {
     var animators: [InputAnimator]?
     
     var seed: Int = 0
+    var editingIndex = 0
     
     private func getColor() -> NSColor {
         seed += 1
@@ -60,27 +61,21 @@ class GraphView: NSView {
     override func mouseDown(with event: NSEvent) {}
     override func mouseDragged(with event: NSEvent) {
         if let animators = animators {
-            animators.forEach {
-                $0.leftMouseDragged(with: event, location: convert(event.locationInWindow, from: superview!), frame: frame)
-            }
+            animators[editingIndex].leftMouseDragged(with: event, location: convert(event.locationInWindow, from: superview!), frame: frame)
         }
         self.display()
     }
     override func rightMouseDown(with event: NSEvent) {}
     override func rightMouseDragged(with event: NSEvent) {
         if let animators = animators {
-            animators.forEach {
-                $0.rightMouseDragged(with: event, location: convert(event.locationInWindow, from: superview!), frame: frame)
-            }
+            animators[editingIndex].rightMouseDragged(with: event, location: convert(event.locationInWindow, from: superview!), frame: frame)
         }
         self.display()
     }
     
     override func scrollWheel(with event: NSEvent) {
         if let animators = animators {
-            animators.forEach {
-                $0.scrollWheel(with: event)
-            }
+            animators[editingIndex].scrollWheel(with: event)
         }
         self.display()
     }

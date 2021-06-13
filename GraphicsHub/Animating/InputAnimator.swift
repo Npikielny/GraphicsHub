@@ -53,6 +53,14 @@ extension InputAnimator {
         return NSPoint(x: frame.width * CGFloat(position.0) / CGFloat(dx), y: CGFloat(position.1) + frame.height / 2)
     }
     
+    func findPosition(frame: NSRect, frameRange: (Int, Int), position: NSPoint) -> (Int, Double) {
+        let frameIndex = Int((position.x / frame.width) * CGFloat(frameRange.1 - frameRange.0) + CGFloat(frameRange.0))
+        if let displayRange = displayRange {
+            return (frameIndex, ((Double(position.y / frame.height * 2 - frame.height / 2)) * (displayRange.1 - displayRange.0) + (displayRange.1 + displayRange.0) / 2)/1.5)
+        }
+        return (frameIndex, Double(position.y - frame.height / 2))
+    }
+    
     func draw(frameRange: (Int, Int), frame: NSRect, points: Int...) -> NSBezierPath {
         draw(frameRange: frameRange, frame: frame, points: points)
     }

@@ -12,6 +12,11 @@ class AnimatorController: NSViewController {
 
     override var acceptsFirstResponder: Bool { true }
     
+    static let animationTypes: [InputAnimator.Type] = [
+        LinearAnimator.self,
+        SinusoidalAnimator.self
+    ]
+    
     let animatorManager: AnimatorManager
     
     var selectorButton: NSPopUpButton!
@@ -52,6 +57,9 @@ class AnimatorController: NSViewController {
     
     var checkTimer: Timer?
     
+    var inputSpecificViews = [NSView]()
+    var inputSpecificConstraints = [NSLayoutConstraint]()
+    
     init(inputManager: RendererInputManager) {
         self.animatorManager = AnimatorManager(manager: inputManager)
         super.init(nibName: "AnimatorController", bundle: nil)
@@ -84,16 +92,13 @@ class AnimatorController: NSViewController {
         }
         
         NSLayoutConstraint.activate([
-            graphView.topAnchor.constraint(equalTo: selectorButton.bottomAnchor, constant: 5),
             graphView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 15),
             graphView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -15),
             graphView.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -15),
-            
-            
         ])
         graphView.layer?.backgroundColor = NSColor.black.cgColor
-        setAnimators()
         setFrameRange()
+        setAnimators()
     }
     
     @objc func setInput(_ sender: NSButton) {
@@ -101,10 +106,74 @@ class AnimatorController: NSViewController {
     }
     
     private func setAnimators() {
-        guard let animators = animatorManager.animations.first(where: { ($0.key as? AnimateableInterface)?.name == selectorButton.selectedItem?.title })?.value else { print("FOund nothin"); return }
+        guard let animators = animatorManager.animations.first(where: { ($0.key as? AnimateableInterface)?.name == selectorButton.selectedItem?.title })?.value else { return }
         graphView.animators = animators
+        NSLayoutConstraint.deactivate(inputSpecificConstraints)
+        inputSpecificConstraints = []
+        inputSpecificViews.forEach {
+            $0.removeFromSuperview()
+        }
+        inputSpecificViews = []
+
+        var last = selectorButton.bottomAnchor
+        for (index, animator) in animators.enumerated() {
+            let selector = NSPopUpButton(title: "", target: self, action: #selector(setSpecificAnimator))
+            for animator in AnimatorController.animationTypes {
+                selector.addItem(withTitle: "\(animator.name)")
+            }
+            if let animatorIndex = AnimatorController.animationTypes.firstIndex(where: { $0 == type(of: animator)}) {
+                selector.selectItem(at: animatorIndex)
+            }
+            inputSpecificViews.append(selector)
+            
+            inputSpecificConstraints.append(contentsOf: [
+                selector.topAnchor.constraint(equalTo: last, constant: 5),
+                selector.leadingAnchor.constraint(equalTo: selectorButton.leadingAnchor),
+                selector.trailingAnchor.constraint(equalTo: selector.trailingAnchor),
+                selector.heightAnchor.constraint(equalTo: selectorButton.heightAnchor)
+            ])
+            
+            let editingButton = NSButton(radioButtonWithTitle: "", target: self, action: #selector(editInput(sender:)))
+            inputSpecificViews.append(editingButton)
+            if index == 0 {
+                editingButton.state = .on
+            }
+            inputSpecificConstraints.append(contentsOf: [
+                editingButton.leadingAnchor.constraint(equalTo: selector.trailingAnchor, constant: 5),
+                editingButton.topAnchor.constraint(equalTo: last, constant: 5),
+                editingButton.heightAnchor.constraint(equalTo: selectorButton.heightAnchor),
+                editingButton.widthAnchor.constraint(equalTo: editingButton.heightAnchor)
+            ])
+            editingButton.bezelStyle = .circular
+            
+            last = selector.bottomAnchor
+        }
+        inputSpecificConstraints.append(graphView.topAnchor.constraint(equalTo: last, constant: 5))
+
+        inputSpecificViews.forEach {
+            $0.translatesAutoresizingMaskIntoConstraints = false
+            view.addSubview($0)
+        }
+        NSLayoutConstraint.activate(inputSpecificConstraints)
         graphView.display()
     }
+    
+    @objc func setSpecificAnimator(sender: Any) {
+        guard let sender = sender as? NSPopUpButton else { return }
+        guard let index = inputSpecificViews.firstIndex(of: sender) else { return }
+        guard let interface = animatorManager.animations.first(where: { ($0.key as? AnimateableInterface)?.name == selectorButton.selectedItem?.title })?.key else { return }
+        guard let animateableInterface = interface as? AnimateableInterface else { return }
+        guard let animateableType = AnimatorController.animationTypes.first(where: { $0.name == sender.selectedItem?.title }) else { return }
+        animatorManager.animations[interface]?[index / 2] = animateableType.init(input: animateableInterface, manager: animatorManager, index: index / 2)
+        graphView.animators = animatorManager.animations[interface]
+        graphView.display()
+    }
+    
+    @objc func editInput(sender: Any) {
+        guard let editingIndex = inputSpecificViews.firstIndex(of: sender as! NSButton) else { return }
+        graphView.editingIndex = editingIndex / 2
+    }
+    
     func checkFrameRange() {
         checkTimer?.invalidate()
         let isValid: (NSTextField) -> Bool = { return (Int($0.stringValue)) != nil}
