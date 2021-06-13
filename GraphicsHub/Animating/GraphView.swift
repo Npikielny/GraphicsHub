@@ -46,19 +46,16 @@ class GraphView: NSView {
                 }
             }
         }
-//        for i in 0...10 {
-//            let path = NSBezierPath()
-//            path.move(to: NSPoint(x: 0, y: 0))
-//            path.line(to: NSPoint(x: 100, y: i * 109))
-//            path.lineWidth = 3
-//            getColor().setStroke()
-//            path.stroke()
-//        }
         
         seed = 0
     }
     
-    override func mouseDown(with event: NSEvent) {}
+    override func mouseDown(with event: NSEvent) {
+        if let animators = animators {
+            animators[editingIndex].leftMouseDown(frame: frame, location: convert(event.locationInWindow, from: superview!))
+        }
+        self.display()
+    }
     override func mouseDragged(with event: NSEvent) {
         if let animators = animators {
             animators[editingIndex].leftMouseDragged(with: event, location: convert(event.locationInWindow, from: superview!), frame: frame)

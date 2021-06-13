@@ -57,6 +57,8 @@
 		467F4FA1266D98FD00C5A31A /* GraphView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 467F4FA0266D98FD00C5A31A /* GraphView.swift */; };
 		4695362E266702A400AFAFE7 /* AnimatorManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4695362D266702A400AFAFE7 /* AnimatorManager.swift */; };
 		46953638266703A500AFAFE7 /* AnimatorSetupController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 46953636266703A500AFAFE7 /* AnimatorSetupController.xib */; };
+		46C2B64A26759A21005E2733 /* LinearAnimator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 46C2B64926759A21005E2733 /* LinearAnimator.swift */; };
+		46C2B65226759A32005E2733 /* SinusoidalAnimator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 46C2B65126759A32005E2733 /* SinusoidalAnimator.swift */; };
 		46C75A262666FA8C007A87E4 /* InputAnimator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 46C75A252666FA8C007A87E4 /* InputAnimator.swift */; };
 /* End PBXBuildFile section */
 
@@ -136,6 +138,8 @@
 		467F4FA0266D98FD00C5A31A /* GraphView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GraphView.swift; sourceTree = "<group>"; };
 		4695362D266702A400AFAFE7 /* AnimatorManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnimatorManager.swift; sourceTree = "<group>"; };
 		46953636266703A500AFAFE7 /* AnimatorSetupController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = AnimatorSetupController.xib; sourceTree = "<group>"; };
+		46C2B64926759A21005E2733 /* LinearAnimator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LinearAnimator.swift; sourceTree = "<group>"; };
+		46C2B65126759A32005E2733 /* SinusoidalAnimator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SinusoidalAnimator.swift; sourceTree = "<group>"; };
 		46C75A252666FA8C007A87E4 /* InputAnimator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InputAnimator.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -370,10 +374,20 @@
 			path = InputController;
 			sourceTree = "<group>";
 		};
+		46C2B64826759A16005E2733 /* Animators */ = {
+			isa = PBXGroup;
+			children = (
+				46C2B64926759A21005E2733 /* LinearAnimator.swift */,
+				46C2B65126759A32005E2733 /* SinusoidalAnimator.swift */,
+			);
+			path = Animators;
+			sourceTree = "<group>";
+		};
 		46C75A242666FA80007A87E4 /* Animating */ = {
 			isa = PBXGroup;
 			children = (
 				46C75A252666FA8C007A87E4 /* InputAnimator.swift */,
+				46C2B64826759A16005E2733 /* Animators */,
 				4695362D266702A400AFAFE7 /* AnimatorManager.swift */,
 				46953636266703A500AFAFE7 /* AnimatorSetupController.xib */,
 				3061CF2F265C2FAA00D48CFA /* AnimatorController.swift */,
@@ -568,11 +582,13 @@
 				30AEDA2D263A27B7007ED421 /* RenderPipeline.metal in Sources */,
 				30AEDA36263A54A2007ED421 /* LaunchPad.swift in Sources */,
 				30E26260264648CE00311F44 /* SlimeMoldRenderer.swift in Sources */,
+				46C2B64A26759A21005E2733 /* LinearAnimator.swift in Sources */,
 				3024E4532655A14200DD195D /* StateInput.swift in Sources */,
 				46C75A262666FA8C007A87E4 /* InputAnimator.swift in Sources */,
 				467F4FA1266D98FD00C5A31A /* GraphView.swift in Sources */,
 				30FCB999263BA82200910FED /* Conway.swift in Sources */,
 				30AEDA29263A248C007ED421 /* TesterBaseRenderer.swift in Sources */,
+				46C2B65226759A32005E2733 /* SinusoidalAnimator.swift in Sources */,
 				30AEDA2B263A261F007ED421 /* TesterRendering.metal in Sources */,
 				309B4021263BDDBE00300BBE /* InputController.swift in Sources */,
 				30CC8730263B43650002B0B8 /* CappedRenderer.swift in Sources */,

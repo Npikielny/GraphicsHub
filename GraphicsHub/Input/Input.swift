@@ -122,6 +122,7 @@ class Animateable<T>: Input<T>, AnimateableInterface {
     func addKeyFrame(index: Int, frame: Int, value: Double) {
         keyFrames[index].removeAll(where: { $0.0 == frame })
         keyFrames[index].append((frame, value))
+        keyFrames[index].sort(by: { $0.0 < $1.0 })
     }
     
     func addAnimationButtons(rightAnchor: NSLayoutXAxisAnchor) {
