@@ -44,7 +44,7 @@ class ComplexRenderer: SinglyCappedRenderer {
                                    index: 0)
             juliaEncoder?.setBytes([SIMD2<Int32>(Int32(maxRenderSize.width),Int32(maxRenderSize.height))],
                                    length: MemoryLayout<SIMD2<Int32>>.stride, index: 1)
-            juliaEncoder?.setBytes([frame], length: MemoryLayout<Int32>.stride, index: 2)
+            juliaEncoder?.setBytes([Int32(intermediateFrame)], length: MemoryLayout<Int32>.stride, index: 2)
             juliaEncoder?.setBytes([inputManager.origin.toVector()], length: MemoryLayout<SIMD2<Float>>.stride, index: 3)
             juliaEncoder?.setBytes([inputManager.c.toInverseVector()], length: MemoryLayout<SIMD2<Float>>.stride, index: 4)
             juliaEncoder?.setBytes([inputManager.zoom], length: MemoryLayout<Float>.stride, index: 5)
@@ -112,8 +112,8 @@ class ComplexInputManager: CappedInputManager {
         let origin = PointInput(name: "Origin", origin: CGPoint(x: 0, y: 0), size: CGSize(width: 1000000, height: 1000000))
         let scalingFactor = SliderInput(name: "Scaling Factor", minValue: 0.1, currentValue: 1, maxValue: 10)
         let colorList = ListInput<NSColor, ColorPickerInput>(name: "Colors", inputs: [
-            ColorPickerInput(name: "Color 1", defaultColor: NSColor(red: 1, green: 1, blue: 1, alpha: 1)),
-            ColorPickerInput(name: "Color 2", defaultColor: NSColor(red: 0, green: 0, blue: 0, alpha: 1)),
+            ColorPickerInput(name: "Color 1", defaultColor: NSColor(red: 0, green: 0, blue: 0, alpha: 1), animateable: false),
+            ColorPickerInput(name: "Color 2", defaultColor: NSColor(red: 1, green: 1, blue: 1, alpha: 1), animateable: false),
         ])
         self.init(renderSpecificInputs: [c,
                                          zoom,

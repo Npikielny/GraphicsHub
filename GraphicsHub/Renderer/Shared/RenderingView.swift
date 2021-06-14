@@ -134,45 +134,47 @@ class RenderingView: MTKView {
 }
 
 extension RenderingView: MTKViewDelegate {
+    
     func mtkView(_ view: MTKView, drawableSizeWillChange size: CGSize) {
         guard let renderer = renderer else { return }
         renderer.drawableSizeDidChange(size: size)
     }
     // TODO: DONT DRAW UNLESS NECESSARY!
     func draw(in view: MTKView) {
-        if let renderPassDescriptor = view.currentRenderPassDescriptor, let renderer = renderer {
-            semaphore.wait()
-            let commandBuffer = commandQueue.makeCommandBuffer()
-            commandBuffer?.addCompletedHandler { [self] commandBuffer in
-                DispatchQueue.main.async {
-                    if !renderer.inputManager.paused {
-                        animateLayer(FPS: 1/(commandBuffer.gpuEndTime - commandBuffer.gpuStartTime))
-                    }
+        guard let renderPassDescriptor = view.currentRenderPassDescriptor, let renderer = renderer else { return }
+        semaphore.wait()
+        let commandBuffer = commandQueue.makeCommandBuffer()
+        commandBuffer?.addCompletedHandler { [self] commandBuffer in
+            DispatchQueue.main.async {
+                if !renderer.inputManager.paused {
+                    animateLayer(FPS: 1/(commandBuffer.gpuEndTime - commandBuffer.gpuStartTime))
                 }
-                self.semaphore.signal()
             }
-            renderer.inputManager.handlePerFrameChecks()
-            if let commandBuffer = commandBuffer {
-                renderer.synchronizeInputs()
-                renderer.handleDrawing(commandBuffer: commandBuffer, view: self)
-                self.renderer!.handleRecording(commandBuffer: commandBuffer, frameIndex: &frameIndex)
-            }
-            
-            let renderEncoder = commandBuffer?.makeRenderCommandEncoder(descriptor: renderPassDescriptor)!
-            if let pipeline = renderer.renderPipelineState {
-                renderEncoder?.setRenderPipelineState(pipeline)
-            } else {
-                renderEncoder?.setRenderPipelineState(renderPipelineState)
-            }
-            renderEncoder?.setFragmentTexture(renderer.outputImage, index: 0)
-            renderEncoder?.drawPrimitives(type: .triangle, vertexStart: 0, vertexCount: 6)
-            renderEncoder?.endEncoding()
-            
-            commandBuffer?.present(view.currentDrawable!)
-            commandBuffer?.commit()
-            commandBuffer?.waitUntilCompleted()
+            self.semaphore.signal()
         }
+        renderer.inputManager.handlePerFrameChecks()
+        if let commandBuffer = commandBuffer {
+            self.renderer!.handleAnimation()
+            renderer.synchronizeInputs()
+            renderer.handleDrawing(commandBuffer: commandBuffer, view: self)
+            self.renderer!.handleRecording(commandBuffer: commandBuffer, frameIndex: &frameIndex)
+        }
+        
+        let renderEncoder = commandBuffer?.makeRenderCommandEncoder(descriptor: renderPassDescriptor)!
+        if let pipeline = renderer.renderPipelineState {
+            renderEncoder?.setRenderPipelineState(pipeline)
+        } else {
+            renderEncoder?.setRenderPipelineState(renderPipelineState)
+        }
+        renderEncoder?.setFragmentTexture(renderer.outputImage, index: 0)
+        renderEncoder?.drawPrimitives(type: .triangle, vertexStart: 0, vertexCount: 6)
+        renderEncoder?.endEncoding()
+        
+        commandBuffer?.present(view.currentDrawable!)
+        commandBuffer?.commit()
+        commandBuffer?.waitUntilCompleted()
     }
+    
 }
 
 extension RenderingView {

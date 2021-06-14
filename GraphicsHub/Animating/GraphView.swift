@@ -24,7 +24,7 @@ class GraphView: NSView {
     override func draw(_ dirtyRect: NSRect) {
         super.draw(dirtyRect)
         if let animators = animators {
-            for (index, animator) in animators.enumerated() {
+            for animator in animators {
                 let path = animator.drawPath(dirtyRect)
                 let color = getColor()
                 color.setStroke()
@@ -36,14 +36,12 @@ class GraphView: NSView {
                     $0.stroke()
                     $0.fill()
                 }
-                if index == 0 {
-                    if let description = animator.getDescription() {
-                        description.draw(at: NSPoint(x: 5, y: 5), withAttributes: [
-                            .foregroundColor: NSColor.white,
-                            .font: NSFont.systemFont(ofSize: 10)
-                        ])
-                    }
-                }
+            }
+            if let description = animators[editingIndex].getDescription() {
+                description.draw(at: NSPoint(x: 5, y: 5), withAttributes: [
+                    .foregroundColor: NSColor.white,
+                    .font: NSFont.systemFont(ofSize: 10)
+                ])
             }
         }
         

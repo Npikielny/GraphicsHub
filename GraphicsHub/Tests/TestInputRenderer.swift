@@ -81,7 +81,7 @@ class TestInputManager: RendererInputManager {
     var renderHeight: CGFloat?
     
     var inputs: [NSView]
-    lazy var animatorManager = AnimatorManager(manager: self)
+    var animatorManager: AnimatorManager!
     
     var inputOffset: Int
     
@@ -96,6 +96,7 @@ class TestInputManager: RendererInputManager {
         
         ]
         inputOffset = inputs.count
+        animatorManager  = AnimatorManager(manager: self)
     }
     
     func handlePerFrameChecks() {

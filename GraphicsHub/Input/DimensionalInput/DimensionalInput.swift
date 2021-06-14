@@ -20,11 +20,19 @@ class DimensionalInput<T>: Animateable<T> {
     var getDescription: (T) -> String
     
     override var didChange: Bool {
-        if xSlider.didChange || ySlider.didChange {
-            draw()
-            return true
+        get {
+            if xSlider.didChange || ySlider.didChange {
+                xSlider.didChange = false
+                ySlider.didChange = false
+                draw()
+                return true
+            }
+            return false
         }
-        return false
+        set {
+            xSlider.didChange = newValue
+            ySlider.didChange = newValue
+        }
     }
     
     typealias OutputType = T
@@ -58,7 +66,7 @@ class DimensionalInput<T>: Animateable<T> {
     
     var displayView = NSView()
     
-    init(name: String, xSlider: SliderInput, ySlider: SliderInput, dimensionalTransform: @escaping (Double, Double) -> T, transform: ((T) -> T)? = nil, getDescription: @escaping (T) -> String) {
+    init(name: String, xSlider: SliderInput, ySlider: SliderInput, dimensionalTransform: @escaping (Double, Double) -> T, transform: ((T) -> T)? = nil, getDescription: @escaping (T) -> String, animateable: Bool) {
         self.xSlider = xSlider
         self.ySlider = ySlider
         self.dimensionalTransform = dimensionalTransform
@@ -67,7 +75,8 @@ class DimensionalInput<T>: Animateable<T> {
                    defaultValue: dimensionalTransform(xSlider.output, ySlider.output),
                    transform: transform,
                    expectedHeight: 150,
-                   requiredAnimators: 2)
+                   requiredAnimators: 2,
+                   animateable: animateable)
         setupViews()
         draw()
     }
@@ -135,6 +144,15 @@ class DimensionalInput<T>: Animateable<T> {
         indicator.fillColor = .none
         displayView.layer?.addSublayer(indicator)
     }
+    
+    override func setDidChange(_ value: Bool) {
+        didChange = value
+    }
+    
+    override func set(_ value: [Double]) {
+        xSlider.setValue(value: value[0])
+        ySlider.setValue(value: value[1])
+    }
 }
 
 class PointInput: DimensionalInput<CGPoint> {
@@ -151,7 +169,6 @@ class PointInput: DimensionalInput<CGPoint> {
     var x: CGFloat { get { CGFloat(xSlider.output) } set { xSlider.setValue(value: Double(newValue)) } }
     var y: CGFloat { get { CGFloat(ySlider.output) } set { ySlider.setValue(value: Double(newValue)) } }
     
-    
     override func lerpSet(a: CGPoint, b: CGPoint, p: Double) {
         output = CGPoint(x: (b.x - a.x) * CGFloat(p) + a.x,
                        y: (b.x - a.x) * CGFloat(p) + a.y)
@@ -162,7 +179,7 @@ class PointInput: DimensionalInput<CGPoint> {
                    xSlider: SliderInput(name: xName, minValue: Double(origin.x - size.width/2), currentValue: Double(origin.x), maxValue: Double(origin.x + size.width/2)),
                    ySlider: SliderInput(name: yName, minValue: Double(origin.x - size.width/2), currentValue: Double(origin.x), maxValue: Double(origin.x + size.width/2)),
                    dimensionalTransform: { x, y in CGPoint(x: CGFloat(x), y: CGFloat(y))},
-                   getDescription: { point in "(\(point.x), \(point.y)"})
+                   getDescription: { point in "(\(point.x), \(point.y)"}, animateable: true)
     }
     
     required init?(coder: NSCoder) {
@@ -208,7 +225,7 @@ class SizeInput: DimensionalInput<CGSize> {
                                         currentValue: Double(size.height),
                                         maxValue: Double(maxSize.height)),
                    dimensionalTransform: { width, height in CGSize(width: CGFloat(width), height: CGFloat(height))},
-                   getDescription: { size in "\(size.width) x \(size.height)"})
+                   getDescription: { size in "\(size.width) x \(size.height)"}, animateable: false)
     }
     
     required init?(coder: NSCoder) {

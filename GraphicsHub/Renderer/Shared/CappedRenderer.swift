@@ -63,7 +63,8 @@ class SinglyCappedRenderer: CappedRenderer {
         }
         (inputManager.inputs as! [InputShell]).forEach {
             if $0.didChange {
-                frame = 0
+                frame = inputManager.animatorManager.frameRange.0
+                intermediateFrame = 0
                 return
             }
         }
@@ -78,7 +79,7 @@ class SinglyCappedRenderer: CappedRenderer {
     var renderSpecificInputs: [NSView]?
     
     var recordable: Bool {
-        return frame % (Int(ceil(size.width / maxRenderSize.width)) * Int(ceil(size.height / maxRenderSize.height))) == 0
+        return intermediateFrame != 0 && intermediateFrame % (Int(ceil(size.width / maxRenderSize.width)) * Int(ceil(size.height / maxRenderSize.height))) == 0
     }
     internal var image: MTLTexture!
     var outputImage: MTLTexture! {
@@ -88,6 +89,7 @@ class SinglyCappedRenderer: CappedRenderer {
     var resizeable: Bool { false }
     
     var frame: Int = 0
+    internal var intermediateFrame: Int = 0
     var frameStable: Bool { false }
     
     func drawableSizeDidChange(size: CGSize) {
@@ -98,7 +100,12 @@ class SinglyCappedRenderer: CappedRenderer {
     }
     
     func draw(commandBuffer: MTLCommandBuffer, view: MTKView) {
-        frame += 1
+        if recordable {
+            frame += 1
+            intermediateFrame = 0
+        } else {
+            intermediateFrame += 1
+        }
     }
     
     var renderPipelineState: MTLRenderPipelineState?

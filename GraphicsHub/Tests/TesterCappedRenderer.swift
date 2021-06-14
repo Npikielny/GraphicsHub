@@ -45,7 +45,7 @@ class TesterCappedRenderer: SinglyCappedRenderer {
         computeEncoder?.setTexture(outputImage, index: 0)
         computeEncoder?.dispatchThreadgroups(getCappedGroupSize(), threadsPerThreadgroup: MTLSize(width: 8, height: 8, depth: 1))
         computeEncoder?.endEncoding()
-        frame += 1
+        super.draw(commandBuffer: commandBuffer, view: view)
         
     }
     

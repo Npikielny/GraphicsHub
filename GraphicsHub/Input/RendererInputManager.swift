@@ -19,7 +19,7 @@ protocol RendererInputManager: InputManager {
     var renderWidth: CGFloat? { get set }
     var renderHeight: CGFloat? { get set }
     
-    var animatorManager: AnimatorManager { get set }
+    var animatorManager: AnimatorManager! { get set }
 }
 
 extension RendererInputManager {
@@ -59,7 +59,7 @@ class BasicInputManager: RendererInputManager {
     var renderHeight: CGFloat?
     
     var inputs = [NSView]()
-    lazy var animatorManager = AnimatorManager(manager: self)
+    var animatorManager: AnimatorManager!
     
     init(renderSpecificInputs: [NSView] = [], imageSize: CGSize?) {
         inputs.append(ScreenSizeInput(name: "Image Size", minSize: CGSize(width: 1, height: 1), size: CGSize(width: 2048, height: 2048)))
@@ -67,6 +67,7 @@ class BasicInputManager: RendererInputManager {
         inputs.append(StateInput(name: "Paused"))
         inputOffset = inputs.count
         inputs.append(contentsOf: renderSpecificInputs)
+        animatorManager = AnimatorManager(manager: self)
     }
     
     func handlePerFrameChecks() {}
@@ -110,7 +111,7 @@ class CappedInputManager: RendererInputManager {
         set { (inputs[3] as! StateInput).output = newValue }
     }
     var inputs = [NSView]()
-    lazy var animatorManager = AnimatorManager(manager: self)
+    var animatorManager: AnimatorManager!
     
     init(renderSpecificInputs: [NSView], imageSize: CGSize?) {
         inputs.append(ScreenSizeInput(name: "Image Size", size: CGSize(width: 2048, height: 2048)))

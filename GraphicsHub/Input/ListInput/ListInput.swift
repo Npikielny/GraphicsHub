@@ -17,7 +17,14 @@ class ListInput<InputType, View: Input<InputType> & Containable >: Input<[InputT
 
     typealias OutputType = [InputType]
 
-    override var didChange: Bool { return inputs.contains { $0.didChange } }
+    override var didChange: Bool {
+        get { inputs.contains { $0.didChange } }
+        set {
+            for i in 0..<inputs.count {
+                inputs[i].didChange = newValue
+            }
+        }
+    }
     var inputs = [View]()
     override var output: [InputType] { inputs.map { $0.output } }
 

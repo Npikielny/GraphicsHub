@@ -66,7 +66,7 @@ class InputController: NSViewController {
         super.viewDidLoad()
         view.layer?.backgroundColor = NSColor.clear.cgColor
         setupScrollView()
-        if inputs.contains(where: { $0 is AnimateableInterface }) {
+        if animator?.animatorManager.animations.count ?? 0 > 0 {
             let animatorButton = NSButton(title: "Animate", target: self, action: #selector(showAnimator))
             animatorButton.translatesAutoresizingMaskIntoConstraints = false
             view.addSubview(animatorButton)

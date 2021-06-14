@@ -15,7 +15,7 @@ class AnimatorManager {
     
     init(manager: RendererInputManager) {
         for input in manager.inputs {
-            if let inputInterface = input as? AnimateableInterface {
+            if let inputInterface = input as? AnimateableInterface, inputInterface.animateable {
                 var animators = [InputAnimator]()
                 for i in 0..<inputInterface.requiredAnimators {
                     animators.append(LinearAnimator(input: inputInterface, manager: self, index: i))
@@ -28,11 +28,16 @@ class AnimatorManager {
     func setFrame(frame: Int) {
         for (input, animators) in animations {
             if let input = input as? AnimateableInterface {
+                let temp = input.didChange
                 input.set(animators.map({ $0.getFrame(frame) }))
+                input.setDidChange(temp)
             }
         }
     }
     
+    func update() {
+        
+    }
 //    func addKeyframe(frame: Int, sender: InputAnimator) {
 //        for (input, animators) in animations {
 //            if animators.contains(where: { sender.id == $0.id }) {

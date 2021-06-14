@@ -96,9 +96,9 @@ class SinusoidalAnimator: InputAnimator {
     func scrollWheel(with event: NSEvent) {
         let delta = event.scrollingDeltaX + event.scrollingDeltaY
         if delta < 0 {
-            period -= 0.1
+            period *= 0.9
         } else if delta > 0 {
-            period += 0.1
+            period *= 1.1
         }
         if period < 0 {
             period = 0

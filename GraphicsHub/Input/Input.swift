@@ -28,8 +28,11 @@ class Input<T>: NSView, InputShell {
             changed = true
         }
     }
-    private var changed = false
-    var didChange: Bool { changed }
+    internal var changed = true
+    var didChange: Bool {
+        get { let temp = changed; changed = false; return temp }
+        set { changed = newValue }
+    }
     internal var defaultValue: T
     
     var transform: ((T) -> T)?
@@ -93,7 +96,9 @@ protocol AnimateableInterface {
     var keyFrames: [[(Int, Double)]] { get }
     var doubleOutput: [Double]! { get }
     
+    var didChange: Bool { get set }
     func set(_ value: [Double])
+    func setDidChange(_ value: Bool)
     func addKeyFrame(index: Int, frame: Int, value: Double)
 }
 
@@ -104,10 +109,10 @@ class Animateable<T>: Input<T>, AnimateableInterface {
     
     var requiredAnimators: Int
     
-    init(name: String, defaultValue: T, transform: ((T) -> T)? = nil, expectedHeight: CGFloat, requiredAnimators: Int) {
+    init(name: String, defaultValue: T, transform: ((T) -> T)? = nil, expectedHeight: CGFloat, requiredAnimators: Int, animateable: Bool) {
         self.requiredAnimators = requiredAnimators
         super.init(name: name, defaultValue: defaultValue, transform: transform, expectedHeight: expectedHeight)
-        animateable = true
+        self.animateable = animateable
         for _ in 0..<requiredAnimators {
             keyFrames.append([])
         }
@@ -117,6 +122,9 @@ class Animateable<T>: Input<T>, AnimateableInterface {
     }
     
     func set(_ value: [Double]) {}
+    func setDidChange(_ value: Bool) {
+        didChange = value
+    }
     func lerpSet(a: T, b: T, p: Double) {}
     
     func addKeyFrame(index: Int, frame: Int, value: Double) {

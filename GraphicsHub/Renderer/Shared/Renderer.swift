@@ -15,7 +15,7 @@ protocol RendererInfo {
     
     var frameStable: Bool { get }
     
-    var frame: Int { get }
+    var frame: Int { get set }
     
 }
 
@@ -57,9 +57,26 @@ var defaultSizes: [(Renderer.Type, CGSize)] = [
 ]
 
 extension Renderer {
+    
+    mutating func handleAnimation() {
+        if !inputManager.paused {
+            self.inputManager.animatorManager.update()
+            let frameRange = self.inputManager.animatorManager.frameRange
+            if frameRange.1 - frameRange.0 > 0 {
+                frame = (frame < frameRange.0) ? frameRange.0 : frame
+                if frame > frameRange.1 {
+                    frame = frameRange.0
+                    inputManager.recording = false
+                }
+            }
+            inputManager.animatorManager.setFrame(frame: frame)
+        }
+        
+    }
+    
     func handleDrawing(commandBuffer: MTLCommandBuffer, view: MTKView) {
         if !inputManager.paused {
-            self.draw(commandBuffer: commandBuffer, view: view)
+            draw(commandBuffer: commandBuffer, view: view)
         }
     }
 

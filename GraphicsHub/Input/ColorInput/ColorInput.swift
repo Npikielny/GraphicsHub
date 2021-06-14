@@ -11,10 +11,6 @@ class ColorPickerInput: Animateable<NSColor>, Containable {
 
     typealias OutputType = NSColor
 
-    private var lastColor: NSColor = NSColor(red: 1, green: 1, blue: 1, alpha: 1)
-    private var changed: Bool { lastColor != output}
-    override var didChange: Bool { if changed { lastColor = output; return true } else { return false } }
-
     var defaultColor: NSColor = NSColor(red: 1, green: 1, blue: 1, alpha: 1)
 
     override var output: NSColor {
@@ -64,7 +60,7 @@ class ColorPickerInput: Animateable<NSColor>, Containable {
                          alpha: (b.alphaComponent - a.alphaComponent) * CGFloat(p) + a.alphaComponent)
     }
 
-    lazy var setColorButton: NSButton = NSButton(title: "Set Color", target: self, action: #selector(setColor))
+    lazy var setColorButton: NSButton = NSButton(title: "Set Color", target: self, action: #selector(showPicker))
 
     private var heightAnchorConstraint: NSLayoutConstraint!
     
@@ -74,11 +70,12 @@ class ColorPickerInput: Animateable<NSColor>, Containable {
         cp.isContinuous = true
         cp.mode = .wheel
         cp.showsAlpha = true
+        cp.setTarget(#selector(setColor))
         return cp
     }()
 
-     init(name: String, defaultColor: NSColor) {
-        super.init(name: name, defaultValue: defaultColor, transform: nil, expectedHeight: 30, requiredAnimators: 3)
+    init(name: String, defaultColor: NSColor, animateable: Bool) {
+        super.init(name: name, defaultValue: defaultColor, transform: nil, expectedHeight: 30, requiredAnimators: 3, animateable: animateable)
         titleLabel.string = name
         
         self.defaultColor = defaultColor
@@ -93,7 +90,8 @@ class ColorPickerInput: Animateable<NSColor>, Containable {
                    defaultValue: NSColor(red: 1, green: 1, blue: 1, alpha: 1),
                    transform: nil,
                    expectedHeight: 30,
-                   requiredAnimators: 3)
+                   requiredAnimators: 3,
+                   animateable: false)
         titleLabel.string = name
 
         reset()
@@ -130,6 +128,10 @@ class ColorPickerInput: Animateable<NSColor>, Containable {
     }
     
     @objc func setColor() {
+        changed = true
+    }
+    
+    @objc func showPicker() {
         colorPicker.makeKeyAndOrderFront(self)
     }
 

@@ -11,24 +11,13 @@ class StateInput: Input<Bool>, Containable {
     
     typealias OutputType = Bool
     
-    private var changed = false
-    override var didChange: Bool {
-        get {
-            if changed {
-                changed = false
-                return true
-            }
-            return false
-        }
-    }
-    
     override var output: Bool {
         get { stateButton.state == .on }
         set {
             if newValue {
-                stateButton.state = .off
-            } else {
                 stateButton.state = .on
+            } else {
+                stateButton.state = .off
             }
         }
     }

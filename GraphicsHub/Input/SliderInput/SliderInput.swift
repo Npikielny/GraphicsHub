@@ -10,10 +10,7 @@ import Cocoa
 class SliderInput: Animateable<Double> {
     
     typealias OutputType = Double
-
-    private var changed: Bool = true
     
-    override var didChange: Bool { if changed { changed = false; return true } else { return false } }
     override var output: OutputType {
         if let transform = transform {
             return transform(slider.doubleValue)
@@ -26,10 +23,6 @@ class SliderInput: Animateable<Double> {
     }
 
     var percent: Double { (slider.doubleValue - minValue) / (maxValue - minValue) }
-
-    override func reset() {
-        setValue(value: defaultValue)
-    }
 
     private var slider: NSSlider!
     private lazy var label: NSTextField = {
@@ -51,8 +44,8 @@ class SliderInput: Animateable<Double> {
         self.init(name: name, minValue: 0, currentValue: 5, maxValue: 10)
     }
     
-    init(name: String, minValue: Double, currentValue: Double, maxValue: Double, tickMarks: Int? = nil, transform: ((OutputType) -> OutputType)? = nil) {
-        super.init(name: name, defaultValue: currentValue, transform: transform, expectedHeight: 100, requiredAnimators: 1)
+    init(name: String, minValue: Double, currentValue: Double, maxValue: Double, tickMarks: Int? = nil, transform: ((OutputType) -> OutputType)? = nil, animateable: Bool = true) {
+        super.init(name: name, defaultValue: currentValue, transform: transform, expectedHeight: 100, requiredAnimators: 1, animateable: animateable)
         titleLabel.string = name
         slider = NSSlider(value: currentValue, minValue: minValue, maxValue: maxValue, target: self, action: #selector(valueChanged))
         slider.isContinuous = true
@@ -86,6 +79,10 @@ class SliderInput: Animateable<Double> {
         fatalError("init(coder:) has not been implemented")
     }
 
+    override func reset() {
+        setValue(value: defaultValue)
+    }
+
     private func assignLabel() {
         label.stringValue = String(floor(output * 100)/100)
     }
@@ -95,6 +92,10 @@ class SliderInput: Animateable<Double> {
         changed = true
     }
 
+    override func set(_ value: [Double]) {
+        setValue(value: value[0])
+    }
+    
     func setValue(value: Double) {
         if slider.doubleValue != value {
             slider.doubleValue = value
