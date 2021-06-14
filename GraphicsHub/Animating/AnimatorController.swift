@@ -61,7 +61,7 @@ class AnimatorController: NSViewController {
     var inputSpecificConstraints = [NSLayoutConstraint]()
     
     init(inputManager: RendererInputManager) {
-        self.animatorManager = AnimatorManager(manager: inputManager)
+        self.animatorManager = inputManager.animatorManager
         super.init(nibName: "AnimatorController", bundle: nil)
         selectorButton = NSPopUpButton(title: "", target: self, action: #selector(setInput))
         selectorButton.addItems(withTitles: animatorManager.animations.map({
@@ -106,6 +106,7 @@ class AnimatorController: NSViewController {
     }
     
     private func setAnimators() {
+        graphView.editingIndex = 0
         guard let animators = animatorManager.animations.first(where: { ($0.key as? AnimateableInterface)?.name == selectorButton.selectedItem?.title })?.value else { return }
         graphView.animators = animators
         NSLayoutConstraint.deactivate(inputSpecificConstraints)
@@ -172,6 +173,7 @@ class AnimatorController: NSViewController {
     @objc func editInput(sender: Any) {
         guard let editingIndex = inputSpecificViews.firstIndex(of: sender as! NSButton) else { return }
         graphView.editingIndex = editingIndex / 2
+        graphView.display()
     }
     
     func checkFrameRange() {

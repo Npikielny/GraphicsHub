@@ -47,14 +47,14 @@ extension InputAnimator {
     func getPosition(frame: NSRect, frameRange: (Int, Int), position: (Int, Double)) -> NSPoint {
         let dx = frameRange.1 - frameRange.0
         if let displayRange = displayRange {
-            let height = 1.5 * (position.1 - (displayRange.1 + displayRange.0) / 2) / (displayRange.1 - displayRange.0)
+            let height = 1.5 * (position.1 - (displayRange.1 + displayRange.0) / 2) / (displayRange.1 - displayRange.0 + 1)
             return NSPoint(x: frame.width * CGFloat(position.0) / CGFloat(dx), y: CGFloat(height) * frame.height / 2 + frame.height / 2)
         }
         return NSPoint(x: frame.width * CGFloat(position.0) / CGFloat(dx), y: CGFloat(position.1) + frame.height / 2)
     }
     
     func findPosition(frame: NSRect, frameRange: (Int, Int), position: NSPoint) -> (Int, Double) {
-        let frameIndex = Int((position.x / frame.width) * CGFloat(frameRange.1 - frameRange.0) + CGFloat(frameRange.0))
+        let frameIndex = Int((position.x / frame.width) * CGFloat(frameRange.1 - frameRange.0 + 1) + CGFloat(frameRange.0))
         if let displayRange = displayRange {
             return (frameIndex, ((Double(position.y / frame.height * 2 - frame.height / 2)) * (displayRange.1 - displayRange.0) + (displayRange.1 + displayRange.0) / 2)/1.5)
         }
