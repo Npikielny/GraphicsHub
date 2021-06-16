@@ -54,6 +54,9 @@
 		461200D6266EB4FF00AE750E /* RendererInputManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 461200D5266EB4FF00AE750E /* RendererInputManager.swift */; };
 		465FE21426752BF30038187F /* IncrementInput.swift in Sources */ = {isa = PBXBuildFile; fileRef = 465FE21326752BF30038187F /* IncrementInput.swift */; };
 		465FE21A267531EF0038187F /* Helpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 465FE219267531EF0038187F /* Helpers.swift */; };
+		4661A618267A6E5B00BADC8F /* SceneRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4661A617267A6E5B00BADC8F /* SceneRenderer.swift */; };
+		4661A620267A6E9600BADC8F /* VanillaRayTraceRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4661A61F267A6E9600BADC8F /* VanillaRayTraceRenderer.swift */; };
+		4661A625267A6F5500BADC8F /* VanillaRayTraceRendering.metal in Sources */ = {isa = PBXBuildFile; fileRef = 4661A624267A6F5500BADC8F /* VanillaRayTraceRendering.metal */; };
 		466938922677FAD4003616E0 /* DataTypes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 466938912677FAD4003616E0 /* DataTypes.swift */; };
 		467F4FA1266D98FD00C5A31A /* GraphView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 467F4FA0266D98FD00C5A31A /* GraphView.swift */; };
 		4695362E266702A400AFAFE7 /* AnimatorManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4695362D266702A400AFAFE7 /* AnimatorManager.swift */; };
@@ -136,6 +139,9 @@
 		461200D5266EB4FF00AE750E /* RendererInputManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RendererInputManager.swift; sourceTree = "<group>"; };
 		465FE21326752BF30038187F /* IncrementInput.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IncrementInput.swift; sourceTree = "<group>"; };
 		465FE219267531EF0038187F /* Helpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Helpers.swift; sourceTree = "<group>"; };
+		4661A617267A6E5B00BADC8F /* SceneRenderer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneRenderer.swift; sourceTree = "<group>"; };
+		4661A61F267A6E9600BADC8F /* VanillaRayTraceRenderer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VanillaRayTraceRenderer.swift; sourceTree = "<group>"; };
+		4661A624267A6F5500BADC8F /* VanillaRayTraceRendering.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = VanillaRayTraceRendering.metal; sourceTree = "<group>"; };
 		466938912677FAD4003616E0 /* DataTypes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataTypes.swift; sourceTree = "<group>"; };
 		467F4FA0266D98FD00C5A31A /* GraphView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GraphView.swift; sourceTree = "<group>"; };
 		4695362D266702A400AFAFE7 /* AnimatorManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnimatorManager.swift; sourceTree = "<group>"; };
@@ -372,6 +378,9 @@
 			isa = PBXGroup;
 			children = (
 				466938912677FAD4003616E0 /* DataTypes.swift */,
+				4661A617267A6E5B00BADC8F /* SceneRenderer.swift */,
+				4661A61F267A6E9600BADC8F /* VanillaRayTraceRenderer.swift */,
+				4661A624267A6F5500BADC8F /* VanillaRayTraceRendering.metal */,
 			);
 			path = 3DRendering;
 			sourceTree = "<group>";
@@ -597,12 +606,14 @@
 				3024E4532655A14200DD195D /* StateInput.swift in Sources */,
 				46C75A262666FA8C007A87E4 /* InputAnimator.swift in Sources */,
 				467F4FA1266D98FD00C5A31A /* GraphView.swift in Sources */,
+				4661A620267A6E9600BADC8F /* VanillaRayTraceRenderer.swift in Sources */,
 				30FCB999263BA82200910FED /* Conway.swift in Sources */,
 				30AEDA29263A248C007ED421 /* TesterBaseRenderer.swift in Sources */,
 				46C2B65226759A32005E2733 /* SinusoidalAnimator.swift in Sources */,
 				30AEDA2B263A261F007ED421 /* TesterRendering.metal in Sources */,
 				309B4021263BDDBE00300BBE /* InputController.swift in Sources */,
 				30CC8730263B43650002B0B8 /* CappedRenderer.swift in Sources */,
+				4661A618267A6E5B00BADC8F /* SceneRenderer.swift in Sources */,
 				30BADFBB2656EB1C006719F7 /* TestInputRenderer.swift in Sources */,
 				3028F1A6263C93E0006922F0 /* EditorViewController.swift in Sources */,
 				30FCB99B263BA94B00910FED /* ConwayRendering.metal in Sources */,
@@ -615,6 +626,7 @@
 				30AEDA3B263A5B5B007ED421 /* RenderingOption.swift in Sources */,
 				30CC8734263B492C0002B0B8 /* TesterCappedRenderer.swift in Sources */,
 				309B4018263BC40000300BBE /* ComplexRenderer.swift in Sources */,
+				4661A625267A6F5500BADC8F /* VanillaRayTraceRendering.metal in Sources */,
 				30AED9F6263A1F15007ED421 /* AppDelegate.swift in Sources */,
 				309B401B263BC4AE00300BBE /* ComplexRendering.metal in Sources */,
 				3023A02926543AC30062D011 /* ImageController.swift in Sources */,

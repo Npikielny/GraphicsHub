@@ -40,7 +40,7 @@ class InputController: NSViewController {
             scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             scrollView.topAnchor.constraint(equalTo: view.topAnchor),
-            scrollView.bottomAnchor.constraint(lessThanOrEqualTo: view.bottomAnchor),
+            scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
         ])
         scrollView.layer?.backgroundColor = NSColor.clear.cgColor
         scrollView.backgroundColor = .clear
@@ -73,7 +73,6 @@ class InputController: NSViewController {
             NSLayoutConstraint.activate([
                 animatorButton.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -5),
                 animatorButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 5),
-                animatorButton.topAnchor.constraint(greaterThanOrEqualTo: scrollView.bottomAnchor),
             ])
 
         }

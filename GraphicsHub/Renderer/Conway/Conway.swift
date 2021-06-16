@@ -134,6 +134,7 @@ class ConwayRenderer: SimpleRenderer {
         case Old = 2
     }
     
+    func addAttachments(pipeline: MTLRenderCommandEncoder) {}
 }
 
 class ConwayInputManager: BasicInputManager {

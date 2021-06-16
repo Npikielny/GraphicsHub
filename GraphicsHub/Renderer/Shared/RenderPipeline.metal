@@ -82,3 +82,27 @@ kernel void encodeImage(uint2 tid [[thread_position_in_grid]],
     float4 value = Image.read(uint2(tid.x,tid.y));
     pixels[tid.x + (imageHeight-tid.y) * imageWidth].color = createEntry(value);
 }
+
+kernel void averageImages(uint2 tid [[thread_position_in_grid]],
+                    constant int & frames [[buffer(0)]],
+                    texture2d<float, access::read_write> current,
+                    texture2d<float, access::read_write> previous) {
+    current.write((current.read(tid) + float(frames - 1) * previous.read(tid))/(float(frames)), tid);
+}
+
+// Simple fragment shader which copies a texture and applies a simple tonemapping function
+fragment float4 cappedCopyFragment(CopyVertexOut in [[stage_in]],
+                             texture2d<float> tex1,
+                             texture2d<float>tex2)
+{
+    constexpr sampler sam(min_filter::nearest, mag_filter::nearest, mip_filter::none);
+    
+    float4 color1 = tex1.sample(sam, in.uv);
+    float4 color2 = tex2.sample(sam, in.uv);
+    
+    // Apply a very simple tonemapping function to reduce the dynamic range of the
+    // input image into a range which can be displayed on screen.
+//    color = color / (1.0f + color);
+    
+    return (color1 + color2) / 2;
+}

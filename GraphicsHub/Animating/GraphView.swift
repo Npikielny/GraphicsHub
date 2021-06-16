@@ -60,7 +60,12 @@ class GraphView: NSView {
         }
         self.display()
     }
-    override func rightMouseDown(with event: NSEvent) {}
+    override func rightMouseDown(with event: NSEvent) {
+        if let animators = animators {
+            animators[editingIndex].rightMouseDown(frame: frame, location: convert(event.locationInWindow, from: superview!))
+        }
+        self.display()
+    }
     override func rightMouseDragged(with event: NSEvent) {
         if let animators = animators {
             animators[editingIndex].rightMouseDragged(with: event, location: convert(event.locationInWindow, from: superview!), frame: frame)

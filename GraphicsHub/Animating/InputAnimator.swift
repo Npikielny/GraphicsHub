@@ -12,9 +12,9 @@ protocol InputAnimator {
     static var name: String { get }
     var id: Int { get }
     var displayDomain: (Int, Int)? { get }
-    var displayRange: (Double, Double)? { get }
     var input: AnimateableInterface { get }
     var manager: AnimatorManager { get }
+    var index: Int { get }
     init(input: AnimateableInterface, manager: AnimatorManager, index: Int)
     
     func getFrame(_ frame: Int) -> Double
@@ -23,7 +23,7 @@ protocol InputAnimator {
     func getDescription() -> NSString?
     func leftMouseDown(frame: NSRect, location: CGPoint)
     func leftMouseDragged(with event: NSEvent, location: CGPoint, frame: NSRect)
-    func rightMouseDown(location: CGPoint)
+    func rightMouseDown(frame: NSRect, location: CGPoint)
     func rightMouseDragged(with event: NSEvent, location: CGPoint, frame: NSRect)
     func scrollWheel(with event: NSEvent)
 }
@@ -46,19 +46,15 @@ extension InputAnimator {
     
     func getPosition(frame: NSRect, frameRange: (Int, Int), position: (Int, Double)) -> NSPoint {
         let dx = frameRange.1 - frameRange.0
-        if let displayRange = displayRange {
-            let height = 1.5 * (position.1 - (displayRange.1 + displayRange.0) / 2) / (displayRange.1 - displayRange.0 + 1)
-            return NSPoint(x: frame.width * CGFloat(position.0) / CGFloat(dx), y: CGFloat(height) * frame.height / 2 + frame.height / 2)
-        }
-        return NSPoint(x: frame.width * CGFloat(position.0) / CGFloat(dx), y: CGFloat(position.1) + frame.height / 2)
+        let displayRange = input.domain[index]
+        let height = 1.5 * (position.1 - (displayRange.1 + displayRange.0) / 2) / (displayRange.1 - displayRange.0 + 1)
+        return NSPoint(x: frame.width * CGFloat(position.0) / CGFloat(dx), y: CGFloat(height) * frame.height / 2 + frame.height / 2)
     }
     
     func findPosition(frame: NSRect, frameRange: (Int, Int), position: NSPoint) -> (Int, Double) {
         let frameIndex = Int((position.x / frame.width) * CGFloat(frameRange.1 - frameRange.0 + 1) + CGFloat(frameRange.0))
-        if let displayRange = displayRange {
-            return (frameIndex, ((Double(position.y / frame.height * 2 - frame.height / 2)) * (displayRange.1 - displayRange.0) + (displayRange.1 + displayRange.0) / 2)/1.5)
-        }
-        return (frameIndex, Double(position.y - frame.height / 2))
+        let displayRange = input.domain[index]
+        return (frameIndex, Double(position.y / frame.height) * (displayRange.1 - displayRange.0) + displayRange.0)
     }
     
     func draw(frameRange: (Int, Int), frame: NSRect, points: Int...) -> NSBezierPath {

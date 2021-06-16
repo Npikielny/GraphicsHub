@@ -45,7 +45,7 @@ class SliderInput: Animateable<Double> {
     }
     
     init(name: String, minValue: Double, currentValue: Double, maxValue: Double, tickMarks: Int? = nil, transform: ((OutputType) -> OutputType)? = nil, animateable: Bool = true) {
-        super.init(name: name, defaultValue: currentValue, transform: transform, expectedHeight: 100, requiredAnimators: 1, animateable: animateable)
+        super.init(name: name, defaultValue: currentValue, transform: transform, expectedHeight: 100, requiredAnimators: 1, animateable: animateable, domain: [(minValue, maxValue)])
         titleLabel.string = name
         slider = NSSlider(value: currentValue, minValue: minValue, maxValue: maxValue, target: self, action: #selector(valueChanged))
         slider.isContinuous = true

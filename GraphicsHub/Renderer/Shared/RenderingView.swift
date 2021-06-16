@@ -163,10 +163,11 @@ extension RenderingView: MTKViewDelegate {
         let renderEncoder = commandBuffer?.makeRenderCommandEncoder(descriptor: renderPassDescriptor)!
         if let pipeline = renderer.renderPipelineState {
             renderEncoder?.setRenderPipelineState(pipeline)
+            renderer.addAttachments(pipeline: renderEncoder!)
         } else {
             renderEncoder?.setRenderPipelineState(renderPipelineState)
+            renderEncoder?.setFragmentTexture(renderer.outputImage, index: 0)
         }
-        renderEncoder?.setFragmentTexture(renderer.outputImage, index: 0)
         renderEncoder?.drawPrimitives(type: .triangle, vertexStart: 0, vertexCount: 6)
         renderEncoder?.endEncoding()
         

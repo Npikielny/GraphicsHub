@@ -9,7 +9,8 @@ import Cocoa
 
 class LaunchPad: NSViewController {
     
-    var options: [(String, Renderer.Type)] = [("Tester",TesterBaseRenderer.self),
+    var options: [(String, Renderer.Type)] = [("Ray Trace Renderer", VanillaRayTraceRenderer.self),
+                                              ("Tester",TesterBaseRenderer.self),
                                               ("Tester Capped Renderer",TesterCappedRenderer.self),
                                               ("Conway's Game of Life",ConwayRenderer.self),
                                               ("Complex Image Generator",ComplexRenderer.self),

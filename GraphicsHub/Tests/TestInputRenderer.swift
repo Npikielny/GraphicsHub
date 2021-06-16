@@ -65,6 +65,8 @@ class TestInputRenderer: Renderer {
         fatalError()
     }
     
+    func addAttachments(pipeline: MTLRenderCommandEncoder) {}
+    
 }
 
 class TestInputManager: RendererInputManager {

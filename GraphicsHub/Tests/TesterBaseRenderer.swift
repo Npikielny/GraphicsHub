@@ -68,4 +68,8 @@ class TesterBaseRenderer: SimpleRenderer {
     func draw(commandBuffer: MTLCommandBuffer, view: MTKView) {
         frame += 1
     }
+    
+    func addAttachments(pipeline: MTLRenderCommandEncoder) {
+        pipeline.setFragmentTexture(outputImage, index: 0)
+    }
 }

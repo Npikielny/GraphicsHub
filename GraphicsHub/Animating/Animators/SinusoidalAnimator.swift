@@ -8,10 +8,10 @@
 import Cocoa
 
 class SinusoidalAnimator: InputAnimator {
+    var displayDomain: (Int, Int)? = nil
     
     static var name: String = "Sinusoidal"
     var id: Int
-    var displayDomain: (Int, Int)? = nil
     var displayRange: (Double, Double)? {
         (intercept - abs(amplitude), intercept + abs(amplitude))
     }
@@ -25,21 +25,35 @@ class SinusoidalAnimator: InputAnimator {
             period = 0
         }
     }
-    var intercept: Double
+    var intercept: Double {
+        didSet {
+            intercept = intercept < input.domain[index].0 ? input.domain[index].0 : intercept
+            intercept = intercept > input.domain[index].1 ? input.domain[index].1 : intercept
+        }
+    }
+    var amplitude: Double {
+        didSet {
+            if abs(amplitude) + intercept > input.domain[index].1 {
+                amplitude = (input.domain[index].1 - intercept) * (amplitude < 0 ? -1 : 1)
+            }else if abs(amplitude) + intercept < input.domain[index].0 {
+                amplitude = (intercept - input.domain[index].0) * (amplitude < 0 ? -1 : 1)
+            }
+        }
+    }
     
-    var amplitude: Double
-    
+    var index: Int
     var manager: AnimatorManager
     
     required init(input: AnimateableInterface, manager: AnimatorManager, index: Int) {
         id = inputIndex
         inputIndex += 1
+        self.index = index
         self.input = input
         let frameRange = manager.frameRange
         period = Double(frameRange.1 - frameRange.0)
         locus = Double(frameRange.1 + frameRange.0) / 2
-        amplitude = 50
-        intercept = input.doubleOutput[index]
+        amplitude = (input.domain[index].1 - input.domain[index].0) / 2
+        intercept = (input.domain[index].1 + input.domain[index].0) / 2
         self.manager = manager
         handlePeriod()
     }
@@ -78,7 +92,7 @@ class SinusoidalAnimator: InputAnimator {
         intercept -= Double(event.deltaY)
     }
     
-    func rightMouseDown(location: CGPoint) {}
+    func rightMouseDown(frame: NSRect, location: CGPoint) {}
     
     func rightMouseDragged(with event: NSEvent, location: CGPoint, frame: NSRect) {
         let delta = event.deltaX
@@ -90,7 +104,7 @@ class SinusoidalAnimator: InputAnimator {
         if period < 0 {
             period = 0
         }
-        amplitude -= Double(event.deltaY / frame.height) * 50
+        amplitude *= (1 + Double(event.deltaY / frame.height))
     }
     
     func scrollWheel(with event: NSEvent) {

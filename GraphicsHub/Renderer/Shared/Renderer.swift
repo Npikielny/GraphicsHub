@@ -43,6 +43,7 @@ protocol Renderer: RendererInfo {
     func draw(commandBuffer: MTLCommandBuffer, view: MTKView)
     
     var renderPipelineState: MTLRenderPipelineState? { get }
+    func addAttachments(pipeline: MTLRenderCommandEncoder)
     
     init(device: MTLDevice, size: CGSize)
     

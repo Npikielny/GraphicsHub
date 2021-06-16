@@ -131,19 +131,76 @@ class SinglyCappedRenderer: CappedRenderer {
         
         recordPipeline = try! getRecordPipeline()
     }
+    
+    func addAttachments(pipeline: MTLRenderCommandEncoder) {
+    }
 }
 
 class DoublyCappedenderer: SinglyCappedRenderer {
     internal var images = [MTLTexture]()
+    private var imageCount: Int
     override var outputImage: MTLTexture! {
         images.last!
     }
+    private var averagePipeline: MTLComputePipelineState!
+    
+    init(device: MTLDevice, size: CGSize, inputManager: CappedInputManager? = nil, imageCount: Int) {
+        self.imageCount = imageCount
+        super.init(device: device, size: size, inputManager: inputManager)
+        let functions = createFunctions(names: "averageImages")
+        if let averageFunction = functions[0] {
+            do {
+                averagePipeline = try device.makeComputePipelineState(function: averageFunction)
+            } catch {
+                print(error)
+                fatalError()
+            }
+        }
+        do {
+            let library = device.makeDefaultLibrary()!
+            if let vertexFunction = getDefaultVertexFunction(library: library), let fragmentFunction = library.makeFunction(name: "cappedCopyFragment") {
+                self.renderPipelineState = try createRenderPipelineState(vertexFunction: vertexFunction, fragmentFunction: fragmentFunction)
+            }
+        } catch {
+            print(error)
+        }
+        drawableSizeDidChange(size: size)
+    }
+    
+    required init(device: MTLDevice, size: CGSize) {
+        fatalError("init(device:size:) has not been implemented")
+    }
+    
     override func drawableSizeDidChange(size: CGSize) {
         self.size = size
-        for i in 0..<self.images.count {
-            self.images[i] = createTexture(size: size)!
+        for i in 0..<imageCount {
+            if images.count - 1 < i {
+                images.append(createTexture(size: size)!)
+            } else {
+                images[i] = createTexture(size: size)!
+            }
         }
         frame = 0
+    }
+    
+    override func draw(commandBuffer: MTLCommandBuffer, view: MTKView) {
+        // TODO: Only works for imageCount = 2
+        if frame > 0 && recordable {
+            let averageEncoder = commandBuffer.makeComputeCommandEncoder()
+            averageEncoder?.setComputePipelineState(averagePipeline)
+            averageEncoder?.setBytes([Int32(frame)], length: MemoryLayout<Int32>.stride, index: 0)
+            averageEncoder?.setTexture(images[0], index: 0)
+            averageEncoder?.setTexture(images[1], index: 1)
+            averageEncoder?.dispatchThreadgroups(getImageGroupSize(), threadsPerThreadgroup: MTLSize(width: 8, height: 8, depth: 1))
+            averageEncoder?.endEncoding()
+            images.swapAt(0, 1)
+        }
+        super.draw(commandBuffer: commandBuffer, view: view)
+    }
+    
+    override func addAttachments(pipeline: MTLRenderCommandEncoder) {
+        pipeline.setFragmentTexture(images[0], index: 0)
+        pipeline.setFragmentTexture(images[1], index: 1)
     }
 }
 

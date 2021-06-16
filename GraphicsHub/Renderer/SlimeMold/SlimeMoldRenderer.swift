@@ -73,6 +73,8 @@ class SlimeMoldRenderer: SimpleRenderer {
         var position: SIMD2<Float>
         var direction: Float
     }
+    
+    func addAttachments(pipeline: MTLRenderCommandEncoder) {}
 }
 
 class SlimeMoldInputManager: BasicInputManager {

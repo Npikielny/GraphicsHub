@@ -14,8 +14,6 @@ class LinearAnimator: InputAnimator {
     
     var displayDomain: (Int, Int)?
     
-    var displayRange: (Double, Double)?
-    
     var input: AnimateableInterface
     var index: Int
     
@@ -27,14 +25,6 @@ class LinearAnimator: InputAnimator {
         self.input = input
         self.manager = manager
         self.index = index
-        if input.keyFrames.count == 0 {
-            let current = input.doubleOutput[index]
-            if current == 0 {
-                displayRange = (-5, 5)
-            } else {
-                displayRange = (current * 0.5, current * 1.5)
-            }
-        }
     }
     
     func getFrame(_ frame: Int) -> Double {
@@ -71,7 +61,10 @@ class LinearAnimator: InputAnimator {
         
     }
     
-    func rightMouseDown(location: CGPoint) {}
+    func rightMouseDown(frame: NSRect, location: CGPoint) {
+        let position = findPosition(frame: frame, frameRange: (displayDomain) ?? manager.frameRange, position: NSPoint(x: location.x, y: location.y))
+        input.removeKeyFrame(index: index, frame: position.0)
+    }
     
     func rightMouseDragged(with event: NSEvent, location: CGPoint, frame: NSRect) {}
     

@@ -76,7 +76,8 @@ class DimensionalInput<T>: Animateable<T> {
                    transform: transform,
                    expectedHeight: 150,
                    requiredAnimators: 2,
-                   animateable: animateable)
+                   animateable: animateable,
+                   domain: [xSlider.domain[0], ySlider.domain[0]])
         setupViews()
         draw()
     }

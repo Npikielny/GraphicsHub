@@ -95,21 +95,24 @@ protocol AnimateableInterface {
     var requiredAnimators: Int { get }
     var keyFrames: [[(Int, Double)]] { get }
     var doubleOutput: [Double]! { get }
+    var domain: [(Double, Double)] { get }
     
     var didChange: Bool { get set }
     func set(_ value: [Double])
     func setDidChange(_ value: Bool)
     func addKeyFrame(index: Int, frame: Int, value: Double)
+    func removeKeyFrame(index: Int, frame: Int)
 }
 
 class Animateable<T>: Input<T>, AnimateableInterface {
+    
+    var domain: [(Double, Double)]
     var doubleOutput: [Double]! { nil }
-    
     var keyFrames = [[(Int, Double)]]()
-    
     var requiredAnimators: Int
     
-    init(name: String, defaultValue: T, transform: ((T) -> T)? = nil, expectedHeight: CGFloat, requiredAnimators: Int, animateable: Bool) {
+    init(name: String, defaultValue: T, transform: ((T) -> T)? = nil, expectedHeight: CGFloat, requiredAnimators: Int, animateable: Bool, domain: [(Double, Double)]) {
+        self.domain = domain
         self.requiredAnimators = requiredAnimators
         super.init(name: name, defaultValue: defaultValue, transform: transform, expectedHeight: expectedHeight)
         self.animateable = animateable
@@ -128,9 +131,13 @@ class Animateable<T>: Input<T>, AnimateableInterface {
     func lerpSet(a: T, b: T, p: Double) {}
     
     func addKeyFrame(index: Int, frame: Int, value: Double) {
-        keyFrames[index].removeAll(where: { $0.0 == frame })
+        removeKeyFrame(index: index, frame: frame)
         keyFrames[index].append((frame, value))
         keyFrames[index].sort(by: { $0.0 < $1.0 })
+    }
+    
+    func removeKeyFrame(index: Int, frame: Int) {
+        keyFrames[index].removeAll(where: { $0.0 == frame})
     }
     
     func addAnimationButtons(rightAnchor: NSLayoutXAxisAnchor) {
