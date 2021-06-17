@@ -151,7 +151,7 @@ class AntialiasingRenderer: SinglyCappedRenderer {
     var renderPasses = 0
     override var recordable: Bool {
         guard let inputManager = inputManager as? AntialiasingInputManager else { fatalError() }
-        return renderPasses == inputManager.renderPasses
+        return renderPasses >= inputManager.renderPasses && filledRender
     }
     
     init(device: MTLDevice, size: CGSize, inputManager: CappedInputManager? = nil, imageCount: Int) {

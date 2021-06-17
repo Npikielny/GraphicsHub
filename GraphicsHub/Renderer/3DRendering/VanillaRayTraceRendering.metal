@@ -116,9 +116,8 @@ RayHit Trace(Ray ray, int sphereCount, constant Sphere *spheres) {
     return bestHit;
 }
 
-float3 Shade(thread Ray &ray, RayHit hit, texture2d<float> sky, int2 skyDimensions, int sphereCount, constant Sphere * spheres) {
+float3 Shade(thread Ray &ray, RayHit hit, texture2d<float> sky, int2 skyDimensions, int sphereCount, constant Sphere * spheres, float4 lightDirection) {
     
-    float4 lightDirection = float4(0.1,-1,0.1,1);
    if (hit.distance < INFINITY) {
        // Return the normal
        ray.origin = hit.position + hit.normal * 0.001f;
@@ -162,12 +161,14 @@ kernel void processRays (uint2 tid [[thread_position_in_grid]],
         float3 result = float3(0, 0, 0);
         for (int i = 0; i < 8; i++) {
             RayHit hit = Trace(ray, sphereCount, spheres);
-            result += ray.energy * Shade(ray, hit, sky, skySize, sphereCount, spheres);
+            result += ray.energy * Shade(ray, hit, sky, skySize, sphereCount, spheres, lightingDirection);
             if (length(ray.energy) == 0) {
                 break;
             }
         }
-        ray.result = result;
+        
+        // FIXME: Why is this necessary?
+        result = clamp(result, float3(0), float3(1));
         image.write(float4(result,1), tid);
         return;
     }

@@ -13,13 +13,8 @@ class VanillaRayTraceRenderer: AntialiasingRenderer {
     
     var spheres: [Sphere] = {
         var spheres = [Sphere]()
-        for i in 0...Int.random(in: 5...10) {
-            let radius = Float.random(in: 1...10)
-            spheres.append(Sphere(position: SIMD4<Float>(Float.random(in: -25...25),radius,Float.random(in: 10...25),radius),
-                                  material: Material(albedo: SIMD3<Float>(Float.random(in: 0...1),Float.random(in: 0...1),Float.random(in: 0...1)),
-                                                     specular: SIMD3<Float>(Float.random(in: 0...1),Float.random(in: 0...1),Float.random(in: 0...1)),
-                                                     n: 1,
-                                                     transparency: 0)))
+        for i in 0...Int.random(in: 10...30) {
+            spheres.append(Object.sphere(materialType: .random))
         }
         return spheres
     }()

@@ -58,11 +58,51 @@ struct Material {
     var specular: SIMD3<Float>
     var n: Float
     var transparency: Float
+    enum MaterialType {
+        case solid
+        case metallic
+        case wacky
+        case random
+    }
+    static func createMaterial(materialType: Material.MaterialType) -> Material {
+        switch materialType {
+            case .random:
+                return createMaterial(materialType: [MaterialType.solid, MaterialType.metallic, MaterialType.wacky].randomElement()!)
+            case .metallic:
+                let color = SIMD3<Float>(Float.random(in: 0...1), Float.random(in: 0...1), Float.random(in: 0...1))
+                let metallicness = Float.random(in: 0.9...1)
+                return Material(albedo: color * (1 - metallicness), specular: color * metallicness, n: 1, transparency: 0)
+            case .solid:
+                let color = SIMD3<Float>(Float.random(in: 0...1), Float.random(in: 0...1), Float.random(in: 0...1))
+                let metallicness = Float.random(in: 0...0.1)
+                return Material(albedo: color * (1 - metallicness), specular: color * metallicness, n: 1, transparency: 0)
+            case .wacky:
+                return Material(albedo: SIMD3<Float>(Float.random(in: 0...1),
+                                                     Float.random(in: 0...1),
+                                                     Float.random(in: 0...1)),
+                                specular: SIMD3<Float>(Float.random(in: 0...1),
+                                                       Float.random(in: 0...1),
+                                                       Float.random(in: 0...1)),
+                                n: 1,
+                                transparency: 0)
+            default:
+                return Material(albedo: SIMD3<Float>(1,1,1), specular: SIMD3<Float>(1,1,1), n: 1, transparency: 0)
+        }
+    }
 }
 
 struct Sphere {
     var position: SIMD4<Float>
     var material: Material
+}
+
+struct Object {
+    static func sphere(materialType: Material.MaterialType) -> Sphere {
+        let radius = Float.random(in: 1...10)
+        let position = SIMD4<Float>(Float.random(in: -25...25), radius, Float.random(in: -25...25), radius)
+        return Sphere(position: position, material: Material.createMaterial(materialType: materialType))
+    }
+    
 }
 
 struct Scene {
