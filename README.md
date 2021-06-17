@@ -9,9 +9,7 @@ Video creation process:
 
 ![VideoCreationDemo](https://user-images.githubusercontent.com/42814781/122469663-36b27180-cf8b-11eb-8809-f5017a570b1d.gif)
 
-Potential Product made with QuickTime to stitch the timelapse.![image](https://user-images.githubusercontent.com/42814781/122469766-50ec4f80-cf8b-11eb-843c-eefb880ca762.jpeg)
-![image](https://user-images.githubusercontent.com/42814781/122469782-55b10380-cf8b-11eb-8692-89fde5db56ca.png)
-
+Potential Product made with QuickTime to stitch the timelapse:
 
 ![LightingDemo](https://user-images.githubusercontent.com/42814781/122469418-ef2be580-cf8a-11eb-91f4-41fdafd6e5c2.gif)
 
