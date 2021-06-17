@@ -145,3 +145,15 @@ extension CappedInputManager {
         return CGSize(width: CGFloat(renderWidth!), height: CGFloat(renderHeight!))
     }
 }
+
+class AntialiasingInputManager: CappedInputManager {
+    var renderPasses: Int {
+        Int((inputs[4] as! SliderInput).output)
+    }
+    
+    override init(renderSpecificInputs: [NSView], imageSize: CGSize?) {
+        let renderPasses = SliderInput(name: "Passes", minValue: 1, currentValue: 10, maxValue: 100, tickMarks: 100)
+        super.init(renderSpecificInputs: [renderPasses] + renderSpecificInputs, imageSize: imageSize)
+        inputOffset += 1
+    }
+}

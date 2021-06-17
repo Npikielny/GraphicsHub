@@ -148,21 +148,16 @@ class ConwayInputManager: BasicInputManager {
     var colorsDidChange: Bool { (getInput(3) as! ListInput<NSColor, ColorPickerInput>).didChange }
     
     override init(renderSpecificInputs: [NSView] = [], imageSize: CGSize?) {
-        var inputs = renderSpecificInputs
         let cellCount = SizeInput(name: "Cells", prefix: "Cell", minSize: CGSize(width: 1, height: 1), size: CGSize(width: 512, height: 512), maxSize: CGSize(width: 2048, height: 2048))
-        inputs.insert(cellCount, at: 0)
         let spawnProbability = SliderInput(name: "Spawn Probability", minValue: 1, currentValue: 30, maxValue: 100, tickMarks: 100, animateable: true)
-        inputs.insert(spawnProbability, at: 1)
         let outlineInput = StateInput(name: "Draw Outlines")
-        inputs.insert(outlineInput, at: 2)
         let colorList = ListInput<NSColor, ColorPickerInput>(name: "Colors", inputs: [
             ColorPickerInput(name: "Background", defaultColor: NSColor(red: 0, green: 0, blue: 0, alpha: 1), animateable: false),
             ColorPickerInput(name: "New Cell", defaultColor: NSColor(red: 1, green: 0, blue: 0, alpha: 1), animateable: false),
             ColorPickerInput(name: "Old Cell", defaultColor: NSColor(red: 0, green: 0, blue: 1, alpha: 1), animateable: false),
             ColorPickerInput(name: "Outline", defaultColor: NSColor(red: 1, green: 1, blue: 1, alpha: 1), animateable: false),
         ])
-        inputs.insert(colorList, at: 3)
-        super.init(renderSpecificInputs: inputs, imageSize: imageSize)
+        super.init(renderSpecificInputs: [cellCount, spawnProbability, outlineInput, colorList] + renderSpecificInputs, imageSize: imageSize)
     }
     
 }

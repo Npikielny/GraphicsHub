@@ -326,12 +326,10 @@
 		30AEDA38263A54B9007ED421 /* Views */ = {
 			isa = PBXGroup;
 			children = (
-				30AEDA34263A54A2007ED421 /* LaunchPad.swift */,
-				30AEDA35263A54A2007ED421 /* LaunchPad.xib */,
+				30AEDA23263A1F99007ED421 /* RenderingView.swift */,
+				4606E3B2267BCC4900C8EFF5 /* Launch Screen */,
 				3028F1A4263C93E0006922F0 /* EditorViewController.swift */,
 				3028F1A5263C93E0006922F0 /* EditorViewController.xib */,
-				30AEDA39263A5B5B007ED421 /* RenderingOption.swift */,
-				30AEDA3A263A5B5B007ED421 /* RenderingOption.xib */,
 				30AEDA1F263A1F2E007ED421 /* MainController.swift */,
 				30AEDA20263A1F2E007ED421 /* MainController.xib */,
 				3028F1A8263C9529006922F0 /* TemplateController.swift */,
@@ -356,6 +354,17 @@
 				30FCB99A263BA94B00910FED /* ConwayRendering.metal */,
 			);
 			path = Conway;
+			sourceTree = "<group>";
+		};
+		4606E3B2267BCC4900C8EFF5 /* Launch Screen */ = {
+			isa = PBXGroup;
+			children = (
+				30AEDA34263A54A2007ED421 /* LaunchPad.swift */,
+				30AEDA35263A54A2007ED421 /* LaunchPad.xib */,
+				30AEDA39263A5B5B007ED421 /* RenderingOption.swift */,
+				30AEDA3A263A5B5B007ED421 /* RenderingOption.xib */,
+			);
+			path = "Launch Screen";
 			sourceTree = "<group>";
 		};
 		465FE21226752BD00038187F /* IncrementInput */ = {
@@ -423,7 +432,6 @@
 				30AEDA32263A2B18007ED421 /* SharedDataTypes.h */,
 				30CC8731263B482D0002B0B8 /* SharedDataTypes.metal */,
 				30AEDA2C263A27B7007ED421 /* RenderPipeline.metal */,
-				30AEDA23263A1F99007ED421 /* RenderingView.swift */,
 				30AEDA25263A2314007ED421 /* Renderer.swift */,
 				30CC872F263B43650002B0B8 /* CappedRenderer.swift */,
 				30D52281263FA08500DA75F6 /* TextureOutput.swift */,

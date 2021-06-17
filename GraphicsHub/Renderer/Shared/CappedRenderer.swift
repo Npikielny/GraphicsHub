@@ -44,7 +44,7 @@ extension CappedRenderer {
 
 class SinglyCappedRenderer: CappedRenderer {
     
-    var name: String = "SinglyCappedRenderer"
+    var name: String = "SinglyCapped Renderer"
     
     var recordPipeline: MTLComputePipelineState!
     
@@ -78,8 +78,11 @@ class SinglyCappedRenderer: CappedRenderer {
     
     var renderSpecificInputs: [NSView]?
     
-    var recordable: Bool {
+    var filledRender: Bool {
         return intermediateFrame != 0 && intermediateFrame % (Int(ceil(size.width / maxRenderSize.width)) * Int(ceil(size.height / maxRenderSize.height))) == 0
+    }
+    var recordable: Bool {
+        return filledRender
     }
     internal var image: MTLTexture!
     var outputImage: MTLTexture! {
@@ -136,7 +139,8 @@ class SinglyCappedRenderer: CappedRenderer {
     }
 }
 
-class DoublyCappedenderer: SinglyCappedRenderer {
+class AntialiasingRenderer: SinglyCappedRenderer {
+    
     internal var images = [MTLTexture]()
     private var imageCount: Int
     override var outputImage: MTLTexture! {
@@ -144,9 +148,16 @@ class DoublyCappedenderer: SinglyCappedRenderer {
     }
     private var averagePipeline: MTLComputePipelineState!
     
+    var renderPasses = 0
+    override var recordable: Bool {
+        guard let inputManager = inputManager as? AntialiasingInputManager else { fatalError() }
+        return renderPasses == inputManager.renderPasses
+    }
+    
     init(device: MTLDevice, size: CGSize, inputManager: CappedInputManager? = nil, imageCount: Int) {
         self.imageCount = imageCount
         super.init(device: device, size: size, inputManager: inputManager)
+        name = "Antialiasing Renderer"
         let functions = createFunctions(names: "averageImages")
         if let averageFunction = functions[0] {
             do {
@@ -185,17 +196,27 @@ class DoublyCappedenderer: SinglyCappedRenderer {
     
     override func draw(commandBuffer: MTLCommandBuffer, view: MTKView) {
         // TODO: Only works for imageCount = 2
-        if frame > 0 && recordable {
+        if renderPasses > 0 && filledRender {
             let averageEncoder = commandBuffer.makeComputeCommandEncoder()
             averageEncoder?.setComputePipelineState(averagePipeline)
-            averageEncoder?.setBytes([Int32(frame)], length: MemoryLayout<Int32>.stride, index: 0)
+            averageEncoder?.setBytes([Int32(renderPasses)], length: MemoryLayout<Int32>.stride, index: 0)
             averageEncoder?.setTexture(images[0], index: 0)
             averageEncoder?.setTexture(images[1], index: 1)
             averageEncoder?.dispatchThreadgroups(getImageGroupSize(), threadsPerThreadgroup: MTLSize(width: 8, height: 8, depth: 1))
             averageEncoder?.endEncoding()
             images.swapAt(0, 1)
         }
-        super.draw(commandBuffer: commandBuffer, view: view)
+        if recordable {
+            frame += 1
+            renderPasses = 0
+            intermediateFrame = 0
+        }
+        if filledRender {
+            intermediateFrame = 0
+            renderPasses += 1
+        } else {
+            intermediateFrame += 1
+        }
     }
     
     override func addAttachments(pipeline: MTLRenderCommandEncoder) {

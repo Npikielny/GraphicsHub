@@ -91,23 +91,39 @@ class RenderingView: MTKView {
         textLayer.fontSize = 20
         textLayer.alignmentMode = .center
         textLayer.frame = CGRect(x: 0, y: 0, width: 50, height: 50)
-        textLayer.string = String(Int(FPS))
         textLayer.position = CGPoint(x: 25 + 10, y: 10 + 15)
         textLayer.contentsScale = 1
         textLayer.foregroundColor = .white
         frameLayer.addSublayer(textLayer)
         
-        if let renderer = renderer {
+        if let renderer = renderer as? AntialiasingRenderer {
+            textLayer.string = String(renderer.frame)
+            
             let frameText = CATextLayer()
             frameText.font = NSFont.boldSystemFont(ofSize: 15)
             frameText.fontSize = 10
             frameText.alignmentMode = .center
             frameText.frame = CGRect(x: 0, y: 0, width: 50, height: 50)
-            frameText.string = String(renderer.frame)
+            frameText.string = String(renderer.renderPasses)
             frameText.position = CGPoint(x: 25 + 10, y: 0)
             frameText.contentsScale = 1
             frameText.foregroundColor = .white
             frameLayer.addSublayer(frameText)
+        } else {
+            textLayer.string = String(Int(FPS))
+            
+            if let renderer = renderer {
+                let frameText = CATextLayer()
+                frameText.font = NSFont.boldSystemFont(ofSize: 15)
+                frameText.fontSize = 10
+                frameText.alignmentMode = .center
+                frameText.frame = CGRect(x: 0, y: 0, width: 50, height: 50)
+                frameText.string = String(renderer.frame)
+                frameText.position = CGPoint(x: 25 + 10, y: 0)
+                frameText.contentsScale = 1
+                frameText.foregroundColor = .white
+                frameLayer.addSublayer(frameText)
+            }
         }
         
         

@@ -7,15 +7,22 @@
 
 import MetalKit
 
-class VanillaRayTraceRenderer: DoublyCappedenderer {
+class VanillaRayTraceRenderer: AntialiasingRenderer {
     
     var camera = Camera(position: SIMD3<Float>(0, 1, 0), rotation: SIMD3<Float>(0, 0, 0))
     
-    var spheres = [Sphere(position: SIMD4<Float>(0, 5, 50, 5),
-                          material: Material(albedo: SIMD3<Float>(1, 1, 1),
-                                             specular: SIMD3<Float>(1, 1, 1),
-                                             n: 1,
-                                             transparency: 0))]
+    var spheres: [Sphere] = {
+        var spheres = [Sphere]()
+        for i in 0...Int.random(in: 5...10) {
+            let radius = Float.random(in: 1...10)
+            spheres.append(Sphere(position: SIMD4<Float>(Float.random(in: -25...25),radius,Float.random(in: 10...25),radius),
+                                  material: Material(albedo: SIMD3<Float>(Float.random(in: 0...1),Float.random(in: 0...1),Float.random(in: 0...1)),
+                                                     specular: SIMD3<Float>(Float.random(in: 0...1),Float.random(in: 0...1),Float.random(in: 0...1)),
+                                                     n: 1,
+                                                     transparency: 0)))
+        }
+        return spheres
+    }()
     var sphereBuffer: MTLBuffer!
     var lightDirection = SIMD4<Float>(0.1, 0.1, 0.1, 1)
     var skyTexture: MTLTexture!
@@ -35,6 +42,7 @@ class VanillaRayTraceRenderer: DoublyCappedenderer {
     
     required init(device: MTLDevice, size: CGSize) {
         super.init(device: device, size: size, inputManager: VanillaRayInputManager(size: size), imageCount: 2)
+        name = "Vanilla Ray Trace Renderer"
         sphereBuffer = device.makeBuffer(bytes: spheres, length: MemoryLayout<Sphere>.stride * spheres.count, options: .storageModeManaged)
         let functions = createFunctions(names: "processRays")
         if let rayFunction = functions[0] {
@@ -90,7 +98,7 @@ class VanillaRayTraceRenderer: DoublyCappedenderer {
     
 }
 
-class VanillaRayInputManager: CappedInputManager {
+class VanillaRayInputManager: AntialiasingInputManager {
     var fov: Float { Float((getInput(0) as! SliderInput).output)}
     var aspectRatio: Float { Float((getInput(1) as! SliderInput).output)}
     
