@@ -228,6 +228,7 @@ class AntialiasingRenderer: SinglyCappedRenderer {
 protocol SimpleRenderer: Renderer {}
 
 extension SimpleRenderer {
+    
     func getDirectory(frameIndex: Int) throws -> URL {
         if let url = url {
             return url
@@ -250,4 +251,5 @@ extension SimpleRenderer {
             return dataPath
         }
     }
+    
 }

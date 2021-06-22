@@ -143,10 +143,17 @@ struct Object {
         case Triangle
     }
     
-    // MARK: Sphere Properties
-    var radius: Float { size.x }
+    var radius: Float {
+        if objectType == ObjectTypes.Sphere.rawValue {
+            return size.x
+        } else {
+            return pow(pow(size.x, 2) + pow(size.y, 2) + pow(size.z, 2), 0.5)
+        }
+    }
     
-    static func intersect(object1: Object, object2: Object) -> Bool { return false }
+    static func intersect(object1: Object, object2: Object) -> Bool {
+        return length(object1.position - object2.position) < object1.radius + object2.radius
+    }
 }
 
 struct Scene {

@@ -11,14 +11,14 @@ class VanillaRayTraceRenderer: AntialiasingRenderer {
     
     var camera = Camera(position: SIMD3<Float>(0, 1, 0), rotation: SIMD3<Float>(0, 0, 0))
     
-    var objects: [Object] = SceneManager.generate(objectCount: 10,
+    var objects: [Object] = SceneManager.generate(objectCount: 100,
                                                   objectTypes: [.Sphere, .Box],
                                                   generationType: .procedural,
                                                   positionType: .radial,
-                                                  collisionType: [.grounded, .random],
-                                                  objectSizeRange: (SIMD3<Float>(1,1,1), SIMD3<Float>(10, 10, 10)),
-                                                  objectPositionRange: (SIMD3<Float>(1,-Float.pi,0), SIMD3<Float>(25, Float.pi, 0)),
-                                                  materialType: .randomNormal)
+                                                  collisionType: [.distinct],
+                                                  objectSizeRange: (SIMD3<Float>(0.1, 0.1, 0.1), SIMD3<Float>(2, 2, 2)),
+                                                  objectPositionRange: (SIMD3<Float>(1,0,0), SIMD3<Float>(10, 2 * Float.pi, 10)),
+                                                  materialType: .random)
     var objectBuffer: MTLBuffer!
     var lightDirection = SIMD4<Float>(0.1, 0.1, 0.1, 1)
     var skyTexture: MTLTexture!
@@ -131,9 +131,9 @@ class VanillaRayInputManager: AntialiasingInputManager {
         let fov = SliderInput(name: "FOV", minValue: 1, currentValue: 45, maxValue: 180)
         let aspectRatio = SliderInput(name: "Aspect Ratio", minValue: 0.1, currentValue: 1, maxValue: 10)
         
-        let cameraX = SliderInput(name: "Camera X", minValue: -50, currentValue: 0, maxValue: 50)
-        let cameraY = SliderInput(name: "Camera Y", minValue: -50, currentValue: 0, maxValue: 50)
-        let cameraZ = SliderInput(name: "Camera Z", minValue: -50, currentValue: 0, maxValue: 50)
+        let cameraX = SliderInput(name: "Camera X", minValue: -100, currentValue: 0, maxValue: 100)
+        let cameraY = SliderInput(name: "Camera Y", minValue: -100, currentValue: 0, maxValue: 100)
+        let cameraZ = SliderInput(name: "Camera Z", minValue: -100, currentValue: 0, maxValue: 100)
         
         let rotationX = SliderInput(name: "Rotation X", minValue: -180, currentValue: 0, maxValue: 180)
         let rotationY = SliderInput(name: "Rotation Y", minValue: -180, currentValue: 0, maxValue: 180)

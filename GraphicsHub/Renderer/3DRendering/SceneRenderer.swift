@@ -27,12 +27,42 @@ class SceneManager {
         case random
     }
     
+    static func concentric(radials: Int, materialType: Material.MaterialType) -> [Object] {
+        var objects = [Object]()
+        let radius: (Float) -> (Float) = { return 15 / powf(1.1, 0.4 * Float($0))}
+
+        for Radius in 0..<radials {
+            let rad = radius(Float(Radius) * 40 / 5)
+            var innerRadiusSize: Float = 0
+            for k in 0...Radius {
+                innerRadiusSize += 2*radius(Float(k) * 40 / 5) * 1.1
+            }
+            let radialCount: Int = {
+                return Int(innerRadiusSize / rad)*3
+            }()
+            for k in 0..<radialCount {
+                let theta: Float = Float(k)/Float(radialCount)*Float.pi*2
+                let position = SIMD3<Float>(innerRadiusSize * cos(theta), rad, innerRadiusSize * sin(theta))
+                let size: SIMD3<Float> = SIMD3(rad, 0, 0)
+
+                objects.append(Object.sphere(materialType: materialType, position: position, size: size))
+            }
+        }
+
+        let Radius = 0
+        let rad = radius(Float(Radius)*40/5-4)
+        let position = SIMD3<Float>(0,rad,0)
+        let size: SIMD3<Float> = SIMD3(rad, 0, 0)
+        objects.append(Object.sphere(materialType: materialType, position: position, size: size))
+        return objects
+    }
+    
     static func generate(objectCount: Int, objectTypes: [Object.ObjectTypes], generationType:  GenerationType, positionType: PositionType, collisionType: [CollisionType], objectSizeRange: (SIMD3<Float>, SIMD3<Float>), objectPositionRange: (SIMD3<Float>, SIMD3<Float>), materialType: Material.MaterialType) -> [Object] {
-        
         var objects = [Object]()
         var iterations: Int = 0
+        
         let positionGenerator: (Float, Float) -> SIMD2<Float> = {
-            if positionType == .box {
+            if positionType == .radial {
                 return { radialGenerate(seed: ($0, $1), objectPositionRange: objectPositionRange) }
             } else {
                 return { boxGenerate(seed: ($0, $1), objectPositionRange: objectPositionRange) }
@@ -40,7 +70,9 @@ class SceneManager {
         }()
         let generator = GKARC4RandomSource()
         let generate: () -> Float = { Float(generator.nextInt(upperBound: 1000))/1000 }
-        while objects.count < objectCount && iterations < 1000 {
+        
+        while objects.count < objectCount && iterations < 10000 {
+            print(iterations)
             iterations += 1
             let xzPosition: SIMD2<Float> = {
                 if generationType == .procedural {
@@ -64,16 +96,18 @@ class SceneManager {
                 }
             }()
             
+            guard let objectTypes = objectTypes.randomElement() else { continue }
+            
             let position: SIMD3<Float> = {
                 if collisionType.contains(.grounded) {
-                    return SIMD3(xzPosition.x, size.y * 2, xzPosition.y)
+                    return SIMD3(xzPosition.x, objectTypes == .Sphere ? size.x : size.y, xzPosition.y)
                 } else {
                     return SIMD3(xzPosition.x,
                                  Float.lerp(a: objectPositionRange.0.y, b: objectPositionRange.1.y, p: generationType == .procedural ? generate() : Float.random(in: 0...1)),
                                  xzPosition.y)
                 }
             }()
-            guard let objectTypes = objectTypes.randomElement() else { continue }
+            
             let object: Object = {
                 switch objectTypes {
                     case .Sphere:
@@ -91,6 +125,7 @@ class SceneManager {
             }
             objects.append(object)
         }
+        print("Generated: ", objects.count)
         return objects
     }
     
@@ -98,7 +133,7 @@ class SceneManager {
         // R, Theta, Phi
         let r = Float.lerp(a: objectPositionRange.0.x, b: objectPositionRange.1.x, p: seed.0)
         let theta = Float.lerp(a: objectPositionRange.0.y, b: objectPositionRange.1.y, p: seed.1)
-        return SIMD2<Float>(r, theta)
+        return SIMD2<Float>(r * cos(theta), r * sin(theta))
     }
     
     private static func boxGenerate(seed: (Float, Float), objectPositionRange: (SIMD3<Float>, SIMD3<Float>)) -> SIMD2<Float> {
