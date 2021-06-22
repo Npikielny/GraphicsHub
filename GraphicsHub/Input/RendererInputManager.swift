@@ -71,6 +71,8 @@ class BasicInputManager: RendererInputManager {
     }
     
     func handlePerFrameChecks() {}
+    
+    func flagsChanged(event: NSEvent) {}
     func keyDown(event: NSEvent) {}
     func mouseDown(event: NSEvent) {}
     func mouseDragged(event: NSEvent) {}
@@ -133,6 +135,7 @@ class CappedInputManager: RendererInputManager {
         handleImageSizeChanges()
     }
     
+    func flagsChanged(event: NSEvent) {}
     func keyDown(event: NSEvent) {}
     func mouseDown(event: NSEvent) {}
     func mouseDragged(event: NSEvent) {}

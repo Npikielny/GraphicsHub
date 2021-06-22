@@ -9,6 +9,7 @@
 using namespace metal;
 #include "../Shared/SharedDataTypes.h"
 
+// MARK: DataTypes
 struct Material {
     float3 albedo;
     float3 specular;
@@ -16,11 +17,19 @@ struct Material {
     float transparency;
 };
 
-struct Sphere {
-    float4 position;
+struct Object {
+    int objectType;
+    float3 position;
+    float3 size;
+    float3 rotation;
     Material material;
 };
 
+constant int sphere = 0;
+constant int box = 1;
+constant int triangle = 2;
+
+//  MARK: Ray setup
 struct Ray {
     float3 origin;
     float3 direction;
@@ -63,7 +72,7 @@ RayHit CreateRayHit() {
     return hit;
 }
 
-
+// MARK: Intersection Functions
 uint2 sampleSky (float3 direction, int2 skySize) {
     float xzAngle = (atan2(direction.z, direction.x)/M_PI_F+1.0)/2.0;
     float xzLength = distance(float2(0), direction.xz);
@@ -89,11 +98,11 @@ void IntersectGroundPlane(Ray ray, thread RayHit &bestHit) {
     }
 }
 
-void IntersectSphere(Ray ray, thread RayHit &bestHit, Sphere sphere) {
+void IntersectSphere(Ray ray, thread RayHit &bestHit, Object object) {
     // Calculate distance along the ray where the sphere is intersected
-    float3 d = ray.origin - sphere.position.xyz;
+    float3 d = ray.origin - object.position;
     float p1 = -dot(ray.direction, d);
-    float p2sqr = p1 * p1 - dot(d, d) + sphere.position.w * sphere.position.w;
+    float p2sqr = p1 * p1 - dot(d, d) + object.size.x * object.size.x;
     if (p2sqr < 0)
         return;
     float p2 = sqrt(p2sqr);
@@ -102,21 +111,75 @@ void IntersectSphere(Ray ray, thread RayHit &bestHit, Sphere sphere) {
     {
         bestHit.distance = t;
         bestHit.position = ray.origin + t * ray.direction;
-        bestHit.normal = normalize(bestHit.position - sphere.position.xyz);
-        bestHit.material = sphere.material;
+        bestHit.normal = normalize(bestHit.position - object.position);
+        bestHit.material = object.material;
     }
 }
 
-RayHit Trace(Ray ray, int sphereCount, constant Sphere *spheres) {
+void checkFace (Ray ray, thread RayHit &bestHit, Object box, int tSide, int signSide) {
+    float3 faceCenter = box.position;
+    signSide = signSide * 2 - 1;
+    faceCenter += box.size * signSide;
+    float t = INFINITY;
+    bool inFace = false;
+    if (tSide == 0) { //Z
+        t = (faceCenter.z - ray.origin.z) / ray.direction.z;
+        float3 position = ray.origin + ray.direction * t - box.position;
+        if (abs(position.y) <= box.size.y && abs(position.x) <= box.size.x) {
+            inFace = true;
+        }
+    }else if (tSide == 1) {// Y
+        t = (faceCenter.y - ray.origin.y)/ray.direction.y;
+        float3 position = ray.origin + ray.direction * t - box.position;
+        if (abs(position.z) <= box.size.z && abs(position.x) <= box.size.x) {
+            inFace = true;
+        }
+    }else {//X
+        t = (faceCenter.x - ray.origin.x)/ray.direction.x;
+        float3 position = ray.origin + ray.direction * t - box.position;
+        if (abs(position.y) <= box.size.y && abs(position.z) <= box.size.z) {
+            inFace = true;
+        }
+    }
+    float Distance = length(ray.direction * t);
+    if (inFace && Distance > 0 && Distance < bestHit.distance && t > 0)
+    {
+        bestHit.distance = Distance;
+        bestHit.position = ray.origin + t * ray.direction;
+        if (tSide == 0) { //Z
+            bestHit.normal = normalize(float3(0,0,signSide));
+        }else if (tSide == 1) {// Y
+            bestHit.normal = normalize(float3(0,signSide,0));
+        }else {//X
+            bestHit.normal = normalize(float3(signSide,0,0));
+        }
+        
+        bestHit.material = box.material;
+    }
+}
+
+void IntersectCube(Ray ray, thread RayHit &bestHit, Object box) {
+    for (int i = 0; i < 6; i ++) {
+        checkFace(ray, bestHit, box,i / 2, i % 2);
+    }
+}
+
+
+// MARK: Tracing
+RayHit Trace(Ray ray, int objectCount, constant Object *objects) {
     thread RayHit && bestHit = CreateRayHit();
     IntersectGroundPlane(ray, bestHit);
-    for (int i = 0; i < sphereCount; i++) {
-        IntersectSphere(ray, bestHit, spheres[i]);
+    for (int i = 0; i < objectCount; i++) {
+        if (objects[i].objectType == sphere) {
+            IntersectSphere(ray, bestHit, objects[i]);
+        } else if (objects[i].objectType == box) {
+            IntersectCube(ray, bestHit, objects[i]);
+        }
     }
     return bestHit;
 }
 
-float3 Shade(thread Ray &ray, RayHit hit, texture2d<float> sky, int2 skyDimensions, int sphereCount, constant Sphere * spheres, float4 lightDirection) {
+float3 Shade(thread Ray &ray, RayHit hit, texture2d<float> sky, int2 skyDimensions, int sphereCount, constant Object * objects, float4 lightDirection) {
     
    if (hit.distance < INFINITY) {
        // Return the normal
@@ -125,7 +188,7 @@ float3 Shade(thread Ray &ray, RayHit hit, texture2d<float> sky, int2 skyDimensio
        ray.energy *= hit.material.specular;
        
        Ray shadowRay = CreateRay(hit.position + hit.normal * 0.001f, -1 * lightDirection.xyz);
-       RayHit shadowHit = Trace(shadowRay, sphereCount, spheres);
+       RayHit shadowHit = Trace(shadowRay, sphereCount, objects);
        if (shadowHit.distance != INFINITY) {
            return float3(0.0f, 0.0f, 0.0f);
        }
@@ -138,8 +201,8 @@ float3 Shade(thread Ray &ray, RayHit hit, texture2d<float> sky, int2 skyDimensio
 }
 
 kernel void processRays (uint2 tid [[thread_position_in_grid]],
-                         constant Sphere * spheres [[buffer(0)]],
-                         constant int & sphereCount [[buffer(1)]],
+                         constant Object * objects [[buffer(0)]],
+                         constant int & objectCount [[buffer(1)]],
                          constant float4x4 * cameraMatrices [[buffer(2)]],
                          constant int2 & imageSize [[buffer(3)]],
                          constant int2 & raySize [[buffer(4)]],
@@ -160,8 +223,8 @@ kernel void processRays (uint2 tid [[thread_position_in_grid]],
 
         float3 result = float3(0, 0, 0);
         for (int i = 0; i < 8; i++) {
-            RayHit hit = Trace(ray, sphereCount, spheres);
-            result += ray.energy * Shade(ray, hit, sky, skySize, sphereCount, spheres, lightingDirection);
+            RayHit hit = Trace(ray, objectCount, objects);
+            result += ray.energy * Shade(ray, hit, sky, skySize, objectCount, objects, lightingDirection);
             if (length(ray.energy) == 0) {
                 break;
             }

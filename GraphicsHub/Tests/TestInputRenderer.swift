@@ -109,6 +109,8 @@ class TestInputManager: RendererInputManager {
         })
     }
     
+    func flagsChanged(event: NSEvent) {}
+    
     func keyDown(event: NSEvent) {}
     
     func mouseDown(event: NSEvent) {}

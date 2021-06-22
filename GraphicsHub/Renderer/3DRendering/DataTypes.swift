@@ -63,11 +63,14 @@ struct Material {
         case metallic
         case wacky
         case random
+        case randomNormal
     }
     static func createMaterial(materialType: Material.MaterialType) -> Material {
         switch materialType {
             case .random:
                 return createMaterial(materialType: [MaterialType.solid, MaterialType.metallic, MaterialType.wacky].randomElement()!)
+            case .randomNormal:
+                return createMaterial(materialType: [MaterialType.solid, MaterialType.metallic].randomElement()!)
             case .metallic:
                 let color = SIMD3<Float>(Float.random(in: 0...1), Float.random(in: 0...1), Float.random(in: 0...1))
                 let metallicness = Float.random(in: 0.9...1)
@@ -91,18 +94,59 @@ struct Material {
     }
 }
 
-struct Sphere {
-    var position: SIMD4<Float>
-    var material: Material
-}
-
 struct Object {
-    static func sphere(materialType: Material.MaterialType) -> Sphere {
+    var objectType: Int32
+    
+    var position: SIMD3<Float>
+    var size: SIMD3<Float>
+    var rotation: SIMD3<Float>
+    var material:  Material
+    
+    static func sphere(materialType: Material.MaterialType, minPosition: SIMD2<Float>, maxPosition: SIMD2<Float>) -> Object {
         let radius = Float.random(in: 1...10)
-        let position = SIMD4<Float>(Float.random(in: -25...25), radius, Float.random(in: -25...25), radius)
-        return Sphere(position: position, material: Material.createMaterial(materialType: materialType))
+        let position = SIMD3<Float>(Float.random(in: minPosition.x...maxPosition.x), radius, Float.random(in: minPosition.y...maxPosition.y))
+        return Object(objectType: ObjectTypes.Sphere.rawValue,
+                      position: position,
+                      size: SIMD3<Float>(radius, 0, 0),
+                      rotation: SIMD3<Float>(0, 0, 0),
+                      material: Material.createMaterial(materialType: materialType))
     }
     
+    static func sphere(materialType: Material.MaterialType, position: SIMD3<Float>, size: SIMD3<Float>) -> Object {
+        return Object(objectType: ObjectTypes.Sphere.rawValue,
+                      position: position,
+                      size: SIMD3<Float>(size.x, 0, 0),
+                      rotation: SIMD3<Float>(0, 0, 0),
+                      material: Material.createMaterial(materialType: materialType))
+    }
+    
+    static func box(materialType: Material.MaterialType, minPosition: SIMD2<Float>, maxPosition: SIMD2<Float>) -> Object {
+        let height = Float.random(in: 1...10)
+        let position = SIMD3<Float>(Float.random(in: minPosition.x...maxPosition.x), height, Float.random(in: minPosition.y...maxPosition.y))
+        return Object(objectType: ObjectTypes.Box.rawValue,
+                      position: position,
+                      size: SIMD3<Float>(Float.random(in: 1...10), height, Float.random(in: 1...10)),
+                      rotation: SIMD3<Float>(0, 0, 0),
+                      material: Material.createMaterial(materialType: materialType))
+    }
+    static func box(materialType: Material.MaterialType, position: SIMD3<Float>, size: SIMD3<Float>) -> Object {
+        return Object(objectType: ObjectTypes.Box.rawValue,
+                      position: position,
+                      size: size,
+                      rotation: SIMD3<Float>(0, 0, 0),
+                      material: Material.createMaterial(materialType: materialType))
+    }
+    
+    enum ObjectTypes: Int32 {
+        case Sphere
+        case Box
+        case Triangle
+    }
+    
+    // MARK: Sphere Properties
+    var radius: Float { size.x }
+    
+    static func intersect(object1: Object, object2: Object) -> Bool { return false }
 }
 
 struct Scene {

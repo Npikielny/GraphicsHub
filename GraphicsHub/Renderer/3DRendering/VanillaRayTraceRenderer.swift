@@ -11,14 +11,15 @@ class VanillaRayTraceRenderer: AntialiasingRenderer {
     
     var camera = Camera(position: SIMD3<Float>(0, 1, 0), rotation: SIMD3<Float>(0, 0, 0))
     
-    var spheres: [Sphere] = {
-        var spheres = [Sphere]()
-        for i in 0...Int.random(in: 10...30) {
-            spheres.append(Object.sphere(materialType: .random))
-        }
-        return spheres
-    }()
-    var sphereBuffer: MTLBuffer!
+    var objects: [Object] = SceneManager.generate(objectCount: 10,
+                                                  objectTypes: [.Sphere, .Box],
+                                                  generationType: .procedural,
+                                                  positionType: .radial,
+                                                  collisionType: [.grounded, .random],
+                                                  objectSizeRange: (SIMD3<Float>(1,1,1), SIMD3<Float>(10, 10, 10)),
+                                                  objectPositionRange: (SIMD3<Float>(1,-Float.pi,0), SIMD3<Float>(25, Float.pi, 0)),
+                                                  materialType: .randomNormal)
+    var objectBuffer: MTLBuffer!
     var lightDirection = SIMD4<Float>(0.1, 0.1, 0.1, 1)
     var skyTexture: MTLTexture!
     var skySize: SIMD2<Int32>!
@@ -38,7 +39,7 @@ class VanillaRayTraceRenderer: AntialiasingRenderer {
     required init(device: MTLDevice, size: CGSize) {
         super.init(device: device, size: size, inputManager: VanillaRayInputManager(size: size), imageCount: 2)
         name = "Vanilla Ray Trace Renderer"
-        sphereBuffer = device.makeBuffer(bytes: spheres, length: MemoryLayout<Sphere>.stride * spheres.count, options: .storageModeManaged)
+        objectBuffer = device.makeBuffer(bytes: objects, length: MemoryLayout<Object>.stride * objects.count, options: .storageModeManaged)
         let functions = createFunctions(names: "processRays")
         if let rayFunction = functions[0] {
             do {
@@ -56,8 +57,8 @@ class VanillaRayTraceRenderer: AntialiasingRenderer {
         let rayEncoder = commandBuffer.makeComputeCommandEncoder()
         rayEncoder?.setComputePipelineState(rayPipeline)
         
-        rayEncoder?.setBuffer(sphereBuffer, offset: 0, index: 0)
-        rayEncoder?.setBytes([Int32(spheres.count)], length: MemoryLayout<Int32>.stride, index: 1)
+        rayEncoder?.setBuffer(objectBuffer, offset: 0, index: 0)
+        rayEncoder?.setBytes([Int32(objects.count)], length: MemoryLayout<Int32>.stride, index: 1)
         rayEncoder?.setBytes([camera.makeModelMatrix(), camera.makeProjectionMatrix()], length: MemoryLayout<float4x4>.stride * 2, index: 2)
         rayEncoder?.setBytes([SIMD2<Int32>(Int32(size.width), Int32(size.height))], length: MemoryLayout<SIMD2<Int32>>.stride, index: 3)
         rayEncoder?.setBytes([SIMD2<Int32>(Int32(maxRenderSize.width),Int32(maxRenderSize.height))], length: MemoryLayout<SIMD2<Int32>>.stride, index: 4)
@@ -98,10 +99,17 @@ class VanillaRayInputManager: AntialiasingInputManager {
     var aspectRatio: Float { Float((getInput(1) as! SliderInput).output)}
     
     var position: SIMD3<Float> {
-        SIMD3<Float>(
-            Float((getInput(2) as! SliderInput).output),
-            Float((getInput(3) as! SliderInput).output),
-            Float((getInput(4) as! SliderInput).output))
+        get {
+            SIMD3<Float>(
+                Float((getInput(2) as! SliderInput).output),
+                Float((getInput(3) as! SliderInput).output),
+                Float((getInput(4) as! SliderInput).output))
+        }
+        set {
+            (getInput(2) as! SliderInput).setValue(value: Double(newValue.x))
+            (getInput(3) as! SliderInput).setValue(value: Double(newValue.y))
+            (getInput(4) as! SliderInput).setValue(value: Double(newValue.z))
+        }
     }
     
     var rotation: SIMD3<Float> {
@@ -153,5 +161,18 @@ class VanillaRayInputManager: AntialiasingInputManager {
             lightZ,
             lightIntensity,
         ], imageSize: size)
+    }
+    
+    override func mouseDragged(event: NSEvent) {
+        position += SIMD3(Float(event.deltaX),0,Float(event.deltaY))
+    }
+    
+    override func flagsChanged(event: NSEvent) {
+        if event.modifierFlags.contains(.command) {
+            position += SIMD3(0,1,0)
+        }
+        if event.modifierFlags.contains(.shift) {
+            position -= SIMD3(0,1,0)
+        }
     }
 }

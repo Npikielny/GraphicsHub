@@ -5,9 +5,143 @@
 //  Created by Noah Pikielny on 6/16/21.
 //
 
-import Foundation
+import SceneKit
+import GameplayKit
+
+class SceneManager {
+    
+    enum GenerationType {
+        case procedural
+        case random
+    }
+    
+    enum PositionType {
+        case radial
+        case box
+    }
+    
+    enum CollisionType {
+        case grounded
+        case distinct
+        case intersecting
+        case random
+    }
+    
+    static func generate(objectCount: Int, objectTypes: [Object.ObjectTypes], generationType:  GenerationType, positionType: PositionType, collisionType: [CollisionType], objectSizeRange: (SIMD3<Float>, SIMD3<Float>), objectPositionRange: (SIMD3<Float>, SIMD3<Float>), materialType: Material.MaterialType) -> [Object] {
+        
+        var objects = [Object]()
+        var iterations: Int = 0
+        let positionGenerator: (Float, Float) -> SIMD2<Float> = {
+            if positionType == .box {
+                return { radialGenerate(seed: ($0, $1), objectPositionRange: objectPositionRange) }
+            } else {
+                return { boxGenerate(seed: ($0, $1), objectPositionRange: objectPositionRange) }
+            }
+        }()
+        let generator = GKARC4RandomSource()
+        let generate: () -> Float = { Float(generator.nextInt(upperBound: 1000))/1000 }
+        while objects.count < objectCount && iterations < 1000 {
+            iterations += 1
+            let xzPosition: SIMD2<Float> = {
+                if generationType == .procedural {
+                    return positionGenerator(generate(), generate())
+                } else {
+                    return positionGenerator(Float.random(in: 0...1), Float.random(in: 0...1))
+                }
+            }()
+            let size: SIMD3<Float> = {
+                if generationType == .procedural {
+                    return SIMD3<Float>(
+                        Float.lerp(a: objectSizeRange.0.x, b: objectSizeRange.1.x, p: generate()),
+                        Float.lerp(a: objectSizeRange.0.y, b: objectSizeRange.1.y, p: generate()),
+                        Float.lerp(a: objectSizeRange.0.z, b: objectSizeRange.1.z, p: generate()))
+                }else {
+                    return SIMD3(
+                        Float.random(in: objectSizeRange.0.x...objectSizeRange.1.x),
+                        Float.random(in: objectSizeRange.0.y...objectSizeRange.1.y),
+                                     Float.random(in: objectSizeRange.0.z...objectSizeRange.1.z)
+                    )
+                }
+            }()
+            
+            let position: SIMD3<Float> = {
+                if collisionType.contains(.grounded) {
+                    return SIMD3(xzPosition.x, size.y * 2, xzPosition.y)
+                } else {
+                    return SIMD3(xzPosition.x,
+                                 Float.lerp(a: objectPositionRange.0.y, b: objectPositionRange.1.y, p: generationType == .procedural ? generate() : Float.random(in: 0...1)),
+                                 xzPosition.y)
+                }
+            }()
+            guard let objectTypes = objectTypes.randomElement() else { continue }
+            let object: Object = {
+                switch objectTypes {
+                    case .Sphere:
+                        return Object.sphere(materialType: materialType, position: position, size: size)
+                    case .Box:
+                        return Object.box(materialType: materialType, position: position, size: size)
+                    default:
+                        return Object.sphere(materialType: materialType, position: position, size: size)
+                }
+            }()
+            
+            let collision = objects.contains(where: { Object.intersect(object1: $0, object2: object) })
+            if (collision && collisionType.contains(.distinct)) || (!collision && collisionType.contains(.intersecting)) {
+                continue
+            }
+            objects.append(object)
+        }
+        return objects
+    }
+    
+    private static func radialGenerate(seed: (Float, Float), objectPositionRange: (SIMD3<Float>, SIMD3<Float>)) -> SIMD2<Float> {
+        // R, Theta, Phi
+        let r = Float.lerp(a: objectPositionRange.0.x, b: objectPositionRange.1.x, p: seed.0)
+        let theta = Float.lerp(a: objectPositionRange.0.y, b: objectPositionRange.1.y, p: seed.1)
+        return SIMD2<Float>(r, theta)
+    }
+    
+    private static func boxGenerate(seed: (Float, Float), objectPositionRange: (SIMD3<Float>, SIMD3<Float>)) -> SIMD2<Float> {
+        return SIMD2<Float>(
+            Float.lerp(a: objectPositionRange.0.x, b: objectPositionRange.1.x, p: seed.0),
+            Float.lerp(a: objectPositionRange.0.z, b: objectPositionRange.1.z, p: seed.1)
+        )
+    }
+    
+//    private static func distinct() -> [Object] {
+//        var spheres = [Object]()
+//        for _ in 0...Int.random(in: 10...30) {
+//            for _ in 0...10 {
+//                let sphere = Object.sphere(materialType: .random, minPosition: SIMD2<Float>(-25, -25), maxPosition: SIMD2<Float>(25, 25))
+//                if !spheres.contains(where: {  length($0.position - sphere.position) < $0.radius + sphere.radius }) {
+//                    spheres.append(sphere)
+//                    continue
+//                }
+//            }
 //
-//class SceneRenderer: Renderer {
-//    
-//}
+//        }
+//        return spheres
+//    }
+//
+//    private static func random(count: Int, minPosition: SIMD2<Float>, maxPosition: SIMD2<Float>, materialType: Material.MaterialType) -> [Object] {
+//        var objects = [Object]()
+//        for _ in 0..<count {
+//            switch Int.random(in: 0..<3) {
+//                case 0:
+//                    objects.append(Object.sphere(materialType: materialType,
+//                                                 minPosition: minPosition,
+//                                                 maxPosition: maxPosition))
+//                case 1:
+//                    objects.append(Object.box(materialType: materialType,
+//                                              minPosition: minPosition,
+//                                              maxPosition: maxPosition))
+//                default:
+//                    objects.append(Object.sphere(materialType: materialType,
+//                                                 minPosition: minPosition,
+//                                                 maxPosition: maxPosition))
+//            }
+//        }
+//        return objects
+//    }
+}
 

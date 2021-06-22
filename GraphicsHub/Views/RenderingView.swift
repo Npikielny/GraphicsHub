@@ -195,6 +195,9 @@ extension RenderingView: MTKViewDelegate {
 }
 
 extension RenderingView {
+    override func flagsChanged(with event: NSEvent) {
+        renderer?.inputManager.flagsChanged(event: event)
+    }
     override func mouseDown(with event: NSEvent) {
         renderer?.inputManager.mouseDown(event: event)
     }

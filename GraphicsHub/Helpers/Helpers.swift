@@ -104,3 +104,15 @@ extension CGSize {
     }
     
 }
+
+extension  SIMD4 {
+    var xyz: SIMD3<Scalar> {
+        SIMD3<Scalar>(x,y,z)
+    }
+}
+
+extension Float {
+    static func lerp(a: Float, b: Float, p: Float) -> Float {
+        return (b - a) * p + a
+    }
+}
