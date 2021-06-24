@@ -35,7 +35,7 @@ fragment float4 copyFragment(CopyVertexOut in [[stage_in]],
     
     // Apply a very simple tonemapping function to reduce the dynamic range of the
     // input image into a range which can be displayed on screen.
-//    color = color / (1.0f + color);
+//    float4 color = color / (1.0f + color);
     
     return color;
 }

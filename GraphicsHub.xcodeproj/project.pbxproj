@@ -64,6 +64,10 @@
 		46C2B64A26759A21005E2733 /* LinearAnimator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 46C2B64926759A21005E2733 /* LinearAnimator.swift */; };
 		46C2B65226759A32005E2733 /* SinusoidalAnimator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 46C2B65126759A32005E2733 /* SinusoidalAnimator.swift */; };
 		46C75A262666FA8C007A87E4 /* InputAnimator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 46C75A252666FA8C007A87E4 /* InputAnimator.swift */; };
+		46F663F8268528ED007F72E3 /* WWDCCornellBox.swift in Sources */ = {isa = PBXBuildFile; fileRef = 46F663F7268528ED007F72E3 /* WWDCCornellBox.swift */; };
+		46F663FF26852E8E007F72E3 /* Scene.swift in Sources */ = {isa = PBXBuildFile; fileRef = 46F663FD26852E8E007F72E3 /* Scene.swift */; };
+		46F6640026852E8E007F72E3 /* Transforms.swift in Sources */ = {isa = PBXBuildFile; fileRef = 46F663FE26852E8E007F72E3 /* Transforms.swift */; };
+		46F6640526852F38007F72E3 /* Shaders.metal in Sources */ = {isa = PBXBuildFile; fileRef = 46F6640426852F38007F72E3 /* Shaders.metal */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -149,6 +153,10 @@
 		46C2B64926759A21005E2733 /* LinearAnimator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LinearAnimator.swift; sourceTree = "<group>"; };
 		46C2B65126759A32005E2733 /* SinusoidalAnimator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SinusoidalAnimator.swift; sourceTree = "<group>"; };
 		46C75A252666FA8C007A87E4 /* InputAnimator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InputAnimator.swift; sourceTree = "<group>"; };
+		46F663F7268528ED007F72E3 /* WWDCCornellBox.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WWDCCornellBox.swift; sourceTree = "<group>"; };
+		46F663FD26852E8E007F72E3 /* Scene.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Scene.swift; sourceTree = "<group>"; };
+		46F663FE26852E8E007F72E3 /* Transforms.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Transforms.swift; sourceTree = "<group>"; };
+		46F6640426852F38007F72E3 /* Shaders.metal */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.metal; path = Shaders.metal; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -390,6 +398,7 @@
 				4661A617267A6E5B00BADC8F /* SceneRenderer.swift */,
 				4661A61F267A6E9600BADC8F /* VanillaRayTraceRenderer.swift */,
 				4661A624267A6F5500BADC8F /* VanillaRayTraceRendering.metal */,
+				46F663FC26852E7A007F72E3 /* WWDCCornellBox */,
 			);
 			path = 3DRendering;
 			sourceTree = "<group>";
@@ -437,6 +446,17 @@
 				30D52281263FA08500DA75F6 /* TextureOutput.swift */,
 			);
 			path = Shared;
+			sourceTree = "<group>";
+		};
+		46F663FC26852E7A007F72E3 /* WWDCCornellBox */ = {
+			isa = PBXGroup;
+			children = (
+				46F663F7268528ED007F72E3 /* WWDCCornellBox.swift */,
+				46F663FD26852E8E007F72E3 /* Scene.swift */,
+				46F663FE26852E8E007F72E3 /* Transforms.swift */,
+				46F6640426852F38007F72E3 /* Shaders.metal */,
+			);
+			path = WWDCCornellBox;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -609,6 +629,7 @@
 				30AEDA26263A2314007ED421 /* Renderer.swift in Sources */,
 				30AEDA2D263A27B7007ED421 /* RenderPipeline.metal in Sources */,
 				30AEDA36263A54A2007ED421 /* LaunchPad.swift in Sources */,
+				46F663F8268528ED007F72E3 /* WWDCCornellBox.swift in Sources */,
 				30E26260264648CE00311F44 /* SlimeMoldRenderer.swift in Sources */,
 				46C2B64A26759A21005E2733 /* LinearAnimator.swift in Sources */,
 				3024E4532655A14200DD195D /* StateInput.swift in Sources */,
@@ -618,9 +639,11 @@
 				30FCB999263BA82200910FED /* Conway.swift in Sources */,
 				30AEDA29263A248C007ED421 /* TesterBaseRenderer.swift in Sources */,
 				46C2B65226759A32005E2733 /* SinusoidalAnimator.swift in Sources */,
+				46F663FF26852E8E007F72E3 /* Scene.swift in Sources */,
 				30AEDA2B263A261F007ED421 /* TesterRendering.metal in Sources */,
 				309B4021263BDDBE00300BBE /* InputController.swift in Sources */,
 				30CC8730263B43650002B0B8 /* CappedRenderer.swift in Sources */,
+				46F6640526852F38007F72E3 /* Shaders.metal in Sources */,
 				4661A618267A6E5B00BADC8F /* SceneRenderer.swift in Sources */,
 				30BADFBB2656EB1C006719F7 /* TestInputRenderer.swift in Sources */,
 				3028F1A6263C93E0006922F0 /* EditorViewController.swift in Sources */,
@@ -633,6 +656,7 @@
 				461200D6266EB4FF00AE750E /* RendererInputManager.swift in Sources */,
 				30AEDA3B263A5B5B007ED421 /* RenderingOption.swift in Sources */,
 				30CC8734263B492C0002B0B8 /* TesterCappedRenderer.swift in Sources */,
+				46F6640026852E8E007F72E3 /* Transforms.swift in Sources */,
 				309B4018263BC40000300BBE /* ComplexRenderer.swift in Sources */,
 				4661A625267A6F5500BADC8F /* VanillaRayTraceRendering.metal in Sources */,
 				30AED9F6263A1F15007ED421 /* AppDelegate.swift in Sources */,

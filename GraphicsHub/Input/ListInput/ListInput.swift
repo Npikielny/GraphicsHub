@@ -77,7 +77,7 @@ class ListInput<InputType, View: Input<InputType> & Containable >: Input<[InputT
     func addInputView(Views: [View], customizeable: Bool) {
         var last: NSLayoutYAxisAnchor!
         if inputs.count > 0 {
-            last = (inputs.last! as! NSView).bottomAnchor
+            last = (inputs.last!).bottomAnchor
         } else {
             if customizeable {
                 last = addButton.bottomAnchor
@@ -85,8 +85,7 @@ class ListInput<InputType, View: Input<InputType> & Containable >: Input<[InputT
                 last = self.bottomAnchor
             }
         }
-        for View in Views {
-            let view = View as! NSView
+        for view in Views {
             addSubview(view)
             view.leadingAnchor.constraint(equalTo: leadingAnchor).isActive = true
             view.trailingAnchor.constraint(equalTo: trailingAnchor).isActive = true
@@ -94,7 +93,7 @@ class ListInput<InputType, View: Input<InputType> & Containable >: Input<[InputT
             view.topAnchor.constraint(equalTo: last, constant: 5).isActive = true
 
             last = view.bottomAnchor
-            inputs.append(View)
+            inputs.append(view)
             view.layoutSubtreeIfNeeded()
         }
 
