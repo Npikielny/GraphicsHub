@@ -1,81 +1,56 @@
 //
-//  VanillaRayTraceRenderer.swift
+//  RayTraceRenderer.swift
 //  GraphicsHub
 //
-//  Created by Noah Pikielny on 6/16/21.
+//  Created by Noah Pikielny on 6/25/21.
 //
 
 import MetalKit
 
-class VanillaRayTraceRenderer: AntialiasingRenderer {
+class RayTraceRenderer: AntialiasingRenderer {
     
-    var camera = Camera(position: SIMD3<Float>(0, 1, 0), rotation: SIMD3<Float>(0, 0, 0))
+    var camera: Camera
     
-    var objects: [Object] = SceneManager.generate(objectCount: 100,
-                                                  objectTypes: [.Sphere, .Box],
-                                                  generationType: .procedural,
-                                                  positionType: .radial,
-                                                  collisionType: [.distinct],
-                                                  objectSizeRange: (SIMD3<Float>(0.1, 0.1, 0.1), SIMD3<Float>(2, 2, 2)),
-                                                  objectPositionRange: (SIMD3<Float>(1,0,0), SIMD3<Float>(10, 2 * Float.pi, 10)),
-                                                  materialType: .random)
+    var objects: [Object]
     var objectBuffer: MTLBuffer!
-    var lightDirection = SIMD4<Float>(0.1, 0.1, 0.1, 1)
-    var skyTexture: MTLTexture!
-    var skySize: SIMD2<Int32>!
-        
-    var rayPipeline: MTLComputePipelineState!
-    
-    override func synchronizeInputs() {
-        super.synchronizeInputs()
-        guard let inputManager = inputManager as? VanillaRayInputManager else { return }
-        camera.fov = inputManager.fov
-        camera.aspectRatio = inputManager.aspectRatio
-        camera.position = inputManager.position
-        camera.rotation = inputManager.rotation
-        lightDirection = inputManager.light
-    }
+    var lightDirection: SIMD4<Float>
     
     required init(device: MTLDevice, size: CGSize) {
-        super.init(device: device, size: size, inputManager: VanillaRayInputManager(size: size), imageCount: 2)
-        name = "Vanilla Ray Trace Renderer"
+        objects = SceneManager.generate(objectCount: 10,
+                                        objectTypes: [.Sphere, .Box],
+                                        generationType: .procedural,
+                                        positionType: .radial,
+                                        collisionType: [.distinct],
+                                        objectSizeRange: (SIMD3<Float>(repeating: 0.1), SIMD3<Float>(repeating: 2)),
+                                        objectPositionRange: (SIMD3<Float>(1, 0, 0), SIMD3<Float>(10, 2 * Float.pi, 10)),
+                                        materialType: .random)
         objectBuffer = device.makeBuffer(bytes: objects, length: MemoryLayout<Object>.stride * objects.count, options: .storageModeManaged)
-        let functions = createFunctions(names: "processRays")
-        if let rayFunction = functions[0] {
-            do {
-                rayPipeline = try device.makeComputePipelineState(function: rayFunction)
-            } catch {
-                print(error)
-                fatalError()
-            }
-        }
-        setupSky()
+        lightDirection = SIMD4<Float>(0.1, -0.1, 0.1, 1)
+        camera = Camera(position: SIMD3<Float>(0,1,0), rotation: SIMD3<Float>(0, 0, 0))
+        super.init(device: device, size: size, inputManager: nil, imageCount: 2)
     }
     
-    override func draw(commandBuffer: MTLCommandBuffer, view: MTKView) {
+    init(device: MTLDevice,
+         size: CGSize,
+         camera: Camera? = nil,
+         objects: [Object]? = nil,
+         lightDirection: SIMD4<Float> = SIMD4<Float>(0.1, -0.1, 0.1, 1),
+         inputManager: CappedInputManager,
+         imageCount: Int) {
         
-        let rayEncoder = commandBuffer.makeComputeCommandEncoder()
-        rayEncoder?.setComputePipelineState(rayPipeline)
+        self.objects = objects ?? []
+        self.lightDirection = lightDirection
+        self.camera = camera ?? Camera(position: SIMD3<Float>(0, 1, 0), rotation: SIMD3<Float>(0, 0, 0))
         
-        rayEncoder?.setBuffer(objectBuffer, offset: 0, index: 0)
-        rayEncoder?.setBytes([Int32(objects.count)], length: MemoryLayout<Int32>.stride, index: 1)
-        rayEncoder?.setBytes([camera.makeModelMatrix(), camera.makeProjectionMatrix()], length: MemoryLayout<float4x4>.stride * 2, index: 2)
-        rayEncoder?.setBytes([SIMD2<Int32>(Int32(size.width), Int32(size.height))], length: MemoryLayout<SIMD2<Int32>>.stride, index: 3)
-        rayEncoder?.setBytes([SIMD2<Int32>(Int32(maxRenderSize.width),Int32(maxRenderSize.height))], length: MemoryLayout<SIMD2<Int32>>.stride, index: 4)
-        rayEncoder?.setBytes([skySize], length: MemoryLayout<SIMD2<Int32>>.stride, index: 5)
-        rayEncoder?.setBytes([lightDirection], length: MemoryLayout<SIMD4<Float>>.stride, index: 6)
-        rayEncoder?.setBytes([SIMD2<Float>(Float.random(in: -0.5...0.5),Float.random(in: -0.5...0.5))], length: MemoryLayout<SIMD2<Float>>.stride, index: 7)
-        rayEncoder?.setBytes([Int32(intermediateFrame)], length: MemoryLayout<Int32>.stride, index: 8)
-        rayEncoder?.setTexture(skyTexture, index: 0)
-        rayEncoder?.setTexture(images[0], index: 1)
+        objectBuffer = device.makeBuffer(length: MemoryLayout<Object>.stride * max((objects?.count ?? 0) * 2, 10), options: .storageModeManaged)
         
-        rayEncoder?.dispatchThreadgroups(getCappedGroupSize(), threadsPerThreadgroup: MTLSize(width: 8, height: 8, depth: 1))
-        rayEncoder?.endEncoding()
-        
-        super.draw(commandBuffer: commandBuffer, view: view)
+        super.init(device: device, size: size, inputManager: inputManager, imageCount: imageCount)
+        let objectsSize = MemoryLayout<Object>.stride * self.objects.count
+        memcpy(objectBuffer.contents(), self.objects, objectsSize)
+        objectBuffer.didModifyRange(0..<objectsSize)
     }
     
-    func setupSky() {
+    func loadTexture(name: String) throws -> MTLTexture {
         let textureLoaderOption = [
                     MTKTextureLoader.Option.allocateMipmaps: NSNumber(value: false),
                     MTKTextureLoader.Option.SRGB: NSNumber(value: false)
@@ -84,17 +59,16 @@ class VanillaRayTraceRenderer: AntialiasingRenderer {
 //        let url = URL(fileURLWithPath: "---/RayTraceComprehensive/RayTraceMPSSimple/Assets.xcassets/cape_hill_4k.imageset/cape_hill_4k copy.jpg")
 //        let texture = try! textureLoader.newTexture(URL: url, options: textureLoaderOption)
         let textureLoader = MTKTextureLoader(device: device)
-        let image = NSImage(named: "cape_hill_4k")!
+        let image = NSImage(named: name)!
         var size = NSRect(x: 0, y: 0, width: image.size.width, height: image.size.height)
-        let texture = try! textureLoader.newTexture(cgImage: image.cgImage(forProposedRect: &size, context: nil, hints: nil)!,
+        let texture = try textureLoader.newTexture(cgImage: image.cgImage(forProposedRect: &size, context: nil, hints: nil)!,
                                                     options: textureLoaderOption)
-        self.skyTexture = texture
-        skySize = SIMD2(Int32(texture.width),Int32(texture.height))
+        return texture
     }
     
 }
 
-class VanillaRayInputManager: AntialiasingInputManager {
+class RayTraceInputManager: AntialiasingInputManager {
     var fov: Float { Float((getInput(0) as! SliderInput).output)}
     var aspectRatio: Float { Float((getInput(1) as! SliderInput).output)}
     
@@ -128,6 +102,10 @@ class VanillaRayInputManager: AntialiasingInputManager {
     }
     
     convenience init(size: CGSize) {
+        self.init(renderSpecificInputs: [], imageSize: size)
+    }
+    
+    override init(renderSpecificInputs: [NSView], imageSize: CGSize?) {
         let fov = SliderInput(name: "FOV", minValue: 1, currentValue: 45, maxValue: 180)
         let aspectRatio = SliderInput(name: "Aspect Ratio", minValue: 0.1, currentValue: 1, maxValue: 10)
         
@@ -140,11 +118,11 @@ class VanillaRayInputManager: AntialiasingInputManager {
         let rotationZ = SliderInput(name: "Rotation Z", minValue: -180, currentValue: 0, maxValue: 180)
         
         let lightX = SliderInput(name: "Light X", minValue: -1, currentValue: 0.1, maxValue: 1)
-        let lightY = SliderInput(name: "Light Y", minValue: -1, currentValue: 0.1, maxValue: 1)
+        let lightY = SliderInput(name: "Light Y", minValue: -1, currentValue: -0.1, maxValue: 1)
         let lightZ = SliderInput(name: "Light Z", minValue: -1, currentValue: 0.1, maxValue: 1)
         let lightIntensity = SliderInput(name: "Light Intensity", minValue: 0, currentValue: 1, maxValue: 2)
         
-        self.init(renderSpecificInputs: [
+        super.init(renderSpecificInputs: [
             fov,
             aspectRatio,
             
@@ -160,7 +138,7 @@ class VanillaRayInputManager: AntialiasingInputManager {
             lightY,
             lightZ,
             lightIntensity,
-        ], imageSize: size)
+        ], imageSize: imageSize)
     }
     
     override func mouseDragged(event: NSEvent) {
@@ -176,3 +154,15 @@ class VanillaRayInputManager: AntialiasingInputManager {
         }
     }
 }
+
+extension RayTraceRenderer {
+    
+    struct Ray {
+        var origin: SIMD3<Float>
+        var direction: SIMD3<Float>
+        var energy: SIMD3<Float>
+        var result: SIMD3<Float>
+    }
+    
+}
+

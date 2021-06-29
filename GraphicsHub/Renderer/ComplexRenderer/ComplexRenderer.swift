@@ -42,7 +42,7 @@ class ComplexRenderer: SinglyCappedRenderer {
             juliaEncoder?.setBytes([SIMD2<Int32>(Int32(size.width),Int32(size.height))],
                                    length: MemoryLayout<SIMD2<Int32>>.stride,
                                    index: 0)
-            juliaEncoder?.setBytes([SIMD2<Int32>(Int32(maxRenderSize.width),Int32(maxRenderSize.height))],
+            juliaEncoder?.setBytes([SIMD2<Int32>(Int32(computeSize.width),Int32(computeSize.height))],
                                    length: MemoryLayout<SIMD2<Int32>>.stride, index: 1)
             juliaEncoder?.setBytes([Int32(intermediateFrame)], length: MemoryLayout<Int32>.stride, index: 2)
             juliaEncoder?.setBytes([inputManager.origin.toVector()], length: MemoryLayout<SIMD2<Float>>.stride, index: 3)

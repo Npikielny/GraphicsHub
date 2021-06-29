@@ -31,7 +31,6 @@ class TestInputRenderer: Renderer {
     
     var resizeable: Bool = false
     
-    var frameStable: Bool { true }
     var frame: Int = 0
     
     func drawableSizeDidChange(size: CGSize) {

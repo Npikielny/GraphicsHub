@@ -12,7 +12,7 @@ class ColorPickerInput: Animateable<NSColor>, Containable {
     typealias OutputType = NSColor
 
     var defaultColor: NSColor = NSColor(red: 1, green: 1, blue: 1, alpha: 1)
-
+    
     override var output: NSColor {
         get {
             colorView.layer?.backgroundColor = colorPicker.color.cgColor
@@ -64,13 +64,14 @@ class ColorPickerInput: Animateable<NSColor>, Containable {
 
     private var heightAnchorConstraint: NSLayoutConstraint!
     
-    var colorPicker: NSColorPanel = {
+    lazy var colorPicker: NSColorPanel = {
         let cp = NSColorPanel()
         cp.color = NSColor(red: 1, green: 1, blue: 1, alpha: 1)
         cp.isContinuous = true
         cp.mode = .wheel
         cp.showsAlpha = true
-        cp.setTarget(#selector(setColor))
+        cp.setAction(#selector(setColor))
+        cp.setTarget(self)
         return cp
     }()
 

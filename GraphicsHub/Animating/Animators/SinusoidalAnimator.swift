@@ -104,7 +104,11 @@ class SinusoidalAnimator: InputAnimator {
         if period < 0 {
             period = 0
         }
-        amplitude *= (1 + Double(event.deltaY / frame.height))
+        if amplitude == 0 {
+            amplitude += 0.1
+        } else {
+            amplitude *= (1 + Double(event.deltaY / frame.height))
+        }
     }
     
     func scrollWheel(with event: NSEvent) {

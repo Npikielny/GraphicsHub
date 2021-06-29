@@ -40,8 +40,6 @@ class CornellBox: AntialiasingRenderer {
     let RAY_MASK_SHADOW: Int32 = 1
     let RAY_MASK_SECONDARY: Int32 = 1
     
-    
-    
     required init(device: MTLDevice, size: CGSize) {
         super.init(device: device,
                    size: size,

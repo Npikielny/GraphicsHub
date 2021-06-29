@@ -62,11 +62,12 @@ kernel void conwayDraw(uint2 tid [[thread_position_in_grid]],
             } else {
                 Image.write(colors[2], tid);
             }
-            float2 remainder = conversion * float2(tid) - float2(int2(conversion * float2(tid))) - 0.5;
-            if (drawOutline && max(abs(remainder.x),abs(remainder.y)) > 0.45) {
+            float2 positionInCell = float2(tid) - float2(int2(conversion * float2(tid))) * float2(imageSize) / float2(cellCount);
+            float2 percent = abs(positionInCell / (float2(imageSize) / float2(cellCount)) - 0.5);
+            if (drawOutline && max(percent.x, percent.y) > 0.45) {
                 Image.write(colors[3], tid);
             }
-                
+//            Image.write(float4(percent * 2, 0, 1), tid);
         }
     } else {
         Image.write(colors[0], tid);

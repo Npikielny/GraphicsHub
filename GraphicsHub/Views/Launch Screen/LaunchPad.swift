@@ -9,12 +9,14 @@ import Cocoa
 
 class LaunchPad: NSViewController {
     
-    var options: [(String, Renderer.Type)] = [("Cornell Box", CornellBox.self),
-                                              ("Ray Trace Renderer", VanillaRayTraceRenderer.self),
-                                              ("Tester",TesterBaseRenderer.self),
-                                              ("Tester Capped Renderer",TesterCappedRenderer.self),
+    var options: [(String, Renderer.Type)] = [("Fluid Simulation", FlatFluidRenderer.self),
                                               ("Conway's Game of Life",ConwayRenderer.self),
                                               ("Complex Image Generator",ComplexRenderer.self),
+                                              ("Ray Trace Renderer", CustomRayTraceRenderer.self),
+                                              ("AcceleratedRayTraceRenderer", AcceleratedRayTraceRenderer.self),
+                                              ("Cornell Box", CornellBox.self),
+                                              ("Tester",TesterBaseRenderer.self),
+                                              ("Tester Capped Renderer",TesterCappedRenderer.self),
                                               ("Testing Inputs", TestInputRenderer.self)
     ]
     

@@ -144,7 +144,7 @@ class CappedInputManager: RendererInputManager {
 }
 
 extension CappedInputManager {
-    func renderSize() -> CGSize {
+    func computeSize() -> CGSize {
         return CGSize(width: CGFloat(renderWidth!), height: CGFloat(renderHeight!))
     }
 }

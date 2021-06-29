@@ -10,13 +10,13 @@ import MetalKit
 protocol CappedRenderer: Renderer {
     // Whether the view should render the image at small intervals (maxRenderSize)
     static var rayCapped: Bool { get }
-    var maxRenderSize: CGSize { get set }
+    var computeSize: CGSize { get set }
     var frame: Int { get set }
 }
 
 extension CappedRenderer {
     func getCappedGroupSize() -> MTLSize {
-        return MTLSize(width: (Int(maxRenderSize.width) + 7)/8 , height: (Int(maxRenderSize.height) + 7)/8, depth: 1)
+        return MTLSize(width: (Int(computeSize.width) + 7)/8 , height: (Int(computeSize.height) + 7)/8, depth: 1)
     }
     func getDirectory(frameIndex: Int) throws -> URL {
         if let url = url {
@@ -57,9 +57,10 @@ class SinglyCappedRenderer: CappedRenderer {
             drawableSizeDidChange(size: inputManager.size())
         }
         let inputManager = self.inputManager as! CappedInputManager
-        let renderSize = inputManager.renderSize()
-        if maxRenderSize != renderSize {
-            maxRenderSize = renderSize
+        let currentComputeSize = inputManager.computeSize()
+        if computeSize != currentComputeSize {
+            computeSize = currentComputeSize
+            computeSizeDidChange(size: currentComputeSize)
         }
         (inputManager.inputs as! [InputShell]).forEach {
             if $0.didChange {
@@ -70,8 +71,10 @@ class SinglyCappedRenderer: CappedRenderer {
         }
     }
     
+    func computeSizeDidChange(size: CGSize) {}
+    
     static var rayCapped: Bool = true
-    var maxRenderSize: CGSize = CGSize(width: 512, height: 512)
+    var computeSize: CGSize = CGSize(width: 512, height: 512)
     var size: CGSize
     
     var device: MTLDevice
@@ -79,7 +82,7 @@ class SinglyCappedRenderer: CappedRenderer {
     var renderSpecificInputs: [NSView]?
     
     var filledRender: Bool {
-        return intermediateFrame != 0 && intermediateFrame % (Int(ceil(size.width / maxRenderSize.width)) * Int(ceil(size.height / maxRenderSize.height))) == 0
+        return intermediateFrame != 0 && intermediateFrame % (Int(ceil(size.width / computeSize.width)) * Int(ceil(size.height / computeSize.height))) == 0
     }
     var recordable: Bool {
         return filledRender
@@ -93,12 +96,11 @@ class SinglyCappedRenderer: CappedRenderer {
     
     var frame: Int = 0
     internal var intermediateFrame: Int = 0
-    var frameStable: Bool { false }
     
     func drawableSizeDidChange(size: CGSize) {
         self.size = size
         self.image = createTexture(size: size)
-        self.maxRenderSize = .clamp(value: maxRenderSize, minValue: CGSize(width: 1, height: 1), maxValue: size)
+        self.computeSize = .clamp(value: computeSize, minValue: CGSize(width: 1, height: 1), maxValue: size)
         frame = 0
     }
     
@@ -225,9 +227,55 @@ class AntialiasingRenderer: SinglyCappedRenderer {
     }
 }
 
-protocol SimpleRenderer: Renderer {}
-
-extension SimpleRenderer {
+class SimpleRenderer: Renderer {
+    var name: String
+    
+    var device: MTLDevice
+    
+    var renderSpecificInputs: [NSView]?
+    var inputManager: RendererInputManager
+    func synchronizeInputs() {
+        if inputManager.size() != size {
+            drawableSizeDidChange(size: inputManager.size())
+        }
+    }
+    
+    var size: CGSize
+    var recordable: Bool = true
+    var recordPipeline: MTLComputePipelineState!
+    
+    var outputImage: MTLTexture!
+    var resizeable: Bool { false }
+    
+    var renderPipelineState: MTLRenderPipelineState?
+    
+    var url: URL?
+    var frame: Int = 0
+    
+    required init(device: MTLDevice, size: CGSize) {
+        name = "Simple Renderer"
+        self.device = device
+        self.size = size
+        inputManager = BasicInputManager(imageSize: size)
+        drawableSizeDidChange(size: size)
+    }
+    
+    init(device: MTLDevice, size: CGSize, inputManager: RendererInputManager, name: String) {
+        self.name = name
+        self.device = device
+        self.size = size
+        self.inputManager = inputManager
+    }
+    
+    func drawableSizeDidChange(size: CGSize) {
+        self.size = size
+        outputImage = createTexture(size: size)
+        frame = 0
+    }
+    
+    func draw(commandBuffer: MTLCommandBuffer, view: MTKView) { frame += 1 }
+    
+    func addAttachments(pipeline: MTLRenderCommandEncoder) {}
     
     func getDirectory(frameIndex: Int) throws -> URL {
         if let url = url {
@@ -251,5 +299,4 @@ extension SimpleRenderer {
             return dataPath
         }
     }
-    
 }

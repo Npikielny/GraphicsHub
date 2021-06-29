@@ -13,8 +13,6 @@ import Accelerate
 
 protocol RendererInfo {
     
-    var frameStable: Bool { get }
-    
     var frame: Int { get set }
     
 }
@@ -27,27 +25,29 @@ protocol Renderer: RendererInfo {
     // Holder for renderer's user inputs
     var renderSpecificInputs: [NSView]? { get }
     var inputManager: RendererInputManager { get set }
-    func synchronizeInputs()
     
     var size: CGSize { get set }
     
     var recordable: Bool { get }
     var recordPipeline: MTLComputePipelineState! { get set }
+    var url: URL? { get set }
     
     var outputImage: MTLTexture! { get }
     // Whether the view should resize with the window
     var resizeable: Bool { get }
     
+    var renderPipelineState: MTLRenderPipelineState? { get }
+    
+    init(device: MTLDevice, size: CGSize)
+    
+    func synchronizeInputs()
+    
     func drawableSizeDidChange(size: CGSize)
     
     func draw(commandBuffer: MTLCommandBuffer, view: MTKView)
     
-    var renderPipelineState: MTLRenderPipelineState? { get }
     func addAttachments(pipeline: MTLRenderCommandEncoder)
     
-    init(device: MTLDevice, size: CGSize)
-    
-    var url: URL? { get set }
     func getDirectory(frameIndex: Int) throws -> URL
 }
 
@@ -175,18 +175,18 @@ extension Renderer {
     }
     func dispatchComputeEncoder(commandBuffer: MTLCommandBuffer,
                                 computePipelineState: MTLComputePipelineState,
-                                buffers: [(MTLBuffer, Int)],
-                                bytes: [(UnsafeRawPointer, Int, Int)],
+                                buffers: [MTLBuffer],
+                                bytes: [(UnsafeRawPointer, Int)],
                                 textures: [MTLTexture],
                                 threadGroups: MTLSize,
                                 threadGroupSize: MTLSize) {
         let computeEncoder = commandBuffer.makeComputeCommandEncoder()
         computeEncoder?.setComputePipelineState(computePipelineState)
-        for i in buffers {
-            computeEncoder?.setBuffer(i.0, offset: 0, index: i.1)
+        for (index, buffer) in buffers.enumerated() {
+            computeEncoder?.setBuffer(buffer, offset: 0, index: index)
         }
-        for i in bytes {
-            computeEncoder?.setBytes(i.0, length: i.1, index: i.2)
+        for (index, bytes) in bytes.enumerated() {
+            computeEncoder?.setBytes(bytes.0, length: bytes.1, index: index + buffers.count)
         }
         computeEncoder?.setTextures(textures, range: 0..<textures.count)
         computeEncoder?.dispatchThreadgroups(threadGroups, threadsPerThreadgroup: threadGroupSize)

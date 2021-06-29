@@ -9,35 +9,15 @@ import MetalKit
 
 class TesterBaseRenderer: SimpleRenderer {
     
-    var url: URL?
-    
-    var name: String = "TesterBaseRenderer"
-    
-    var recordPipeline: MTLComputePipelineState!
-    
-    var inputManager: RendererInputManager
-    func synchronizeInputs() {
+    override func synchronizeInputs() {
         if inputManager.size() != size {
             drawableSizeDidChange(size: inputManager.size())
         }
         updateAllInputs()
     }
-    var recordable: Bool = true
-    
-    var renderPipelineState: MTLRenderPipelineState?
-    
-    var device: MTLDevice
-    var renderSpecificInputs: [NSView]? = nil
-    
-    var size: CGSize
-    var outputImage: MTLTexture!
-    var resizeable: Bool = true
     
     required init(device: MTLDevice, size: CGSize) {
-        self.inputManager = BasicInputManager(imageSize: size)
-        self.device = device
-        self.size = size
-        
+        super.init(device: device, size: size, inputManager: BasicInputManager(imageSize: size), name: "Test Base Renderer")
         do {
             let library = device.makeDefaultLibrary()!
             if let vertexFunction = getDefaultVertexFunction(library: library), let fragmentFunction = library.makeFunction(name: "testerFragment") {
@@ -52,24 +32,7 @@ class TesterBaseRenderer: SimpleRenderer {
         self.outputImage = texture
     }
     
-    var frameStable: Bool { true }
-    var frame: Int = 0
-    
-    func drawableSizeDidChange(size: CGSize) {
-        self.size = size
-        guard let texture = createTexture(size: size) else {
-            print("Failed to create texture")
-            return
-        }
-        self.outputImage = texture
-        frame = 0
-    }
-    
-    func draw(commandBuffer: MTLCommandBuffer, view: MTKView) {
-        frame += 1
-    }
-    
-    func addAttachments(pipeline: MTLRenderCommandEncoder) {
+    override func addAttachments(pipeline: MTLRenderCommandEncoder) {
         pipeline.setFragmentTexture(outputImage, index: 0)
     }
 }
