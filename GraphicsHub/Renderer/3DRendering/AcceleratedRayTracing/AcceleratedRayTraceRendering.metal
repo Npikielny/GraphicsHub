@@ -7,6 +7,8 @@
 
 #include <metal_stdlib>
 using namespace metal;
+using namespace raytracing;
+
 #include "../../Shared/SharedDataTypes.h"
 #include "../Shared3D.h"
 
@@ -31,7 +33,8 @@ constant int RAY_MASK_PRIMARY = 3;
 constant int RAY_MASK_SHADOW = 1;
 constant int RAY_MASK_SECONDARY = 1;
 
-kernel void populateRays(uint2 tid [[thread_position_in_grid]],
+[[kernel]]
+void populateRays(uint2 tid [[thread_position_in_grid]],
                          device Ray * rays [[buffer(0)]],
                          constant int2 & imageSize [[buffer(1)]],
                          constant int2 & renderSize [[buffer(2)]],
@@ -43,6 +46,7 @@ kernel void populateRays(uint2 tid [[thread_position_in_grid]],
     rays[tid.x + tid.y * imageSize.x] = CreateCameraRay(uv(shiftTid, randomDirection, imageSize),
                                                         modelMatrix,
                                                         projectionMatrix);
+    metal::raytracing::intersector<> x;
 //    device PrimitiveRay & primitiveRay = rays[tid.x + tid.y * imageSize.x];
 //    primitiveRay.origin = ray.origin;
 //    primitiveRay.mask = RAY_MASK_PRIMARY;

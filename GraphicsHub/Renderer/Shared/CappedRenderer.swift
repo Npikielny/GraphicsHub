@@ -139,6 +139,8 @@ class SinglyCappedRenderer: CappedRenderer {
     
     func addAttachments(pipeline: MTLRenderCommandEncoder) {
     }
+    
+    func setupResources(commandQueue: MTLCommandQueue?) {}
 }
 
 class AntialiasingRenderer: SinglyCappedRenderer {
@@ -276,6 +278,8 @@ class SimpleRenderer: Renderer {
     func draw(commandBuffer: MTLCommandBuffer, view: MTKView) { frame += 1 }
     
     func addAttachments(pipeline: MTLRenderCommandEncoder) {}
+    
+    func setupResources(commandQueue: MTLCommandQueue?) {}
     
     func getDirectory(frameIndex: Int) throws -> URL {
         if let url = url {

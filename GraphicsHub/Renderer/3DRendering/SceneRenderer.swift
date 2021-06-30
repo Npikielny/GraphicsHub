@@ -57,7 +57,7 @@ class SceneManager {
         return objects
     }
     
-    static func generate(objectCount: Int, objectTypes: [Object.ObjectTypes], generationType:  GenerationType, positionType: PositionType, collisionType: [CollisionType], objectSizeRange: (SIMD3<Float>, SIMD3<Float>), objectPositionRange: (SIMD3<Float>, SIMD3<Float>), materialType: Material.MaterialType) -> [Object] {
+    static func generate(objectCount: Int, objectTypes: [Object.ObjectType], generationType:  GenerationType, positionType: PositionType, collisionType: [CollisionType], objectSizeRange: (SIMD3<Float>, SIMD3<Float>), objectPositionRange: (SIMD3<Float>, SIMD3<Float>), materialType: Material.MaterialType) -> [Object] {
         var objects = [Object]()
         var iterations: Int = 0
         

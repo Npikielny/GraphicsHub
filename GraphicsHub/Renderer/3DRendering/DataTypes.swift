@@ -105,7 +105,7 @@ struct Object {
     static func sphere(materialType: Material.MaterialType, minPosition: SIMD2<Float>, maxPosition: SIMD2<Float>) -> Object {
         let radius = Float.random(in: 1...10)
         let position = SIMD3<Float>(Float.random(in: minPosition.x...maxPosition.x), radius, Float.random(in: minPosition.y...maxPosition.y))
-        return Object(objectType: ObjectTypes.Sphere.rawValue,
+        return Object(objectType: ObjectType.Sphere.rawValue,
                       position: position,
                       size: SIMD3<Float>(radius, 0, 0),
                       rotation: SIMD3<Float>(0, 0, 0),
@@ -113,7 +113,7 @@ struct Object {
     }
     
     static func sphere(materialType: Material.MaterialType, position: SIMD3<Float>, size: SIMD3<Float>) -> Object {
-        return Object(objectType: ObjectTypes.Sphere.rawValue,
+        return Object(objectType: ObjectType.Sphere.rawValue,
                       position: position,
                       size: SIMD3<Float>(size.x, 0, 0),
                       rotation: SIMD3<Float>(0, 0, 0),
@@ -123,28 +123,38 @@ struct Object {
     static func box(materialType: Material.MaterialType, minPosition: SIMD2<Float>, maxPosition: SIMD2<Float>) -> Object {
         let height = Float.random(in: 1...10)
         let position = SIMD3<Float>(Float.random(in: minPosition.x...maxPosition.x), height, Float.random(in: minPosition.y...maxPosition.y))
-        return Object(objectType: ObjectTypes.Box.rawValue,
+        return Object(objectType: ObjectType.Box.rawValue,
                       position: position,
                       size: SIMD3<Float>(Float.random(in: 1...10), height, Float.random(in: 1...10)),
                       rotation: SIMD3<Float>(0, 0, 0),
                       material: Material.createMaterial(materialType: materialType))
     }
     static func box(materialType: Material.MaterialType, position: SIMD3<Float>, size: SIMD3<Float>) -> Object {
-        return Object(objectType: ObjectTypes.Box.rawValue,
+        return Object(objectType: ObjectType.Box.rawValue,
                       position: position,
                       size: size,
                       rotation: SIMD3<Float>(0, 0, 0),
                       material: Material.createMaterial(materialType: materialType))
     }
     
-    enum ObjectTypes: Int32 {
+    enum ObjectType: Int32 {
         case Sphere
         case Box
         case Triangle
     }
     
+    func getType() -> ObjectType? {
+        let Types: [ObjectType] = [.Sphere, .Box, .Triangle]
+        for Type in Types {
+            if objectType == Type.rawValue {
+                return Type
+            }
+        }
+        return nil
+    }
+    
     var radius: Float {
-        if objectType == ObjectTypes.Sphere.rawValue {
+        if objectType == ObjectType.Sphere.rawValue {
             return size.x
         } else {
             return pow(pow(size.x, 2) + pow(size.y, 2) + pow(size.z, 2), 0.5)

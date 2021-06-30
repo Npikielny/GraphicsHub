@@ -48,6 +48,8 @@ protocol Renderer: RendererInfo {
     
     func addAttachments(pipeline: MTLRenderCommandEncoder)
     
+    func setupResources(commandQueue: MTLCommandQueue?)
+    
     func getDirectory(frameIndex: Int) throws -> URL
 }
 

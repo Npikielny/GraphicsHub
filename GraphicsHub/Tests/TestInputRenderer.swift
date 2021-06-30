@@ -66,6 +66,7 @@ class TestInputRenderer: Renderer {
     
     func addAttachments(pipeline: MTLRenderCommandEncoder) {}
     
+    func setupResources(commandQueue: MTLCommandQueue?) {}
 }
 
 class TestInputManager: RendererInputManager {
