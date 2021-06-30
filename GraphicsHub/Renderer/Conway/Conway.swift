@@ -7,7 +7,7 @@
 
 import MetalKit
 
-class ConwayRenderer: SimpleRenderer {
+class ConwayRenderer: Renderer {
     
     
     var cellBuffers = [MTLBuffer]()
@@ -44,7 +44,6 @@ class ConwayRenderer: SimpleRenderer {
                 resetCells()
             }
         }
-        updateAllInputs()
     }
     
     override func drawableSizeDidChange(size: CGSize) {

@@ -12,13 +12,6 @@ import MetalKit
 import Accelerate
 
 protocol RendererInfo {
-    
-    var frame: Int { get set }
-    
-}
-
-protocol Renderer: RendererInfo {
-    
     var name: String { get set}
     
     var device: MTLDevice { get }
@@ -32,11 +25,13 @@ protocol Renderer: RendererInfo {
     var recordPipeline: MTLComputePipelineState! { get set }
     var url: URL? { get set }
     
-    var outputImage: MTLTexture! { get }
+    var outputImage: MTLTexture { get }
     // Whether the view should resize with the window
     var resizeable: Bool { get }
     
     var renderPipelineState: MTLRenderPipelineState? { get }
+    
+    var frame: Int { get set }
     
     init(device: MTLDevice, size: CGSize)
     
@@ -53,15 +48,90 @@ protocol Renderer: RendererInfo {
     func getDirectory(frameIndex: Int) throws -> URL
 }
 
-var defaultSizes: [(Renderer.Type, CGSize)] = [
-    (TesterCappedRenderer.self, CGSize(width: 2048, height: 1024)),
-    (ConwayRenderer.self, CGSize(width: 2048, height: 2048)),
-    (ComplexRenderer.self, CGSize(width: 2048, height: 2058))
-]
+class Renderer: RendererInfo {
+    
+    var name: String
+    
+    var device: MTLDevice
+    // Holder for renderer's user inputs
+    var renderSpecificInputs: [NSView]?
+    var inputManager: RendererInputManager
+    
+    var size: CGSize
+    
+    var recordable: Bool { true }
+    var recordPipeline: MTLComputePipelineState!
+    var url: URL?
+    
+    internal var image: MTLTexture!
+    var outputImage: MTLTexture { image }
+    // Whether the view should resize with the window
+    var resizeable: Bool { false }
+    
+    var renderPipelineState: MTLRenderPipelineState?
+    
+    var frame: Int = 0
+    
+    required init(device: MTLDevice, size: CGSize) {
+        name = "Renderer"
+        inputManager = BasicInputManager(imageSize: size)
+        self.device = device
+        self.size = size
+    }
+    
+    init(device: MTLDevice, size: CGSize, inputManager: RendererInputManager, name: String) {
+        self.device = device
+        self.size = size
+        self.inputManager = inputManager
+        self.name = name
+        drawableSizeDidChange(size: size)
+    }
+    
+    func synchronizeInputs() {
+        if inputManager.size() != size {
+            drawableSizeDidChange(size: inputManager.size())
+        }
+    }
+    
+    func drawableSizeDidChange(size: CGSize) {
+        image = createTexture(size: size)
+        self.size = size
+        frame = 0
+    }
+    
+    func draw(commandBuffer: MTLCommandBuffer, view: MTKView) { frame += 1}
+    
+    func addAttachments(pipeline: MTLRenderCommandEncoder) {}
+    
+    func setupResources(commandQueue: MTLCommandQueue?) {}
+    
+    func getDirectory(frameIndex: Int) throws -> URL {
+        if let url = url {
+            return url
+        } else {
+            let paths = NSSearchPathForDirectoriesInDomains(.desktopDirectory, .userDomainMask, true)
+            let desktopDirectory = paths[0]
+            let docURL = URL(string: desktopDirectory)!
+            let dataPath = docURL.appendingPathComponent("\(name)-\(frameIndex)")
+            if !FileManager.default.fileExists(atPath: dataPath.path) {
+                do {
+                    try FileManager.default.createDirectory(atPath: dataPath.path, withIntermediateDirectories: true, attributes: nil)
+                    return dataPath
+                } catch {
+                    print(error.localizedDescription)
+                    throw error
+                }
+            }
+            print(dataPath)
+            // TODO: FIX THIS
+            return dataPath
+        }
+    }
+}
 
 extension Renderer {
     
-    mutating func handleAnimation() {
+    func handleAnimation() {
         if !inputManager.paused {
             self.inputManager.animatorManager.update()
             let frameRange = self.inputManager.animatorManager.frameRange
@@ -206,7 +276,7 @@ extension Renderer {
         copyEncoder?.endEncoding()
     }
     
-    mutating func handleRecording(commandBuffer: MTLCommandBuffer, frameIndex: inout Int) {
+    func handleRecording(commandBuffer: MTLCommandBuffer, frameIndex: inout Int) {
         if inputManager.recording && !inputManager.paused && recordable {
             do {
                 let url = try getDirectory(frameIndex: frameIndex)

@@ -6,16 +6,3 @@
 //
 
 import Cocoa
-
-protocol InputManager {
-    var inputs: [NSView] { get set }
-    
-    func handlePerFrameChecks()
-    
-    func flagsChanged(event: NSEvent)
-    func keyDown(event: NSEvent)
-    func mouseDown(event: NSEvent)
-    func mouseDragged(event: NSEvent)
-    func mouseMoved(event: NSEvent)
-    func scrollWheel(event: NSEvent)
-}

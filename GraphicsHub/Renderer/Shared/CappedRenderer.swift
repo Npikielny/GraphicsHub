@@ -7,55 +7,32 @@
 
 import MetalKit
 
-protocol CappedRenderer: Renderer {
-    // Whether the view should render the image at small intervals (maxRenderSize)
-    static var rayCapped: Bool { get }
-    var computeSize: CGSize { get set }
-    var frame: Int { get set }
-}
-
-extension CappedRenderer {
-    func getCappedGroupSize() -> MTLSize {
-        return MTLSize(width: (Int(computeSize.width) + 7)/8 , height: (Int(computeSize.height) + 7)/8, depth: 1)
+class SinglyCappedRenderer: Renderer {
+    
+    var computeSize: CGSize = CGSize(width: 512, height: 512)
+    
+    var filledRender: Bool {
+        return intermediateFrame != 0 && intermediateFrame % (Int(ceil(size.width / computeSize.width)) * Int(ceil(size.height / computeSize.height))) == 0
     }
-    func getDirectory(frameIndex: Int) throws -> URL {
-        if let url = url {
-            return url
-        } else {
-            let paths = NSSearchPathForDirectoriesInDomains(.desktopDirectory, .userDomainMask, true)
-            let desktopDirectory = paths[0]
-            let docURL = URL(string: desktopDirectory)!
-            let dataPath = docURL.appendingPathComponent("\(name)-\(frameIndex)")
-            if !FileManager.default.fileExists(atPath: dataPath.path) {
-                do {
-                    try FileManager.default.createDirectory(atPath: dataPath.path, withIntermediateDirectories: true, attributes: nil)
-                    return dataPath
-                } catch {
-                    print(error.localizedDescription)
-                    throw error
-                }
-            }
-            print(dataPath)
-            // TODO: FIX THIS
-            return dataPath
-        }
+    override var recordable: Bool {
+        return filledRender
     }
-}
-
-class SinglyCappedRenderer: CappedRenderer {
     
-    var name: String = "SinglyCapped Renderer"
+    override var resizeable: Bool { false }
     
-    var recordPipeline: MTLComputePipelineState!
+    internal var intermediateFrame: Int = 0
     
-    var inputManager: RendererInputManager
+    init(device: MTLDevice, size: CGSize, inputManager: CappedInputManager? = nil, name: String = "SinglyCapped Renderer") {
+        super.init(device: device, size: size, inputManager: inputManager ?? CappedInputManager(renderSpecificInputs: [], imageSize: size), name: name)
+        recordPipeline = try! getRecordPipeline()
+    }
     
-    var url: URL?
+    required init(device: MTLDevice, size: CGSize) {
+        super.init(device: device, size: size, inputManager: CappedInputManager(renderSpecificInputs: [], imageSize: size), name: "SinglyCapped Renderer")
+        recordPipeline = try! getRecordPipeline()
+    }
     
-    func synchronizeInputs() {
-        if inputManager.size() != size {
-            drawableSizeDidChange(size: inputManager.size())
-        }
+    override func synchronizeInputs() {
         let inputManager = self.inputManager as! CappedInputManager
         let currentComputeSize = inputManager.computeSize()
         if computeSize != currentComputeSize {
@@ -69,42 +46,25 @@ class SinglyCappedRenderer: CappedRenderer {
                 return
             }
         }
+        super.synchronizeInputs()
     }
     
     func computeSizeDidChange(size: CGSize) {}
     
-    static var rayCapped: Bool = true
-    var computeSize: CGSize = CGSize(width: 512, height: 512)
-    var size: CGSize
-    
-    var device: MTLDevice
-    
-    var renderSpecificInputs: [NSView]?
-    
-    var filledRender: Bool {
-        return intermediateFrame != 0 && intermediateFrame % (Int(ceil(size.width / computeSize.width)) * Int(ceil(size.height / computeSize.height))) == 0
-    }
-    var recordable: Bool {
-        return filledRender
-    }
-    internal var image: MTLTexture!
-    var outputImage: MTLTexture! {
-        image
+    func getCappedGroupSize() -> MTLSize {
+        return MTLSize(width: Int(computeSize.width + 7) / 8,
+                       height: Int(computeSize.height + 7) / 8,
+                       depth: 1)
     }
     
-    var resizeable: Bool { false }
-    
-    var frame: Int = 0
-    internal var intermediateFrame: Int = 0
-    
-    func drawableSizeDidChange(size: CGSize) {
+    override func drawableSizeDidChange(size: CGSize) {
         self.size = size
         self.image = createTexture(size: size)
         self.computeSize = .clamp(value: computeSize, minValue: CGSize(width: 1, height: 1), maxValue: size)
         frame = 0
     }
     
-    func draw(commandBuffer: MTLCommandBuffer, view: MTKView) {
+    override func draw(commandBuffer: MTLCommandBuffer, view: MTKView) {
         if recordable {
             frame += 1
             intermediateFrame = 0
@@ -113,41 +73,13 @@ class SinglyCappedRenderer: CappedRenderer {
         }
     }
     
-    var renderPipelineState: MTLRenderPipelineState?
-    
-    init(device: MTLDevice, size: CGSize, inputManager: CappedInputManager? = nil) {
-        self.size = size
-        self.device = device
-        if let inputManager = inputManager {
-            self.inputManager = inputManager
-        } else {
-            self.inputManager = CappedInputManager(renderSpecificInputs: [], imageSize: size)
-        }
-        image = createTexture(size: size)
-        
-        recordPipeline = try! getRecordPipeline()
-    }
-    
-    required init(device: MTLDevice, size: CGSize) {
-        self.size = size
-        self.device = device
-        self.inputManager = CappedInputManager(renderSpecificInputs: [], imageSize: size)
-        image = createTexture(size: size)
-        
-        recordPipeline = try! getRecordPipeline()
-    }
-    
-    func addAttachments(pipeline: MTLRenderCommandEncoder) {
-    }
-    
-    func setupResources(commandQueue: MTLCommandQueue?) {}
 }
 
 class AntialiasingRenderer: SinglyCappedRenderer {
     
     internal var images = [MTLTexture]()
     private var imageCount: Int
-    override var outputImage: MTLTexture! {
+    override var outputImage: MTLTexture {
         images.last!
     }
     private var averagePipeline: MTLComputePipelineState!
@@ -227,80 +159,5 @@ class AntialiasingRenderer: SinglyCappedRenderer {
         pipeline.setFragmentTexture(images[0], index: 0)
         pipeline.setFragmentTexture(images[1], index: 1)
     }
-}
-
-class SimpleRenderer: Renderer {
-    var name: String
     
-    var device: MTLDevice
-    
-    var renderSpecificInputs: [NSView]?
-    var inputManager: RendererInputManager
-    func synchronizeInputs() {
-        if inputManager.size() != size {
-            drawableSizeDidChange(size: inputManager.size())
-        }
-    }
-    
-    var size: CGSize
-    var recordable: Bool = true
-    var recordPipeline: MTLComputePipelineState!
-    
-    var outputImage: MTLTexture!
-    var resizeable: Bool { false }
-    
-    var renderPipelineState: MTLRenderPipelineState?
-    
-    var url: URL?
-    var frame: Int = 0
-    
-    required init(device: MTLDevice, size: CGSize) {
-        name = "Simple Renderer"
-        self.device = device
-        self.size = size
-        inputManager = BasicInputManager(imageSize: size)
-        drawableSizeDidChange(size: size)
-    }
-    
-    init(device: MTLDevice, size: CGSize, inputManager: RendererInputManager, name: String) {
-        self.name = name
-        self.device = device
-        self.size = size
-        self.inputManager = inputManager
-    }
-    
-    func drawableSizeDidChange(size: CGSize) {
-        self.size = size
-        outputImage = createTexture(size: size)
-        frame = 0
-    }
-    
-    func draw(commandBuffer: MTLCommandBuffer, view: MTKView) { frame += 1 }
-    
-    func addAttachments(pipeline: MTLRenderCommandEncoder) {}
-    
-    func setupResources(commandQueue: MTLCommandQueue?) {}
-    
-    func getDirectory(frameIndex: Int) throws -> URL {
-        if let url = url {
-            return url
-        } else {
-            let paths = NSSearchPathForDirectoriesInDomains(.desktopDirectory, .userDomainMask, true)
-            let desktopDirectory = paths[0]
-            let docURL = URL(string: desktopDirectory)!
-            let dataPath = docURL.appendingPathComponent("\(name)-\(frameIndex)")
-            if !FileManager.default.fileExists(atPath: dataPath.path) {
-                do {
-                    try FileManager.default.createDirectory(atPath: dataPath.path, withIntermediateDirectories: true, attributes: nil)
-                    return dataPath
-                } catch {
-                    print(error.localizedDescription)
-                    throw error
-                }
-            }
-            // TODO: Implement Error
-//            fatalError()
-            return dataPath
-        }
-    }
 }

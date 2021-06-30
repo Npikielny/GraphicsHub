@@ -9,7 +9,7 @@ import Cocoa
 
 class LaunchPad: NSViewController {
     
-    var options: [(String, Renderer.Type)] = [("Fluid Simulation", FlatFluidRenderer.self),
+    var options: [(String, RendererInfo.Type)] = [("Fluid Simulation", FlatFluidRenderer.self),
                                               ("Conway's Game of Life",ConwayRenderer.self),
                                               ("Complex Image Generator",ComplexRenderer.self),
                                               ("Ray Trace Renderer", CustomRayTraceRenderer.self),
@@ -121,13 +121,12 @@ extension LaunchPad: NSCollectionViewDelegate {
     func collectionView(_ collectionView: NSCollectionView, didSelectItemsAt indexPaths: Set<IndexPath>) {
         if let indexPath = indexPaths.first {
             let rendererOptions = options[indexPath.item]
-            let defaultSize = (defaultSizes.first { $0.0 == rendererOptions.1})?.1
             
             guard let device = MTLCreateSystemDefaultDevice() else { print("Failed to create MTLDevice"); return }
-            let renderer = rendererOptions.1.init(device: device, size: defaultSize ?? CGSize(width: 1000, height: 600))
+            let renderer = rendererOptions.1.init(device: device, size: CGSize(width: 512, height: 512))
             
             let controller = MainController(size: renderer.size)
-            controller.renderingView.setRenderer(renderer: renderer)
+            controller.renderingView.setRenderer(renderer: renderer as! Renderer)
             
             let editor = EditorViewController(controller: controller)
             

@@ -7,14 +7,7 @@
 
 import MetalKit
 
-class TesterBaseRenderer: SimpleRenderer {
-    
-    override func synchronizeInputs() {
-        if inputManager.size() != size {
-            drawableSizeDidChange(size: inputManager.size())
-        }
-        updateAllInputs()
-    }
+class TesterBaseRenderer: Renderer {
     
     required init(device: MTLDevice, size: CGSize) {
         super.init(device: device, size: size, inputManager: BasicInputManager(imageSize: size), name: "Test Base Renderer")
@@ -26,10 +19,6 @@ class TesterBaseRenderer: SimpleRenderer {
         } catch {
             print(error)
         }
-        guard let texture = createTexture(size: size) else {
-            fatalError("Failed to create texture")
-        }
-        self.outputImage = texture
     }
     
     override func addAttachments(pipeline: MTLRenderCommandEncoder) {

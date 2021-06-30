@@ -7,7 +7,7 @@
 
 import Cocoa
 
-protocol RendererInputManager: InputManager {
+protocol RendererInputManager {
     var inputOffset: Int { get }
     
     var imageWidth: CGFloat { get set }
@@ -20,6 +20,17 @@ protocol RendererInputManager: InputManager {
     var renderHeight: CGFloat? { get set }
     
     var animatorManager: AnimatorManager! { get set }
+    
+    var inputs: [NSView] { get set }
+    
+    func handlePerFrameChecks()
+    
+    func flagsChanged(event: NSEvent)
+    func keyDown(event: NSEvent)
+    func mouseDown(event: NSEvent)
+    func mouseDragged(event: NSEvent)
+    func mouseMoved(event: NSEvent)
+    func scrollWheel(event: NSEvent)
 }
 
 extension RendererInputManager {

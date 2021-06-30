@@ -7,7 +7,7 @@
 
 import MetalKit
 
-class SlimeMoldRenderer: SimpleRenderer {
+class SlimeMoldRenderer: Renderer {
     
     var computePipeline: MTLComputePipelineState!
     var drawPipeline: MTLComputePipelineState!

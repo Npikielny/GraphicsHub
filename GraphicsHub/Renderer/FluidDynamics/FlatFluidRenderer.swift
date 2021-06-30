@@ -7,7 +7,7 @@
 
 import MetalKit
 
-class FlatFluidRenderer: SimpleRenderer {
+class FlatFluidRenderer: Renderer {
     
     required init(device: MTLDevice, size: CGSize) {
         super.init(device: device, size: size)

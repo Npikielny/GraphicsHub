@@ -9,64 +9,10 @@ import MetalKit
 
 class TestInputRenderer: Renderer {
     
-    var name: String = "Test Input Renderer"
-    
-    var device: MTLDevice
-    
-    var renderSpecificInputs: [NSView]?
-    
-    var inputManager: RendererInputManager
-    
-    func synchronizeInputs() {
-        inputManager.handlePerFrameChecks()
-    }
-    
-    var size: CGSize
-    
-    var recordable: Bool = true
-    
-    var recordPipeline: MTLComputePipelineState!
-    
-    var outputImage: MTLTexture!
-    
-    var resizeable: Bool = false
-    
-    var frame: Int = 0
-    
-    func drawableSizeDidChange(size: CGSize) {
-        if inputManager.size() != size {
-            drawableSizeDidChange(size: inputManager.size())
-            frame = 0
-        }
-        updateAllInputs()
-    }
-    
-    func draw(commandBuffer: MTLCommandBuffer, view: MTKView) {
-        frame += 1
-    }
-    
-    var renderPipelineState: MTLRenderPipelineState?
-    
     required init(device: MTLDevice, size: CGSize) {
-        self.inputManager = TestInputManager(size: size)
-        self.device = device
-        self.size = size
-        
-        guard let texture = createTexture(size: size) else {
-            fatalError("Failed to create texture")
-        }
-        self.outputImage = texture
+        super.init(device: device, size: size, inputManager: TestInputManager(size: size), name: "Test Input Renderer")
     }
     
-    var url: URL?
-    
-    func getDirectory(frameIndex: Int) throws -> URL {
-        fatalError()
-    }
-    
-    func addAttachments(pipeline: MTLRenderCommandEncoder) {}
-    
-    func setupResources(commandQueue: MTLCommandQueue?) {}
 }
 
 class TestInputManager: RendererInputManager {

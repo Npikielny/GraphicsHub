@@ -14,13 +14,11 @@ class InputController: NSViewController {
     private var animatorWindow: NSWindow?
     let padding: CGFloat = 20
     
-    init(inputManager: InputManager) {
+    init(inputManager: RendererInputManager) {
         self.inputs = inputManager.inputs
-        if let inputManager = inputManager as? RendererInputManager {
-            self.animator = AnimatorController(inputManager: inputManager)
-            animatorWindow = NSWindow(contentViewController: animator!)
-            animatorWindow?.title = "Animator"
-        }
+        self.animator = AnimatorController(inputManager: inputManager)
+        animatorWindow = NSWindow(contentViewController: animator!)
+        animatorWindow?.title = "Animator"
         super.init(nibName: "InputController", bundle: nil)
     }
     required init?(coder: NSCoder) {

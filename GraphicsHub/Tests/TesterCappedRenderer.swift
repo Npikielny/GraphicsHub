@@ -14,7 +14,7 @@ class TesterCappedRenderer: SinglyCappedRenderer {
     var tidComputePipeline: MTLComputePipelineState!
     
     required init(device: MTLDevice, size: CGSize) {
-        super.init(device: device, size: size)
+        super.init(device: device, size: size, inputManager: nil, name: "Tester Capped Renderer")
         if let tidFunction = createFunctions(names: "testerSinglyCapped")[0] {
             do {
                 tidComputePipeline = try device.makeComputePipelineState(function: tidFunction)
@@ -33,7 +33,7 @@ class TesterCappedRenderer: SinglyCappedRenderer {
         return shift.0 * shift.1;
     }
     override func draw(commandBuffer: MTLCommandBuffer, view: MTKView) {
-        if (frame % requiredFrames == 0) {
+        if (intermediateFrame == 0) {
             seed = Int32.random(in: Int32.min...Int32.max)
         }
         let computeEncoder = commandBuffer.makeComputeCommandEncoder()

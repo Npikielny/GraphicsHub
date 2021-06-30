@@ -142,7 +142,7 @@ class RenderingView: MTKView {
         self.renderer = renderer
         mtkView(self, drawableSizeWillChange: renderer.size)
         self.autoResizeDrawable = renderer.resizeable
-        
+        // FIXME: THIS DOESN'T WORK
 //        if !renderer.resizeable {
 //            self.widthAnchor.constraint(equalTo: self.heightAnchor, multiplier: renderer.size.width/renderer.size.height).isActive = true
 //        }
@@ -172,6 +172,7 @@ extension RenderingView: MTKViewDelegate {
         if let commandBuffer = commandBuffer {
             self.renderer!.handleAnimation()
             renderer.synchronizeInputs()
+            renderer.updateAllInputs()
             renderer.handleDrawing(commandBuffer: commandBuffer, view: self)
             self.renderer!.handleRecording(commandBuffer: commandBuffer, frameIndex: &frameIndex)
         }
