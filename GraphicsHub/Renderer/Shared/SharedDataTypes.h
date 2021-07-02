@@ -30,12 +30,16 @@ uint2 shiftedTid(uint2 tid,
 float3 randomColor(int seed);
 
 float lerp(float a, float b, float p);
-
 float2 lerp(float2 a, float2 b, float p);
-
 float3 lerp(float3 a, float3 b, float p);
-
 float4 lerp(float4 a, float4 b, float p);
 
 float hash(uint seed);
+
+bool inImage(int2 position, int2 size);
+bool inImage(int2 position, int2 shift, int2 size);
+bool inImage(uint2 position, int2 shift, int2 size);
+
+float4 project(float4 base, float4 value);
+float4 orthogonal(float4 base, float4 value);
 #endif /* SharedDataTypes_h */

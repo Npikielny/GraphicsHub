@@ -24,7 +24,6 @@ class ConwayRenderer: Renderer {
             cellPipeline = try device.makeComputePipelineState(function: functions[0]!)
             drawPipeline = try device.makeComputePipelineState(function: functions[1]!)
             copyPipeline = try device.makeComputePipelineState(function: functions[2]!)
-            recordPipeline = try getRecordPipeline()
         } catch {
             print(error)
             fatalError()

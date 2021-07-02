@@ -54,3 +54,25 @@ float hash(uint seed) {
     seed *= 2654435769u;
     return float(seed)/4294967295.0;
 }
+
+bool inImage(int2 position, int2 size) {
+    return position.x >= 0 && position.y >= 0 && position.x < size.x && position.y < size.y;
+}
+
+bool inImage(int2 position, int2 shift, int2 size) {
+    return inImage(position + shift, size);
+}
+
+bool inImage(uint2 position, int2 shift, int2 size) {
+    return inImage(int2(position), shift, size);
+}
+
+
+float4 project(float4 base, float4 value) {
+//    return base.dot(value) / base.dot(base);
+    return dot(base, value) / dot(base, base);
+}
+
+float4 orthogonal(float4 base, float4 value) {
+    return value - project(base, value);
+}

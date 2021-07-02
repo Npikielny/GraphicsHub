@@ -15,7 +15,7 @@ class SinglyCappedRenderer: Renderer {
         return intermediateFrame != 0 && intermediateFrame % (Int(ceil(size.width / computeSize.width)) * Int(ceil(size.height / computeSize.height))) == 0
     }
     override var recordable: Bool {
-        return filledRender
+        return frame % inputManager.framesPerFrame == 0 && filledRender
     }
     
     override var resizeable: Bool { false }
@@ -24,7 +24,6 @@ class SinglyCappedRenderer: Renderer {
     
     init(device: MTLDevice, size: CGSize, inputManager: CappedInputManager? = nil, name: String = "SinglyCapped Renderer") {
         super.init(device: device, size: size, inputManager: inputManager ?? CappedInputManager(renderSpecificInputs: [], imageSize: size), name: name)
-        recordPipeline = try! getRecordPipeline()
     }
     
     required init(device: MTLDevice, size: CGSize) {
@@ -87,7 +86,7 @@ class AntialiasingRenderer: SinglyCappedRenderer {
     var renderPasses = 0
     override var recordable: Bool {
         guard let inputManager = inputManager as? AntialiasingInputManager else { fatalError() }
-        return renderPasses >= inputManager.renderPasses && filledRender
+        return frame % inputManager.framesPerFrame == 0 && renderPasses >= inputManager.renderPasses && filledRender
     }
     
     init(device: MTLDevice, size: CGSize, inputManager: CappedInputManager? = nil, imageCount: Int) {

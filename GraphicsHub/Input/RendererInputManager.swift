@@ -19,6 +19,8 @@ protocol RendererInputManager {
     var renderWidth: CGFloat? { get set }
     var renderHeight: CGFloat? { get set }
     
+    var framesPerFrame: Int { get set }
+    
     var animatorManager: AnimatorManager! { get set }
     
     var inputs: [NSView] { get set }
@@ -65,6 +67,11 @@ class BasicInputManager: RendererInputManager {
         set { (inputs[2] as! StateInput).output = newValue }
     }
     
+    var framesPerFrame: Int {
+        get { Int((inputs[3] as! SliderInput).output) }
+        set { (inputs[3] as! SliderInput).setValue(value: Double(newValue)) }
+    }
+    
     var renderWidth: CGFloat?
     
     var renderHeight: CGFloat?
@@ -76,6 +83,7 @@ class BasicInputManager: RendererInputManager {
         inputs.append(ScreenSizeInput(name: "Image Size", minSize: CGSize(width: 1, height: 1), size: CGSize(width: 2048, height: 2048)))
         inputs.append(StateInput(name: "Recording"))
         inputs.append(StateInput(name: "Paused"))
+        inputs.append(SliderInput(name: "Frames Per Recording Frame", minValue: 1, currentValue: 1, maxValue: 50, tickMarks: 50, animateable: false))
         inputOffset = inputs.count
         inputs.append(contentsOf: renderSpecificInputs)
         animatorManager = AnimatorManager(manager: self)
@@ -123,6 +131,12 @@ class CappedInputManager: RendererInputManager {
         get { (inputs[3] as! StateInput).output }
         set { (inputs[3] as! StateInput).output = newValue }
     }
+    
+    var framesPerFrame: Int {
+        get { Int((inputs[4] as! SliderInput).output) }
+        set { (inputs[4] as! SliderInput).setValue(value: Double(newValue)) }
+    }
+    
     var inputs = [NSView]()
     var animatorManager: AnimatorManager!
     
@@ -131,6 +145,7 @@ class CappedInputManager: RendererInputManager {
         inputs.append(SizeInput(name: "Render Size", prefix: "Render", minSize: CGSize(width: 1, height: 1), size: CGSize(width: 512, height: 512), maxSize: CGSize(width: 4096, height: 4096)))
         inputs.append(StateInput(name: "Recording"))
         inputs.append(StateInput(name: "Paused"))
+        inputs.append(SliderInput(name: "Frames Per Recording Frame", minValue: 1, currentValue: 1, maxValue: 50, tickMarks: 50))
         inputOffset = inputs.count
         inputs.append(contentsOf: renderSpecificInputs)
         animatorManager = AnimatorManager(manager: self)

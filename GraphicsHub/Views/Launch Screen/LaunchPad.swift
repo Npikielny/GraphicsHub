@@ -10,14 +10,15 @@ import Cocoa
 class LaunchPad: NSViewController {
     
     var options: [(String, RendererInfo.Type)] = [("Fluid Simulation", FlatFluidRenderer.self),
-                                              ("Conway's Game of Life",ConwayRenderer.self),
-                                              ("Complex Image Generator",ComplexRenderer.self),
-                                              ("Ray Trace Renderer", CustomRayTraceRenderer.self),
-                                              ("AcceleratedRayTraceRenderer", AcceleratedRayTraceRenderer.self),
-                                              ("Cornell Box", CornellBox.self),
-                                              ("Tester",TesterBaseRenderer.self),
-                                              ("Tester Capped Renderer",TesterCappedRenderer.self),
-                                              ("Testing Inputs", TestInputRenderer.self)
+                                                  ("SlimeMold", SlimeMoldRenderer.self),
+                                                  ("Conway's Game of Life",ConwayRenderer.self),
+                                                  ("Complex Image Generator",ComplexRenderer.self),
+                                                  ("Ray Trace Renderer", CustomRayTraceRenderer.self),
+                                                  ("AcceleratedRayTraceRenderer", AcceleratedRayTraceRenderer.self),
+                                                  ("Cornell Box", CornellBox.self),
+                                                  ("Tester",TesterBaseRenderer.self),
+                                                  ("Tester Capped Renderer",TesterCappedRenderer.self),
+                                                  ("Testing Inputs", TestInputRenderer.self)
     ]
     
     lazy var graphicsOption: NSCollectionView = {

@@ -6,8 +6,8 @@
 //
 
 #include <metal_stdlib>
-using namespace metal;
 #include "SharedDataTypes.h"
+using namespace metal;
 
 // Simple vertex shader which passes through NDC quad positions
 vertex CopyVertexOut copyVertex(unsigned short vid [[vertex_id]]) {

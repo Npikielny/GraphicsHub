@@ -59,7 +59,7 @@ class Renderer: RendererInfo {
     
     var size: CGSize
     
-    var recordable: Bool { true }
+    var recordable: Bool { frame % inputManager.framesPerFrame == 0 }
     var recordPipeline: MTLComputePipelineState!
     var url: URL?
     
@@ -85,6 +85,12 @@ class Renderer: RendererInfo {
         self.inputManager = inputManager
         self.name = name
         drawableSizeDidChange(size: size)
+        do {
+            recordPipeline = try getRecordPipeline()
+        } catch {
+            print(error)
+            fatalError()
+        }
     }
     
     func synchronizeInputs() {
