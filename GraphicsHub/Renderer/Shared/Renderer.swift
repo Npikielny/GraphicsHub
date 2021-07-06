@@ -33,6 +33,8 @@ protocol RendererInfo {
     
     var frame: Int { get set }
     
+    var initialized: Bool { get }
+    
     init(device: MTLDevice, size: CGSize)
     
     func synchronizeInputs()
@@ -43,7 +45,7 @@ protocol RendererInfo {
     
     func addAttachments(pipeline: MTLRenderCommandEncoder)
     
-    func setupResources(commandQueue: MTLCommandQueue?)
+    func setupResources(commandQueue: MTLCommandQueue?, semaphore: DispatchSemaphore)
     
     func getDirectory(frameIndex: Int) throws -> URL
 }
@@ -71,6 +73,8 @@ class Renderer: RendererInfo {
     var renderPipelineState: MTLRenderPipelineState?
     
     var frame: Int = 0
+    
+    var initialized: Bool = false
     
     required init(device: MTLDevice, size: CGSize) {
         name = "Renderer"
@@ -109,7 +113,7 @@ class Renderer: RendererInfo {
     
     func addAttachments(pipeline: MTLRenderCommandEncoder) {}
     
-    func setupResources(commandQueue: MTLCommandQueue?) {}
+    func setupResources(commandQueue: MTLCommandQueue?, semaphore: DispatchSemaphore) { initialized = true; semaphore.signal() }
     
     func getDirectory(frameIndex: Int) throws -> URL {
         if let url = url {

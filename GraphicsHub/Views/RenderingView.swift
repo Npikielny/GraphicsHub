@@ -159,6 +159,10 @@ extension RenderingView: MTKViewDelegate {
     func draw(in view: MTKView) {
         guard let renderPassDescriptor = view.currentRenderPassDescriptor, let renderer = renderer else { return }
         semaphore.wait()
+        if !renderer.initialized {
+            renderer.setupResources(commandQueue: commandQueue, semaphore: semaphore)
+            return
+        }
         let commandBuffer = commandQueue.makeCommandBuffer()
         commandBuffer?.addCompletedHandler { [self] commandBuffer in
             DispatchQueue.main.async {

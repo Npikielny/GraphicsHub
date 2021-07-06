@@ -137,14 +137,13 @@ struct Object {
                       material: Material.createMaterial(materialType: materialType))
     }
     
-    enum ObjectType: Int32 {
+    enum ObjectType: Int32, Hashable {
         case Sphere
         case Box
-        case Triangle
     }
     
     func getType() -> ObjectType? {
-        let Types: [ObjectType] = [.Sphere, .Box, .Triangle]
+        let Types: [ObjectType] = [.Sphere, .Box]
         for Type in Types {
             if objectType == Type.rawValue {
                 return Type
@@ -163,6 +162,30 @@ struct Object {
     
     static func intersect(object1: Object, object2: Object) -> Bool {
         return length(object1.position - object2.position) < object1.radius + object2.radius
+    }
+    
+    struct BoundingBox {
+        var min: MTLPackedFloat3
+        var max: MTLPackedFloat3
+    }
+    var boundingBoxes: BoundingBox {
+        let convert: (SIMD3<Float>) -> MTLPackedFloat3 = { vector in
+            var output = MTLPackedFloat3()
+            output.x = vector.x
+            output.y = vector.y
+            output.z = vector.z
+            return output
+        }
+        switch getType() {
+        case .Sphere:
+            return BoundingBox(min: convert(position - SIMD3(repeating: radius)),
+                               max: convert(position + SIMD3(repeating: radius)))
+        case .Box:
+            return BoundingBox(min: convert(position - size / 2),
+                               max: convert(position + size / 2))
+        case .none:
+            fatalError()
+        }
     }
 }
 

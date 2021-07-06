@@ -26,12 +26,12 @@ struct PrimitiveRay {
   float3 color;
 };
 
-constant int TRIANGLE_MASK_GEOMETRY = 1;
-constant int TRIANGLE_MASK_LIGHT = 2;
-
-constant int RAY_MASK_PRIMARY = 3;
-constant int RAY_MASK_SHADOW = 1;
-constant int RAY_MASK_SECONDARY = 1;
+//constant int TRIANGLE_MASK_GEOMETRY = 1;
+//constant int TRIANGLE_MASK_LIGHT = 2;
+//
+//constant int RAY_MASK_PRIMARY = 3;
+//constant int RAY_MASK_SHADOW = 1;
+//constant int RAY_MASK_SECONDARY = 1;
 
 [[kernel]]
 void populateRays(uint2 tid [[thread_position_in_grid]],
@@ -46,7 +46,8 @@ void populateRays(uint2 tid [[thread_position_in_grid]],
     rays[tid.x + tid.y * imageSize.x] = CreateCameraRay(uv(shiftTid, randomDirection, imageSize),
                                                         modelMatrix,
                                                         projectionMatrix);
-    metal::raytracing::intersector<> x;
+//    metal::raytracing::intersector<> x;
+    
 //    device PrimitiveRay & primitiveRay = rays[tid.x + tid.y * imageSize.x];
 //    primitiveRay.origin = ray.origin;
 //    primitiveRay.mask = RAY_MASK_PRIMARY;

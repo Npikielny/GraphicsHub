@@ -30,10 +30,6 @@ class AcceleratedRayTraceRenderer: RayTraceRenderer {
     var intersectionFunctions: MTLLinkedFunctions!
     var functionTable: MTLIntersectionFunctionTable!
     
-    private var initialized = false
-    private var primitiveDescriptor: MTLAccelerationStructureDescriptor?
-    
-    private var accelerationDescriptor: MTLInstanceAccelerationStructureDescriptor?
     var accelerationStructure: MTLAccelerationStructure?
     
     required init(device: MTLDevice, size: CGSize) {
@@ -89,66 +85,122 @@ class AcceleratedRayTraceRenderer: RayTraceRenderer {
         
     }
     
-    fileprivate func setupIntersector() {
-        struct BoundingBox {
-            var min: MTLPackedFloat3
-            var max: MTLPackedFloat3
-        }
+    private func accelerationStructureWithDescriptor(descriptor: MTLAccelerationStructureDescriptor, commandQueue: MTLCommandQueue?) -> MTLAccelerationStructure {
         
-        var boundingBoxes = [BoundingBox]()
+        let accelSizes = device.accelerationStructureSizes(descriptor: descriptor)
         
-        let convert: (SIMD3<Float>) -> MTLPackedFloat3 = { vector in
-            var output = MTLPackedFloat3()
-            output.x = vector.x
-            output.y = vector.y
-            output.z = vector.z
-            return output
-        }
+        let accelerationStructure = device.makeAccelerationStructure(size: accelSizes.accelerationStructureSize)!
+        let scratchBuffer = device.makeBuffer(length: accelSizes.buildScratchBufferSize, options: .storageModePrivate)!
+        let compactedSizeBuffer = device.makeBuffer(length: MemoryLayout<UInt32>.stride, options: .storageModeShared)!
+        
+        var commandBuffer = commandQueue?.makeCommandBuffer()
+        let commandEncoder = commandBuffer?.makeAccelerationStructureCommandEncoder()
+        
+        commandEncoder?.build(accelerationStructure: accelerationStructure,
+                              descriptor: descriptor,
+                              scratchBuffer: scratchBuffer,
+                              scratchBufferOffset: 0)
+        commandEncoder?.writeCompactedSize(accelerationStructure: accelerationStructure,
+                                           buffer: compactedSizeBuffer,
+                                           offset: 0)
+        commandEncoder?.endEncoding()
+        commandBuffer?.commit()
+        
+        commandBuffer?.waitUntilCompleted()
+        
+        let compactedSize = compactedSizeBuffer.contents().assumingMemoryBound(to: UInt32.self).pointee
+        let compactedAccelerationStructure = device.makeAccelerationStructure(size: Int(compactedSize))!
+        
+        commandBuffer = commandQueue?.makeCommandBuffer()
+        let compactEncoder = commandBuffer?.makeAccelerationStructureCommandEncoder()
+        compactEncoder?.copyAndCompact(sourceAccelerationStructure: accelerationStructure,
+                                       destinationAccelerationStructure: compactedAccelerationStructure)
+        compactEncoder?.endEncoding()
+        commandBuffer?.commit()
+        
+        return compactedAccelerationStructure
+    }
+    
+    override func setupResources(commandQueue: MTLCommandQueue?, semaphore: DispatchSemaphore) {
+        
+        var packages: [Object.ObjectType: [Object.BoundingBox]] = [:]
+        
+        var primitiveAccelerationStructures = [MTLAccelerationStructure]()
         
         for object in objects {
-            switch object.getType() {
-            case .Box:
-                boundingBoxes.append(BoundingBox(min: convert(object.position - object.size / 2),
-                                                 max: convert(object.position + object.size / 2)))
-            case .Sphere:
-                boundingBoxes.append(BoundingBox(min: convert(object.position - SIMD3(repeating: object.radius) / 2),
-                                                 max: convert(object.position + SIMD3(repeating: object.radius) / 2)))
-            default:
-                continue
+            guard let objectType = object.getType() else { fatalError() }
+            if !packages.keys.contains(objectType) {
+                packages[objectType] = []
+            }
+            packages[objectType]?.append(object.boundingBoxes)
+        }
+        if packages.count == 0 { return }
+        
+        for (index, (objectType, package)) in packages.sorted(by: { $0.key.rawValue < $1.key.rawValue }).enumerated() {
+            
+            switch objectType {
+            case .Box, .Sphere:
+                let geometryDescriptor = MTLAccelerationStructureBoundingBoxGeometryDescriptor()
+                geometryDescriptor.boundingBoxBuffer = device.makeBuffer(bytes: package, length: MemoryLayout<Object.BoundingBox>.stride * package.count, options: .storageModeManaged)
+                geometryDescriptor.boundingBoxCount = package.count
+                geometryDescriptor.intersectionFunctionTableOffset = index
+                
+                let accelDescriptor = MTLPrimitiveAccelerationStructureDescriptor()
+                accelDescriptor.geometryDescriptors = [geometryDescriptor]
+                primitiveAccelerationStructures.append(
+                    accelerationStructureWithDescriptor(
+                        descriptor: accelDescriptor,
+                        commandQueue: commandQueue
+                    )
+                )
             }
         }
-        if boundingBoxes.count > 0 {
-            let geometryDescriptor = MTLAccelerationStructureBoundingBoxGeometryDescriptor()
-            geometryDescriptor.boundingBoxBuffer = device.makeBuffer(bytes: boundingBoxes, length: MemoryLayout<SIMD3<Float>>.stride * boundingBoxes.count, options: .storageModeManaged)
-            geometryDescriptor.boundingBoxCount = boundingBoxes.count / 2
-            
-            let primitiveDescriptor = MTLPrimitiveAccelerationStructureDescriptor()
-            primitiveDescriptor.usage = .preferFastBuild
-            primitiveDescriptor.geometryDescriptors = [geometryDescriptor]
-            
-            self.primitiveDescriptor = primitiveDescriptor
-            
-            instanceBuffer = device.makeBuffer(length: MemoryLayout<MTLAccelerationStructureInstanceDescriptor>.stride * objects.count, options: .storageModeManaged)
-            let instancePointer = instanceBuffer.contents().assumingMemoryBound(to: MTLAccelerationStructureInstanceDescriptor.self)
-            for (index,object) in objects.enumerated() {
-                instancePointer[index].accelerationStructureIndex = 0
-                instancePointer[index].options = MTLAccelerationStructureInstanceOptions(rawValue: 0)
-                instancePointer[index].intersectionFunctionTableOffset = UInt32(object.getType()?.rawValue ?? 0)
-                // TODO: MASK?
-            }
-            instanceBuffer.didModifyRange(0..<instanceBuffer.length)
-            
-            let accelerationDescriptor = MTLInstanceAccelerationStructureDescriptor()
-            accelerationDescriptor.instanceCount = objects.count
-            accelerationDescriptor.instanceDescriptorBuffer = instanceBuffer
+        
+        instanceBuffer = device.makeBuffer(
+            length: MemoryLayout<MTLAccelerationStructureInstanceDescriptor>.stride * packages.count, options: .storageModeShared
+        )
+        // Create individual acceleration structures
+        let instancePointer = instanceBuffer.contents().assumingMemoryBound(to: MTLAccelerationStructureInstanceDescriptor.self)
+        for (index,object) in objects.enumerated() {
+            instancePointer[index].accelerationStructureIndex = 0
+            instancePointer[index].options = MTLAccelerationStructureInstanceOptions(rawValue: 0)
+            instancePointer[index].intersectionFunctionTableOffset = UInt32(object.getType()?.rawValue ?? 0)
+            // TODO: MASK?
+        }
+        // Mapping objects to acceleration structure
+        for (objectType, package) in packages {
             
         }
+            
+        let accelerationDescriptor = MTLInstanceAccelerationStructureDescriptor()
+        accelerationDescriptor.instanceCount = objects.count
+        accelerationDescriptor.instanceDescriptorBuffer = instanceBuffer
+            
+            
+        let sizes = device.accelerationStructureSizes(descriptor: accelerationDescriptor)
+            
+        let accelerationStructure = device.makeAccelerationStructure(size: sizes.accelerationStructureSize)!
+        self.accelerationStructure = accelerationStructure
+        let scratchBuffer = device.makeBuffer(length: sizes.buildScratchBufferSize, options: .storageModePrivate)!
+            
+        guard let commandBuffer = commandQueue?.makeCommandBuffer() else { fatalError("Failed to create acceleration structure") }
+        let acceleratorEncoder = commandBuffer.makeAccelerationStructureCommandEncoder()
+        acceleratorEncoder?.build(accelerationStructure: accelerationStructure,
+                                  descriptor: accelerationDescriptor,
+                                  scratchBuffer: scratchBuffer,
+                                  scratchBufferOffset: 0)
+        acceleratorEncoder?.endEncoding()
 //
 //        accelerationStructure = MPSTriangleAccelerationStructure(device: device)
 //        accelerationStructure?.vertexBuffer = vertexPositionBuffer
 //        accelerationStructure?.maskBuffer = triangleMaskBuffer
 //        accelerationStructure?.triangleCount = vertices.count / 3
 //        accelerationStructure?.rebuild()
+        super.setupResources(commandQueue: commandQueue, semaphore: semaphore)
+    }
+    
+    fileprivate func setupIntersector() {
+        
     }
     
     override func computeSizeDidChange(size: CGSize) {
@@ -158,23 +210,7 @@ class AcceleratedRayTraceRenderer: RayTraceRenderer {
     }
     
     override func draw(commandBuffer: MTLCommandBuffer, view: MTKView) {
-         
-        if !initialized, let descriptor = primitiveDescriptor {
-            let sizes = device.accelerationStructureSizes(descriptor: descriptor)
-            
-            let accelerationStructure = device.makeAccelerationStructure(size: sizes.accelerationStructureSize)!
-            self.accelerationStructure = accelerationStructure
-            let scrathBuffer = device.makeBuffer(length: sizes.buildScratchBufferSize, options: .storageModePrivate)!
-            
-            let acceleratorEncoder = commandBuffer.makeAccelerationStructureCommandEncoder()
-            acceleratorEncoder?.build(accelerationStructure: accelerationStructure,
-                                      descriptor: descriptor,
-                                      scratchBuffer: scrathBuffer,
-                                      scratchBufferOffset: 0)
-            acceleratorEncoder?.endEncoding()
-            initialized = true
-            return
-        }
+        guard let accelerator = accelerationStructure else { return }
         
         let threadGroups = getCappedGroupSize()
         let threadsPerThreadGroup = MTLSize(width: 8, height: 8, depth: 1)
