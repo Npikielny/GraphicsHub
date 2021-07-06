@@ -12,7 +12,7 @@ class LinearAnimator: InputAnimator {
     static var name: String = "Linear Animator"
     var id: Int
     
-    var displayDomain: (Int, Int)?
+    var displayRange: (Double, Double)?
     
     var input: AnimateableInterface
     var index: Int
@@ -44,16 +44,15 @@ class LinearAnimator: InputAnimator {
     }
     
     func drawPath(_ frame: NSRect) -> NSBezierPath {
-        let frameRange = displayDomain ?? manager.frameRange
-        return draw(frameRange: frameRange, frame: frame, points: Array(frameRange.0..<frameRange.1))
+        return draw(frameRange: manager.frameDomain, frame: frame, points: Array(manager.frameDomain.0..<manager.frameDomain.1))
     }
     
     func drawPoints(_ frame: NSRect) -> [NSBezierPath] {
-        drawPoints(frameRange: displayDomain ?? manager.frameRange, frame: frame, pointsList: input.keyFrames[index].map({$0.0}))
+        drawPoints(frameRange: manager.frameDomain, frame: frame, pointsList: input.keyFrames[index].map({$0.0}))
     }
     
     func leftMouseDown(frame: NSRect, location: CGPoint) {
-        let position = findPosition(frame: frame, frameRange: (displayDomain) ?? manager.frameRange, position: NSPoint(x: location.x, y: location.y))
+        let position = findPosition(frame: frame, frameRange: manager.frameDomain, position: NSPoint(x: location.x, y: location.y))
         input.addKeyFrame(index: index, frame: position.0, value: position.1)
     }
     
@@ -62,8 +61,27 @@ class LinearAnimator: InputAnimator {
     }
     
     func rightMouseDown(frame: NSRect, location: CGPoint) {
-        let position = findPosition(frame: frame, frameRange: (displayDomain) ?? manager.frameRange, position: NSPoint(x: location.x, y: location.y))
-        input.removeKeyFrame(index: index, frame: position.0)
+//        let position = findPosition(frame: frame, frameRange: manager.frameDomain, position: NSPoint(x: location.x, y: location.y))
+//        let positionInFrame = location
+        
+        var closest: Int?
+        var distance = CGFloat.infinity
+        let displayDomain = input.domain[index]
+        for (keyFrame, value) in input.keyFrames[index] {
+            let newDistance: CGFloat = pow(
+                pow(location.x - CGFloat(keyFrame - manager.frameDomain.0) * frame.width / CGFloat(manager.frameDomain.1 - manager.frameDomain.0), 2) +
+                    pow(location.y - CGFloat(value)/frame.height * CGFloat(displayDomain.1 - displayDomain.0), 2)
+                , 0.5)
+            
+            // FIXME: Max distance for deletion
+            if newDistance < distance { //  && newDistance <= ((frame.width > 100) ? 30 : frame.width * 0.1)
+                distance = newDistance
+                closest = keyFrame
+            }
+        }
+        print(distance)
+        guard let closest = closest else { return }
+        input.removeKeyFrame(index: index, frame: closest)
     }
     
     func rightMouseDragged(with event: NSEvent, location: CGPoint, frame: NSRect) {}

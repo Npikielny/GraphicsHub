@@ -195,7 +195,7 @@ class AnimatorController: NSViewController {
     
     func setFrameRange() {
         if let frameRange = (Int(minFrame.stringValue), Int(maxFrame.stringValue)) as? (Int, Int) {
-            animatorManager.frameRange = frameRange
+            animatorManager.frameDomain = frameRange
             graphView.display()
         }
     }

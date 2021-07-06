@@ -11,7 +11,7 @@ var inputIndex: Int = 0
 protocol InputAnimator {
     static var name: String { get }
     var id: Int { get }
-    var displayDomain: (Int, Int)? { get }
+    var displayRange: (Double, Double)? { get }
     var input: AnimateableInterface { get }
     var manager: AnimatorManager { get }
     var index: Int { get }
@@ -47,8 +47,9 @@ extension InputAnimator {
     func getPosition(frame: NSRect, frameRange: (Int, Int), position: (Int, Double)) -> NSPoint {
         let dx = frameRange.1 - frameRange.0
         let displayRange = input.domain[index]
-        let height = 1.5 * (position.1 - (displayRange.1 + displayRange.0) / 2) / (displayRange.1 - displayRange.0 + 1)
-        return NSPoint(x: frame.width * CGFloat(position.0) / CGFloat(dx), y: CGFloat(height) * frame.height / 2 + frame.height / 2)
+//        let height = (position.1 - (displayRange.1 + displayRange.0)) / (displayRange.1 - displayRange.0) // CGFloat(position.1 - displayRange.0) * frame.height / CGFloat(displayRange.1 - displayRange.0)
+        let height = CGFloat(position.1 - displayRange.0) * frame.height / CGFloat(displayRange.1 - displayRange.0)
+        return NSPoint(x: frame.width * CGFloat(position.0 - frameRange.0) / CGFloat(dx), y: height)
     }
     
     func findPosition(frame: NSRect, frameRange: (Int, Int), position: NSPoint) -> (Int, Double) {

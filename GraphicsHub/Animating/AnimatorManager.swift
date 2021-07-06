@@ -9,7 +9,7 @@ import Cocoa
 
 class AnimatorManager {
     
-    var frameRange = (0, 0)
+    var frameDomain = (0, 0)
     var animations: [NSView: [InputAnimator]] = [:]
     var window: NSWindow!
     

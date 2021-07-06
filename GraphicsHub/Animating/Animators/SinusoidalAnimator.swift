@@ -8,7 +8,6 @@
 import Cocoa
 
 class SinusoidalAnimator: InputAnimator {
-    var displayDomain: (Int, Int)? = nil
     
     static var name: String = "Sinusoidal"
     var id: Int
@@ -49,7 +48,7 @@ class SinusoidalAnimator: InputAnimator {
         inputIndex += 1
         self.index = index
         self.input = input
-        let frameRange = manager.frameRange
+        let frameRange = manager.frameDomain
         period = Double(frameRange.1 - frameRange.0)
         locus = Double(frameRange.1 + frameRange.0) / 2
         amplitude = (input.domain[index].1 - input.domain[index].0) / 2
@@ -64,12 +63,17 @@ class SinusoidalAnimator: InputAnimator {
     }
     
     func drawPath(_ frame: NSRect) -> NSBezierPath {
-        return draw(frameRange: manager.frameRange, frame: frame, points: Int(locus))
+        return draw(frameRange: manager.frameDomain, frame: frame, points: Int(locus))
     }
     
     func drawPoints(_ frame: NSRect) -> [NSBezierPath] {
-        let points: [Int] = Array(manager.frameRange.0...manager.frameRange.1)
-        return drawPoints(frameRange: manager.frameRange, frame: frame, pointsList: points)
+        
+        // FIXME: Some optimization for drawing high point count
+//        let points: [Int] = manager.frameRange.1 - manager.frameRange.0 + 1 > 100 ?
+//            Array(0...100).map { (manager.frameRange.1 - manager.frameRange.0) * $0 / 100 + manager.frameRange.0 } :
+//            Array(manager.frameRange.0...manager.frameRange.1)
+        let points = Array(manager.frameDomain.0...manager.frameDomain.1)
+        return drawPoints(frameRange: manager.frameDomain, frame: frame, pointsList: points)
     }
     
     func getDescription() -> NSString? {
@@ -84,10 +88,10 @@ class SinusoidalAnimator: InputAnimator {
     func leftMouseDown(frame: NSRect, location: CGPoint) { }
     
     func leftMouseDragged(with event: NSEvent, location: CGPoint, frame: NSRect) {
-        if manager.frameRange.1 - manager.frameRange.0 == 0 {
-            locus = Double(manager.frameRange.0)
+        if manager.frameDomain.1 - manager.frameDomain.0 == 0 {
+            locus = Double(manager.frameDomain.0)
         } else {
-            locus = Double(location.x / frame.width * CGFloat(manager.frameRange.1 - manager.frameRange.0))
+            locus = Double(location.x / frame.width * CGFloat(manager.frameDomain.1 - manager.frameDomain.0))
         }
         intercept -= Double(event.deltaY)
     }
