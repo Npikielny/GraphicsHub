@@ -78,27 +78,32 @@ extension InputAnimator {
         return path
     }
     
-    func drawPoints(frameRange: (Int, Int), frame: NSRect, points: Int...) -> [NSBezierPath] {
-        return drawPoints(frameRange: frameRange, frame: frame, pointsList: points)
-    }
-    
-    func drawPoints(frameRange: (Int, Int), frame: NSRect, pointsList: [Int]) -> [NSBezierPath] {
+    func drawPoints(frameRange: (Int, Int), frame: NSRect, pointsList: [Int], are keyFrames: Bool = false) -> [NSBezierPath] {
         var paths = [NSBezierPath]()
+        let valueHeight: (Int) -> Double = {
+            if keyFrames {
+                return { keyFrame in input.keyFrames[index].first(where: {$0.0 == keyFrame})!.1 }
+            } else {
+                return { keyFrame in getFrame(keyFrame) }
+            }
+        }()
+        
+        
         for point in pointsList {
             if frameRange.1 - frameRange.0 == 0 {
                 if point == frameRange.0 {
-                    let pointPosition = NSPoint(x: frame.width / 2, y: CGFloat(getFrame(point)) + frame.height / 2)
+                    let pointPosition = NSPoint(x: frame.width / 2, y: CGFloat(valueHeight(point)) + frame.height / 2)
                     let path = NSBezierPath(roundedRect: NSRect(x: pointPosition.x - 5,
-                                                                     y: pointPosition.y - 5,
-                                                                     width: 10,
-                                                                     height: 10),
-                                                 xRadius: 5,
-                                                 yRadius: 5)
+                                                                y: pointPosition.y - 5,
+                                                                width: 10,
+                                                                height: 10),
+                                            xRadius: 5,
+                                            yRadius: 5)
                     path.lineWidth = 3
                     paths.append(path)
                 }
             } else {
-                let pointPosition = getPosition(frame: frame, frameRange: frameRange, position: (point, getFrame(point)))
+                let pointPosition = getPosition(frame: frame, frameRange: frameRange, position: (point, valueHeight(point)))
                 let path = NSBezierPath(roundedRect: NSRect(x: pointPosition.x - 5,
                                                                  y: pointPosition.y - 5,
                                                                  width: 10,

@@ -9,7 +9,7 @@ import Cocoa
 
 class SinusoidalAnimator: InputAnimator {
     
-    static var name: String = "Sinusoidal"
+    static var name: String { "Sinusoidal" }
     var id: Int
     var displayRange: (Double, Double)? {
         (intercept - abs(amplitude), intercept + abs(amplitude))

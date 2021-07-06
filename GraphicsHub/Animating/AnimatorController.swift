@@ -14,7 +14,8 @@ class AnimatorController: NSViewController {
     
     static let animationTypes: [InputAnimator.Type] = [
         LinearAnimator.self,
-        SinusoidalAnimator.self
+        QuadraticAnimator.self,
+        SinusoidalAnimator.self,
     ]
     
     let animatorManager: AnimatorManager

@@ -9,7 +9,7 @@ import Cocoa
 
 class LinearAnimator: InputAnimator {
     
-    static var name: String = "Linear Animator"
+    class var name: String { "Linear Animator" }
     var id: Int
     
     var displayRange: (Double, Double)?
@@ -44,11 +44,11 @@ class LinearAnimator: InputAnimator {
     }
     
     func drawPath(_ frame: NSRect) -> NSBezierPath {
-        return draw(frameRange: manager.frameDomain, frame: frame, points: Array(manager.frameDomain.0..<manager.frameDomain.1))
+        return draw(frameRange: manager.frameDomain, frame: frame, points: input.keyFrames[index].map({$0.0}).filter({ $0 >= manager.frameDomain.0 && $0 <= manager.frameDomain.1 }))
     }
     
     func drawPoints(_ frame: NSRect) -> [NSBezierPath] {
-        drawPoints(frameRange: manager.frameDomain, frame: frame, pointsList: input.keyFrames[index].map({$0.0}))
+        drawPoints(frameRange: manager.frameDomain, frame: frame, pointsList: input.keyFrames[index].map({$0.0}), are: true)
     }
     
     func leftMouseDown(frame: NSRect, location: CGPoint) {
@@ -79,7 +79,6 @@ class LinearAnimator: InputAnimator {
                 closest = keyFrame
             }
         }
-        print(distance)
         guard let closest = closest else { return }
         input.removeKeyFrame(index: index, frame: closest)
     }
