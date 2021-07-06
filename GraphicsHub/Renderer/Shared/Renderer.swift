@@ -144,7 +144,7 @@ extension Renderer {
     func handleAnimation() {
         if !inputManager.paused {
             self.inputManager.animatorManager.update()
-            let frameRange = self.inputManager.animatorManager.frameRange
+            let frameRange = self.inputManager.animatorManager.frameDomain
             if frameRange.1 - frameRange.0 > 0 {
                 frame = (frame < frameRange.0) ? frameRange.0 : frame
                 if frame > frameRange.1 {

@@ -11,7 +11,7 @@ var inputIndex: Int = 0
 protocol InputAnimator {
     static var name: String { get }
     var id: Int { get }
-    var displayDomain: (Int, Int)? { get }
+    var displayRange: (Double, Double)? { get }
     var input: AnimateableInterface { get }
     var manager: AnimatorManager { get }
     var index: Int { get }
@@ -47,8 +47,9 @@ extension InputAnimator {
     func getPosition(frame: NSRect, frameRange: (Int, Int), position: (Int, Double)) -> NSPoint {
         let dx = frameRange.1 - frameRange.0
         let displayRange = input.domain[index]
-        let height = 1.5 * (position.1 - (displayRange.1 + displayRange.0) / 2) / (displayRange.1 - displayRange.0 + 1)
-        return NSPoint(x: frame.width * CGFloat(position.0) / CGFloat(dx), y: CGFloat(height) * frame.height / 2 + frame.height / 2)
+//        let height = (position.1 - (displayRange.1 + displayRange.0)) / (displayRange.1 - displayRange.0) // CGFloat(position.1 - displayRange.0) * frame.height / CGFloat(displayRange.1 - displayRange.0)
+        let height = CGFloat(position.1 - displayRange.0) * frame.height / CGFloat(displayRange.1 - displayRange.0)
+        return NSPoint(x: frame.width * CGFloat(position.0 - frameRange.0) / CGFloat(dx), y: height)
     }
     
     func findPosition(frame: NSRect, frameRange: (Int, Int), position: NSPoint) -> (Int, Double) {
@@ -77,27 +78,32 @@ extension InputAnimator {
         return path
     }
     
-    func drawPoints(frameRange: (Int, Int), frame: NSRect, points: Int...) -> [NSBezierPath] {
-        return drawPoints(frameRange: frameRange, frame: frame, pointsList: points)
-    }
-    
-    func drawPoints(frameRange: (Int, Int), frame: NSRect, pointsList: [Int]) -> [NSBezierPath] {
+    func drawPoints(frameRange: (Int, Int), frame: NSRect, pointsList: [Int], are keyFrames: Bool = false) -> [NSBezierPath] {
         var paths = [NSBezierPath]()
+        let valueHeight: (Int) -> Double = {
+            if keyFrames {
+                return { keyFrame in input.keyFrames[index].first(where: {$0.0 == keyFrame})!.1 }
+            } else {
+                return { keyFrame in getFrame(keyFrame) }
+            }
+        }()
+        
+        
         for point in pointsList {
             if frameRange.1 - frameRange.0 == 0 {
                 if point == frameRange.0 {
-                    let pointPosition = NSPoint(x: frame.width / 2, y: CGFloat(getFrame(point)) + frame.height / 2)
+                    let pointPosition = NSPoint(x: frame.width / 2, y: CGFloat(valueHeight(point)) + frame.height / 2)
                     let path = NSBezierPath(roundedRect: NSRect(x: pointPosition.x - 5,
-                                                                     y: pointPosition.y - 5,
-                                                                     width: 10,
-                                                                     height: 10),
-                                                 xRadius: 5,
-                                                 yRadius: 5)
+                                                                y: pointPosition.y - 5,
+                                                                width: 10,
+                                                                height: 10),
+                                            xRadius: 5,
+                                            yRadius: 5)
                     path.lineWidth = 3
                     paths.append(path)
                 }
             } else {
-                let pointPosition = getPosition(frame: frame, frameRange: frameRange, position: (point, getFrame(point)))
+                let pointPosition = getPosition(frame: frame, frameRange: frameRange, position: (point, valueHeight(point)))
                 let path = NSBezierPath(roundedRect: NSRect(x: pointPosition.x - 5,
                                                                  y: pointPosition.y - 5,
                                                                  width: 10,

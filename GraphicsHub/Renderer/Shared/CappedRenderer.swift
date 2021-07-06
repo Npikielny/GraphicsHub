@@ -40,7 +40,7 @@ class SinglyCappedRenderer: Renderer {
         }
         (inputManager.inputs as! [InputShell]).forEach {
             if $0.didChange {
-                frame = inputManager.animatorManager.frameRange.0
+                frame = inputManager.animatorManager.frameDomain.0
                 intermediateFrame = 0
                 return
             }

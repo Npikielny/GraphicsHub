@@ -14,7 +14,8 @@ class AnimatorController: NSViewController {
     
     static let animationTypes: [InputAnimator.Type] = [
         LinearAnimator.self,
-        SinusoidalAnimator.self
+        QuadraticAnimator.self,
+        SinusoidalAnimator.self,
     ]
     
     let animatorManager: AnimatorManager
@@ -195,7 +196,7 @@ class AnimatorController: NSViewController {
     
     func setFrameRange() {
         if let frameRange = (Int(minFrame.stringValue), Int(maxFrame.stringValue)) as? (Int, Int) {
-            animatorManager.frameRange = frameRange
+            animatorManager.frameDomain = frameRange
             graphView.display()
         }
     }
