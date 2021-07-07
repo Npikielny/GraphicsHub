@@ -57,21 +57,21 @@ class SliderInput: Animateable<Double> {
 
         ([titleLabel, slider, label] as [NSView]).forEach { view in
             view.translatesAutoresizingMaskIntoConstraints = false
-            addSubview(view)
-            view.topAnchor.constraint(equalTo: topAnchor).isActive = true
-            view.bottomAnchor.constraint(equalTo: bottomAnchor).isActive = true
+            documentView.addSubview(view)
+            view.topAnchor.constraint(equalTo: documentView.topAnchor).isActive = true
+            view.bottomAnchor.constraint(equalTo: documentView.bottomAnchor).isActive = true
         }
         
         NSLayoutConstraint.activate([
             titleLabel.widthAnchor.constraint(equalToConstant: 150),
-            titleLabel.leadingAnchor.constraint(equalTo: leadingAnchor),
+            titleLabel.leadingAnchor.constraint(equalTo: documentView.leadingAnchor),
 
             slider.leadingAnchor.constraint(equalTo: titleLabel.trailingAnchor, constant: 5),
             slider.rightAnchor.constraint(equalTo: label.leftAnchor, constant: -5),
 
-            label.topAnchor.constraint(equalTo: topAnchor),
+            label.topAnchor.constraint(equalTo: documentView.topAnchor),
             label.widthAnchor.constraint(equalToConstant: 50),
-            label.trailingAnchor.constraint(equalTo: trailingAnchor),
+            label.trailingAnchor.constraint(equalTo: documentView.trailingAnchor),
         ])
     }
 

@@ -90,25 +90,25 @@ class DimensionalInput<T>: Animateable<T> {
         [xSlider, ySlider, displayView].forEach {
             addSubview($0)
             if let _ = $0 as? SliderInput {
-                $0.trailingAnchor.constraint(equalTo: trailingAnchor).isActive = true
+                $0.trailingAnchor.constraint(equalTo: documentView.trailingAnchor).isActive = true
             }
         }
         NSLayoutConstraint.activate([
-            displayView.leadingAnchor.constraint(equalTo: leadingAnchor),
-            displayView.topAnchor.constraint(equalTo: topAnchor),
+            displayView.leadingAnchor.constraint(equalTo: documentView.leadingAnchor),
+            displayView.topAnchor.constraint(equalTo: documentView.topAnchor),
             displayView.widthAnchor.constraint(equalTo: displayView.heightAnchor, multiplier: CGFloat((xSlider.maxValue - xSlider.minValue)/(ySlider.maxValue - ySlider.minValue))),
             
-            xSlider.topAnchor.constraint(equalTo: topAnchor),
+            xSlider.topAnchor.constraint(equalTo: documentView.topAnchor),
             xSlider.leadingAnchor.constraint(equalTo: displayView.trailingAnchor, constant: 5),
             
             ySlider.topAnchor.constraint(equalTo: xSlider.bottomAnchor, constant: 5),
             ySlider.leadingAnchor.constraint(equalTo: displayView.trailingAnchor, constant: 5),
             
-            displayView.bottomAnchor.constraint(equalTo: bottomAnchor),
+            displayView.bottomAnchor.constraint(equalTo: documentView.bottomAnchor),
             displayView.heightAnchor.constraint(greaterThanOrEqualToConstant: 50),
             displayView.heightAnchor.constraint(lessThanOrEqualToConstant: 100),
-            displayView.widthAnchor.constraint(lessThanOrEqualTo: widthAnchor, multiplier: 1),
-            displayView.leadingAnchor.constraint(equalTo: leadingAnchor),
+            displayView.widthAnchor.constraint(lessThanOrEqualTo: documentView.widthAnchor, multiplier: 1),
+            displayView.leadingAnchor.constraint(equalTo: documentView.leadingAnchor),
         ])
     }
     

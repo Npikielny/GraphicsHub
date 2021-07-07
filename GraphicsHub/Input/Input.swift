@@ -42,13 +42,10 @@ class Input<T>: NSView, InputShell {
     internal var hidingConstraints = [NSLayoutConstraint]()
     
     private var showingMainConstraint: NSLayoutConstraint!
-    internal var expectedHeight: CGFloat {
-        didSet {
-            
-        }
-    }
+    internal var expectedHeight: CGFloat
     
     var animateable = false
+    var documentView: NSView!
     
     init(name: String, defaultValue: T, transform: ((T) -> T)? = nil, expectedHeight: CGFloat) {
         self.transform = transform
@@ -58,6 +55,7 @@ class Input<T>: NSView, InputShell {
         self.expectedHeight = expectedHeight
         
         super.init(frame: .zero)
+        documentView = self
         
         translatesAutoresizingMaskIntoConstraints = false
         
@@ -111,6 +109,8 @@ class Animateable<T>: Input<T>, AnimateableInterface {
     var keyFrames = [[(Int, Double)]]()
     var requiredAnimators: Int
     
+    lazy var keyFrameButton = NSButton(title: "Add Key Frame", target: self, action: #selector(addCurrentKeyFrame))
+    
     init(name: String, defaultValue: T, transform: ((T) -> T)? = nil, expectedHeight: CGFloat, requiredAnimators: Int, animateable: Bool, domain: [(Double, Double)]) {
         self.domain = domain
         self.requiredAnimators = requiredAnimators
@@ -119,9 +119,29 @@ class Animateable<T>: Input<T>, AnimateableInterface {
         for _ in 0..<requiredAnimators {
             keyFrames.append([])
         }
+        if animateable {
+            documentView = NSView()
+            documentView.translatesAutoresizingMaskIntoConstraints = false
+            keyFrameButton.translatesAutoresizingMaskIntoConstraints = false
+            self.addSubview(documentView)
+            self.addSubview(keyFrameButton)
+            NSLayoutConstraint.activate([
+                documentView.topAnchor.constraint(equalTo: topAnchor),
+                documentView.leadingAnchor.constraint(equalTo: leadingAnchor),
+                documentView.bottomAnchor.constraint(equalTo: bottomAnchor),
+                keyFrameButton.centerYAnchor.constraint(equalTo: centerYAnchor),
+                keyFrameButton.trailingAnchor.constraint(equalTo: trailingAnchor),
+//                keyFrameButton.widthAnchor.constraint(lessThanOrEqualToConstant: 50),
+                documentView.leadingAnchor.constraint(equalTo: keyFrameButton.leadingAnchor)
+            ])
+        }
     }
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+    
+    @objc func addCurrentKeyFrame() {
+        print("Adding current frame as key frame")
     }
     
     func set(_ value: [Double]) {}

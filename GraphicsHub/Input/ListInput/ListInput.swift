@@ -58,14 +58,14 @@ class ListInput<InputType, View: Input<InputType> & Containable >: Input<[InputT
             [addButton, removeButton, collapseButton, expandButton].forEach {
                 $0.translatesAutoresizingMaskIntoConstraints = false
                 addSubview($0)
-                $0.topAnchor.constraint(equalTo: topAnchor).isActive = true
+                $0.topAnchor.constraint(equalTo: documentView.topAnchor).isActive = true
             }
             NSLayoutConstraint.activate([
-                addButton.leadingAnchor.constraint(equalTo: leadingAnchor),
+                addButton.leadingAnchor.constraint(equalTo: documentView.leadingAnchor),
                 removeButton.leadingAnchor.constraint(equalTo: addButton.trailingAnchor),
                 collapseButton.leadingAnchor.constraint(equalTo: removeButton.trailingAnchor),
                 expandButton.leadingAnchor.constraint(equalTo: collapseButton.trailingAnchor),
-                expandButton.trailingAnchor.constraint(equalTo: trailingAnchor),
+                expandButton.trailingAnchor.constraint(equalTo: documentView.trailingAnchor),
                 addButton.widthAnchor.constraint(equalTo: removeButton.widthAnchor, multiplier: 1),
                 removeButton.widthAnchor.constraint(equalTo: collapseButton.widthAnchor, multiplier: 1),
                 collapseButton.widthAnchor.constraint(equalTo: expandButton.widthAnchor, multiplier: 1),

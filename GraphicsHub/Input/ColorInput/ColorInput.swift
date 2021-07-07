@@ -105,18 +105,18 @@ class ColorPickerInput: Animateable<NSColor>, Containable {
         [titleLabel, colorView].forEach { view in
             addSubview(view)
             view.translatesAutoresizingMaskIntoConstraints = false
-            view.topAnchor.constraint(equalTo: topAnchor).isActive = true
-            view.bottomAnchor.constraint(equalTo: bottomAnchor).isActive = true
+            view.topAnchor.constraint(equalTo: documentView.topAnchor).isActive = true
+            view.bottomAnchor.constraint(equalTo: documentView.bottomAnchor).isActive = true
         }
-        heightAnchorConstraint = heightAnchor.constraint(equalToConstant: 30)
+        heightAnchorConstraint = documentView.heightAnchor.constraint(equalToConstant: 30)
         addSubview(setColorButton)
         setColorButton.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
-            titleLabel.leadingAnchor.constraint(equalTo: leadingAnchor),
+            titleLabel.leadingAnchor.constraint(equalTo: documentView.leadingAnchor),
             titleLabel.widthAnchor.constraint(equalToConstant: 150),
             
-            setColorButton.centerYAnchor.constraint(equalTo: centerYAnchor),
-            setColorButton.trailingAnchor.constraint(equalTo: trailingAnchor),
+            setColorButton.centerYAnchor.constraint(equalTo: documentView.centerYAnchor),
+            setColorButton.trailingAnchor.constraint(equalTo: documentView.trailingAnchor),
             
             colorView.leadingAnchor.constraint(equalTo: titleLabel.trailingAnchor, constant: 5),
             colorView.trailingAnchor.constraint(equalTo: setColorButton.leadingAnchor, constant: -5),

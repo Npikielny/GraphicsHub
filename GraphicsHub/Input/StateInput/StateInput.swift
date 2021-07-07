@@ -52,10 +52,10 @@ class StateInput: Input<Bool>, Containable {
     private func setupView() {
         stateButton.translatesAutoresizingMaskIntoConstraints = false
         addSubview(stateButton)
-        stateButton.leadingAnchor.constraint(equalTo: leadingAnchor).isActive = true
-        stateButton.trailingAnchor.constraint(equalTo: trailingAnchor).isActive = true
-        stateButton.topAnchor.constraint(equalTo: topAnchor).isActive = true
-        stateButton.bottomAnchor.constraint(equalTo: bottomAnchor).isActive = true
+        stateButton.leadingAnchor.constraint(equalTo: documentView.leadingAnchor).isActive = true
+        stateButton.trailingAnchor.constraint(equalTo: documentView.trailingAnchor).isActive = true
+        stateButton.topAnchor.constraint(equalTo: documentView.topAnchor).isActive = true
+        stateButton.bottomAnchor.constraint(equalTo: documentView.bottomAnchor).isActive = true
         hidingConstraint = stateButton.heightAnchor.constraint(equalToConstant: 0)
     }
 }
