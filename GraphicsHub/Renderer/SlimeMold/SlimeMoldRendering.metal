@@ -60,7 +60,7 @@ void slimeMoldCalculate(uint tid [[thread_position_in_grid]],
         node.angle = M_PI_F * 2 - node.angle;
     }
     
-    for (int i = 1; i <= speed; i ++) {
+    for (int i = 1; i <= ceil(speed); i ++) {
         Image.write(colors[node.species], uint2(node.position + float2(cos(node.angle), sin(node.angle)) * float(i) + float2(imageSize) / 2));
     }
     node.position += float2(cos(node.angle), sin(node.angle)) * float(speed);

@@ -34,7 +34,7 @@ kernel void pathTrace (uint2 tid [[thread_position_in_grid]],
         float3 result = float3(0, 0, 0);
         for (int i = 0; i < 8; i++) {
             RayHit hit = Trace(ray, objectCount, objects);
-            result += ray.energy * Shade(ray, hit, sky, skySize, objectCount, objects, lightingDirection);
+            result += ray.energy * Shade(ray, hit, sky, skySize, objectCount, objects, lightingDirection, 1);
             if (length(ray.energy) == 0) {
                 break;
             }

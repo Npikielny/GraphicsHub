@@ -15,7 +15,7 @@ class SlimeMoldRenderer: Renderer {
     var moldBuffer: MTLBuffer!
     var moldCount: Int = 100000
     
-    var speciesCount: Int = 1
+    var speciesCount: Int = 3
     
     var lastImage: MTLTexture!
     

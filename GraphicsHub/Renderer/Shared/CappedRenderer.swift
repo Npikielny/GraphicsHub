@@ -84,9 +84,13 @@ class AntialiasingRenderer: SinglyCappedRenderer {
     private var averagePipeline: MTLComputePipelineState!
     
     var renderPasses = 0
-    override var recordable: Bool {
+    var finalizedImage: Bool {
         guard let inputManager = inputManager as? AntialiasingInputManager else { fatalError() }
-        return frame % inputManager.framesPerFrame == 0 && renderPasses >= inputManager.renderPasses && filledRender
+        return renderPasses >= inputManager.renderPasses && filledRender
+    }
+    
+    override var recordable: Bool {
+        return frame % inputManager.framesPerFrame == 0 && finalizedImage
     }
     
     init(device: MTLDevice, size: CGSize, inputManager: CappedInputManager? = nil, imageCount: Int) {
@@ -141,7 +145,7 @@ class AntialiasingRenderer: SinglyCappedRenderer {
             averageEncoder?.endEncoding()
             images.swapAt(0, 1)
         }
-        if recordable {
+        if finalizedImage {
             frame += 1
             renderPasses = 0
             intermediateFrame = 0

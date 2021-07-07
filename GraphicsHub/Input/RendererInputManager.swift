@@ -177,7 +177,7 @@ extension CappedInputManager {
 
 class AntialiasingInputManager: CappedInputManager {
     var renderPasses: Int {
-        Int((inputs[4] as! SliderInput).output)
+        Int((inputs[5] as! SliderInput).output)
     }
     
     override init(renderSpecificInputs: [NSView], imageSize: CGSize?) {

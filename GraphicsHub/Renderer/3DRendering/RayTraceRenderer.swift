@@ -14,6 +14,7 @@ class RayTraceRenderer: AntialiasingRenderer {
     var objects: [Object]
     var objectBuffer: MTLBuffer!
     var lightDirection: SIMD4<Float>
+    var skyIntensity: Float = 1
     
     required init(device: MTLDevice, size: CGSize) {
         objects = SceneManager.generate(objectCount: 10,
@@ -101,6 +102,10 @@ class RayTraceInputManager: AntialiasingInputManager {
             Float((getInput(11) as! SliderInput).output))
     }
     
+    var skyIntensity: Float {
+        Float((getInput(12) as! SliderInput).output)
+    }
+    
     convenience init(size: CGSize) {
         self.init(renderSpecificInputs: [], imageSize: size)
     }
@@ -122,6 +127,8 @@ class RayTraceInputManager: AntialiasingInputManager {
         let lightZ = SliderInput(name: "Light Z", minValue: -1, currentValue: 0.1, maxValue: 1)
         let lightIntensity = SliderInput(name: "Light Intensity", minValue: 0, currentValue: 1, maxValue: 2)
         
+        let skyIntensity = SliderInput(name: "Sky Intensity", minValue: 0, currentValue: 1, maxValue: 1)
+        
         super.init(renderSpecificInputs: [
             fov,
             aspectRatio,
@@ -138,6 +145,8 @@ class RayTraceInputManager: AntialiasingInputManager {
             lightY,
             lightZ,
             lightIntensity,
+            
+            skyIntensity
         ], imageSize: imageSize)
     }
     

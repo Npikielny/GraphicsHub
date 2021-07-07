@@ -55,6 +55,6 @@ void IntersectSphere(Ray ray, thread RayHit &bestHit, Object object);
 void IntersectCube(Ray ray, thread RayHit &bestHit, Object box);
 
 RayHit Trace(Ray ray, int objectCount, constant Object *objects);
-float3 Shade(thread Ray &ray, RayHit hit, texture2d<float> sky, int2 skyDimensions, int sphereCount, constant Object * objects, float4 lightDirection);
+float3 Shade(thread Ray &ray, RayHit hit, texture2d<float> sky, int2 skyDimensions, int sphereCount, constant Object * objects, float4 lightDirection, float skyIntensity);
 
 #endif /* Shared3D_h */

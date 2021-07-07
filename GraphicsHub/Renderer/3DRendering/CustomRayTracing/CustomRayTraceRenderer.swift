@@ -22,6 +22,7 @@ class CustomRayTraceRenderer: RayTraceRenderer {
         camera.position = inputManager.position
         camera.rotation = inputManager.rotation
         lightDirection = inputManager.light
+        skyIntensity = inputManager.skyIntensity
     }
     
     required init(device: MTLDevice, size: CGSize) {
@@ -64,7 +65,8 @@ class CustomRayTraceRenderer: RayTraceRenderer {
         rayEncoder?.setBytes([skySize], length: MemoryLayout<SIMD2<Int32>>.stride, index: 5)
         rayEncoder?.setBytes([lightDirection], length: MemoryLayout<SIMD4<Float>>.stride, index: 6)
         rayEncoder?.setBytes([SIMD2<Float>(Float.random(in: -0.5...0.5),Float.random(in: -0.5...0.5))], length: MemoryLayout<SIMD2<Float>>.stride, index: 7)
-        rayEncoder?.setBytes([Int32(intermediateFrame)], length: MemoryLayout<Int32>.stride, index: 8)
+        rayEncoder?.setBytes([skyIntensity], length: MemoryLayout<Float>.stride, index: 8)
+        rayEncoder?.setBytes([Int32(intermediateFrame)], length: MemoryLayout<Int32>.stride, index: 9)
         rayEncoder?.setTexture(skyTexture, index: 0)
         rayEncoder?.setTexture(images[0], index: 1)
         

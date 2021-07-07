@@ -143,7 +143,7 @@ RayHit Trace(Ray ray, int objectCount, constant Object *objects) {
     return bestHit;
 }
 
-float3 Shade(thread Ray &ray, RayHit hit, texture2d<float> sky, int2 skyDimensions, int sphereCount, constant Object * objects, float4 lightDirection) {
+float3 Shade(thread Ray &ray, RayHit hit, texture2d<float> sky, int2 skyDimensions, int sphereCount, constant Object * objects, float4 lightDirection, float skyIntensity) {
     
    if (hit.distance < INFINITY) {
        // Return the normal
@@ -160,7 +160,7 @@ float3 Shade(thread Ray &ray, RayHit hit, texture2d<float> sky, int2 skyDimensio
    }else {
        // Sample the skybox and write it
        ray.energy = float3(0);
-       return sky.read(sampleSky(ray.direction, skyDimensions)).xyz;
+       return sky.read(sampleSky(ray.direction, skyDimensions)).xyz * skyIntensity;
    }
 }
 
