@@ -25,12 +25,6 @@ Julia sets and the Mandelbrot sets
 
 
 
-### Tests
-So far I have written basic tests for rasterization and a pipeline that enables easy setup for any rendering engine, which should renderr images in segments to limit GPU load. 
-<img width="2032" alt="Screen Shot 2021-06-01 at 12 51 00 AM" src="https://user-images.githubusercontent.com/42814781/120268764-6f0c3d00-c274-11eb-861a-97f595622940.png">
-<img width="2032" alt="Screen Shot 2021-06-01 at 12 49 34 AM" src="https://user-images.githubusercontent.com/42814781/120268783-792e3b80-c274-11eb-9bb1-8cf8aace02bd.png">
-
-
 ### Coming soon
 - Ray Tracing
 - Ray Marching
