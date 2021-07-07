@@ -9,25 +9,12 @@ import Cocoa
 
 class LaunchPad: NSViewController {
     
-    var options: [(String, RendererInfo.Type)] = [("Fluid Simulation", FlatFluidRenderer.self),
-                                                  ("SlimeMold", SlimeMoldRenderer.self),
-                                                  ("Conway's Game of Life",ConwayRenderer.self),
-                                                  ("Complex Image Generator",ComplexRenderer.self),
-                                                  ("Ray Trace Renderer", CustomRayTraceRenderer.self),
-                                                  ("AcceleratedRayTraceRenderer", AcceleratedRayTraceRenderer.self),
-                                                  ("Cornell Box", CornellBox.self),
-                                                  ("Tester",TesterBaseRenderer.self),
-                                                  ("Tester Capped Renderer",TesterCappedRenderer.self),
-                                                  ("Testing Inputs", TestInputRenderer.self)
-    ]
-    
     lazy var graphicsOption: NSCollectionView = {
         let cv = NSCollectionView(frame: .zero)
         let layout = NSCollectionViewFlowLayout()
         layout.scrollDirection = .vertical
         layout.minimumLineSpacing = padding/2
         layout.minimumInteritemSpacing = padding/2
-        layout.sectionInset = NSEdgeInsets(top: padding, left: padding, bottom: padding, right: padding)
         cv.collectionViewLayout = layout
         
         cv.isSelectable = true
@@ -87,7 +74,6 @@ class LaunchPad: NSViewController {
             scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -padding),
             scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: padding),
             scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -padding),
-            scrollView.widthAnchor.constraint(greaterThanOrEqualToConstant: CGFloat(options.max(by: {$0.0 > $1.0})!.0.count) * 12.5 + 10 + padding * 2),
             
             graphicsOption.topAnchor.constraint(equalTo: scrollView.contentView.topAnchor),
             graphicsOption.bottomAnchor.constraint(equalTo: scrollView.contentView.bottomAnchor),
@@ -115,13 +101,17 @@ class LaunchPad: NSViewController {
         backgroundView.trailingAnchor.constraint(equalTo: view.trailingAnchor).isActive = true
     }
     
+    override func viewWillLayout() {
+        graphicsOption.reloadData()
+    }
+    
 }
 
 extension LaunchPad: NSCollectionViewDelegate {
     
     func collectionView(_ collectionView: NSCollectionView, didSelectItemsAt indexPaths: Set<IndexPath>) {
         if let indexPath = indexPaths.first {
-            let rendererOptions = options[indexPath.item]
+            let rendererOptions = RendererCatalog.catalog[indexPath.item]
             
             guard let device = MTLCreateSystemDefaultDevice() else { print("Failed to create MTLDevice"); return }
             let renderer = rendererOptions.1.init(device: device, size: CGSize(width: 512, height: 512))
@@ -148,12 +138,12 @@ extension LaunchPad: NSCollectionViewDelegate {
 extension LaunchPad: NSCollectionViewDataSource {
     
     func collectionView(_ collectionView: NSCollectionView, numberOfItemsInSection section: Int) -> Int {
-        return options.count
+        return RendererCatalog.catalog.count
     }
     
     func collectionView(_ collectionView: NSCollectionView, itemForRepresentedObjectAt indexPath: IndexPath) -> NSCollectionViewItem {
         let cell = collectionView.makeItem(withIdentifier: RenderingOption.id, for: indexPath) as! RenderingOption
-        cell.titleLabel.string = options[indexPath.item].0
+        cell.titleLabel.string = RendererCatalog.catalog[indexPath.item].0
         cell.view.layer?.cornerRadius = 10
         return cell
     }
@@ -162,6 +152,6 @@ extension LaunchPad: NSCollectionViewDataSource {
 
 extension LaunchPad: NSCollectionViewDelegateFlowLayout {
     func collectionView(_ collectionView: NSCollectionView, layout collectionViewLayout: NSCollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> NSSize {
-        return NSSize(width: CGFloat(options[indexPath.item].0.count) * 12.5 + 10, height: 40)
+        return NSSize(width: collectionView.frame.width - padding * 2, height: 40)
     }
 }

@@ -202,7 +202,7 @@ class Matrix<T: Divisable>: NSObject {
         return Matrix(Rows: Output)
     }
     
-    public static func * (left: Matrix<T>, right: T) -> Matrix<T> {
+    static func * (left: Matrix<T>, right: T) -> Matrix<T> {
         var Output = [[T]]()
         for x in 0..<left.dimension.x {
             var values = [T]()

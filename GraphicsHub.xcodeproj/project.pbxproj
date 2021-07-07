@@ -62,6 +62,13 @@
 		4661A620267A6E9600BADC8F /* CustomRayTraceRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4661A61F267A6E9600BADC8F /* CustomRayTraceRenderer.swift */; };
 		4661A625267A6F5500BADC8F /* CustomRayTraceRendering.metal in Sources */ = {isa = PBXBuildFile; fileRef = 4661A624267A6F5500BADC8F /* CustomRayTraceRendering.metal */; };
 		466938922677FAD4003616E0 /* DataTypes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 466938912677FAD4003616E0 /* DataTypes.swift */; };
+		466C8FBD269544A000B0AC6B /* RendererCatalog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 466C8FBC269544A000B0AC6B /* RendererCatalog.swift */; };
+		466C8FDD26954B7100B0AC6B /* Accelerated Ray Tracing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 466C8FDC26954B7100B0AC6B /* Accelerated Ray Tracing.swift */; };
+		466C8FDF26954B7B00B0AC6B /* Complex Image Generator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 466C8FDE26954B7B00B0AC6B /* Complex Image Generator.swift */; };
+		466C8FE126954B8500B0AC6B /* Conway's Game of Life.swift in Sources */ = {isa = PBXBuildFile; fileRef = 466C8FE026954B8500B0AC6B /* Conway's Game of Life.swift */; };
+		466C8FE326954B8E00B0AC6B /* Fluid Simulation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 466C8FE226954B8E00B0AC6B /* Fluid Simulation.swift */; };
+		466C8FE526954B9900B0AC6B /* Ray Tracing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 466C8FE426954B9900B0AC6B /* Ray Tracing.swift */; };
+		466C8FE726954BA000B0AC6B /* Slime Mold Simulation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 466C8FE626954BA000B0AC6B /* Slime Mold Simulation.swift */; };
 		467F4FA1266D98FD00C5A31A /* GraphView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 467F4FA0266D98FD00C5A31A /* GraphView.swift */; };
 		4695362E266702A400AFAFE7 /* AnimatorManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4695362D266702A400AFAFE7 /* AnimatorManager.swift */; };
 		46953638266703A500AFAFE7 /* AnimatorSetupController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 46953636266703A500AFAFE7 /* AnimatorSetupController.xib */; };
@@ -160,6 +167,13 @@
 		4661A61F267A6E9600BADC8F /* CustomRayTraceRenderer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomRayTraceRenderer.swift; sourceTree = "<group>"; };
 		4661A624267A6F5500BADC8F /* CustomRayTraceRendering.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = CustomRayTraceRendering.metal; sourceTree = "<group>"; };
 		466938912677FAD4003616E0 /* DataTypes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataTypes.swift; sourceTree = "<group>"; };
+		466C8FBC269544A000B0AC6B /* RendererCatalog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RendererCatalog.swift; sourceTree = "<group>"; };
+		466C8FDC26954B7100B0AC6B /* Accelerated Ray Tracing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Accelerated Ray Tracing.swift"; sourceTree = "<group>"; };
+		466C8FDE26954B7B00B0AC6B /* Complex Image Generator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Complex Image Generator.swift"; sourceTree = "<group>"; };
+		466C8FE026954B8500B0AC6B /* Conway's Game of Life.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Conway's Game of Life.swift"; sourceTree = "<group>"; };
+		466C8FE226954B8E00B0AC6B /* Fluid Simulation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Fluid Simulation.swift"; sourceTree = "<group>"; };
+		466C8FE426954B9900B0AC6B /* Ray Tracing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Ray Tracing.swift"; sourceTree = "<group>"; };
+		466C8FE626954BA000B0AC6B /* Slime Mold Simulation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Slime Mold Simulation.swift"; sourceTree = "<group>"; };
 		467F4FA0266D98FD00C5A31A /* GraphView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GraphView.swift; sourceTree = "<group>"; };
 		4695362D266702A400AFAFE7 /* AnimatorManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnimatorManager.swift; sourceTree = "<group>"; };
 		46953636266703A500AFAFE7 /* AnimatorSetupController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = AnimatorSetupController.xib; sourceTree = "<group>"; };
@@ -297,7 +311,6 @@
 				309B401C263BCE0E00300BBE /* Input */,
 				46C75A242666FA80007A87E4 /* Animating */,
 				30AEDA33263A2BC3007ED421 /* Renderer */,
-				30B391702694FBF600ACF840 /* Matrix.swift */,
 				465FE218267531DC0038187F /* Helpers */,
 				30AEDA27263A247D007ED421 /* Tests */,
 				30AED9F7263A1F16007ED421 /* Assets.xcassets */,
@@ -348,6 +361,7 @@
 				46FDE62D2686D18B003C9F43 /* FluidDynamics */,
 				466938902677FAC1003616E0 /* 3DRendering */,
 				46DF058526713C0500B0110F /* Shared */,
+				466C8FBE2695450300B0AC6B /* RendererCatalog */,
 			);
 			path = Renderer;
 			sourceTree = "<group>";
@@ -355,8 +369,8 @@
 		30AEDA38263A54B9007ED421 /* Views */ = {
 			isa = PBXGroup;
 			children = (
-				30AEDA23263A1F99007ED421 /* RenderingView.swift */,
 				4606E3B2267BCC4900C8EFF5 /* Launch Screen */,
+				30AEDA23263A1F99007ED421 /* RenderingView.swift */,
 				3028F1A4263C93E0006922F0 /* EditorViewController.swift */,
 				3028F1A5263C93E0006922F0 /* EditorViewController.xib */,
 				30AEDA1F263A1F2E007ED421 /* MainController.swift */,
@@ -425,6 +439,7 @@
 		465FE218267531DC0038187F /* Helpers */ = {
 			isa = PBXGroup;
 			children = (
+				30B391702694FBF600ACF840 /* Matrix.swift */,
 				465FE219267531EF0038187F /* Helpers.swift */,
 			);
 			path = Helpers;
@@ -444,6 +459,28 @@
 				46F663FC26852E7A007F72E3 /* WWDCCornellBox */,
 			);
 			path = 3DRendering;
+			sourceTree = "<group>";
+		};
+		466C8FBE2695450300B0AC6B /* RendererCatalog */ = {
+			isa = PBXGroup;
+			children = (
+				466C8FBC269544A000B0AC6B /* RendererCatalog.swift */,
+				466C8FBF2695456C00B0AC6B /* Descriptions */,
+			);
+			path = RendererCatalog;
+			sourceTree = "<group>";
+		};
+		466C8FBF2695456C00B0AC6B /* Descriptions */ = {
+			isa = PBXGroup;
+			children = (
+				466C8FDC26954B7100B0AC6B /* Accelerated Ray Tracing.swift */,
+				466C8FDE26954B7B00B0AC6B /* Complex Image Generator.swift */,
+				466C8FE026954B8500B0AC6B /* Conway's Game of Life.swift */,
+				466C8FE226954B8E00B0AC6B /* Fluid Simulation.swift */,
+				466C8FE426954B9900B0AC6B /* Ray Tracing.swift */,
+				466C8FE626954BA000B0AC6B /* Slime Mold Simulation.swift */,
+			);
+			path = Descriptions;
 			sourceTree = "<group>";
 		};
 		4695362C2667028300AFAFE7 /* InputController */ = {
@@ -682,6 +719,7 @@
 			files = (
 				3092B3222641DB5700902BB6 /* InputManager.swift in Sources */,
 				465FE21A267531EF0038187F /* Helpers.swift in Sources */,
+				466C8FBD269544A000B0AC6B /* RendererCatalog.swift in Sources */,
 				3024E4512655A11900DD195D /* DimensionalInput.swift in Sources */,
 				465FE21426752BF30038187F /* IncrementInput.swift in Sources */,
 				46FDE62F2686D1B4003C9F43 /* FlatFluidRenderer.swift in Sources */,
@@ -691,7 +729,9 @@
 				46E04905268949FF00AC0AC0 /* AcceleratedRayTraceRendering.metal in Sources */,
 				30AEDA26263A2314007ED421 /* Renderer.swift in Sources */,
 				30AEDA2D263A27B7007ED421 /* RenderPipeline.metal in Sources */,
+				466C8FDD26954B7100B0AC6B /* Accelerated Ray Tracing.swift in Sources */,
 				30B3916F2694EB9600ACF840 /* QuadraticAnimator.swift in Sources */,
+				466C8FDF26954B7B00B0AC6B /* Complex Image Generator.swift in Sources */,
 				30AEDA36263A54A2007ED421 /* LaunchPad.swift in Sources */,
 				46F663F8268528ED007F72E3 /* WWDCCornellBox.swift in Sources */,
 				30B391712694FBF600ACF840 /* Matrix.swift in Sources */,
@@ -703,11 +743,14 @@
 				4661A620267A6E9600BADC8F /* CustomRayTraceRenderer.swift in Sources */,
 				30FCB999263BA82200910FED /* Conway.swift in Sources */,
 				30AEDA29263A248C007ED421 /* TesterBaseRenderer.swift in Sources */,
+				466C8FE326954B8E00B0AC6B /* Fluid Simulation.swift in Sources */,
 				46C2B65226759A32005E2733 /* SinusoidalAnimator.swift in Sources */,
+				466C8FE526954B9900B0AC6B /* Ray Tracing.swift in Sources */,
 				46E048F7268946BD00AC0AC0 /* PathTraceRendering.metal in Sources */,
 				46F663FF26852E8E007F72E3 /* Scene.swift in Sources */,
 				30AEDA2B263A261F007ED421 /* TesterRendering.metal in Sources */,
 				309B4021263BDDBE00300BBE /* InputController.swift in Sources */,
+				466C8FE726954BA000B0AC6B /* Slime Mold Simulation.swift in Sources */,
 				30CC8730263B43650002B0B8 /* CappedRenderer.swift in Sources */,
 				46F6640526852F38007F72E3 /* Shaders.metal in Sources */,
 				4661A618267A6E5B00BADC8F /* SceneRenderer.swift in Sources */,
@@ -717,6 +760,7 @@
 				4658EDDD268664EB000828B4 /* RayTraceRenderer.swift in Sources */,
 				30AEDA21263A1F2E007ED421 /* MainController.swift in Sources */,
 				3061CF31265C2FAA00D48CFA /* AnimatorController.swift in Sources */,
+				466C8FE126954B8500B0AC6B /* Conway's Game of Life.swift in Sources */,
 				3024E4672655A4BE00DD195D /* SliderInput.swift in Sources */,
 				466938922677FAD4003616E0 /* DataTypes.swift in Sources */,
 				3024E4552655A15D00DD195D /* ListInput.swift in Sources */,
