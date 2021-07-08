@@ -96,7 +96,7 @@ protocol AnimateableInterface {
     var domain: [(Double, Double)] { get }
     
     var didChange: Bool { get set }
-    func set(_ value: [Double])
+    func set(_ value: [Double], frame: Int)
     func setDidChange(_ value: Bool)
     func addKeyFrame(index: Int, frame: Int, value: Double)
     func removeKeyFrame(index: Int, frame: Int)
@@ -109,7 +109,9 @@ class Animateable<T>: Input<T>, AnimateableInterface {
     var keyFrames = [[(Int, Double)]]()
     var requiredAnimators: Int
     
-    lazy var keyFrameButton = NSButton(title: "Add Key Frame", target: self, action: #selector(addCurrentKeyFrame))
+    lazy var keyFrameButton: KeyFrameButton = KeyFrameButton(target: self, action: #selector(addCurrentKeyFrame))
+    
+    var currentFrame: Int?
     
     init(name: String, defaultValue: T, transform: ((T) -> T)? = nil, expectedHeight: CGFloat, requiredAnimators: Int, animateable: Bool, domain: [(Double, Double)]) {
         self.domain = domain
@@ -130,9 +132,9 @@ class Animateable<T>: Input<T>, AnimateableInterface {
                 documentView.leadingAnchor.constraint(equalTo: leadingAnchor),
                 documentView.bottomAnchor.constraint(equalTo: bottomAnchor),
                 keyFrameButton.centerYAnchor.constraint(equalTo: centerYAnchor),
-                keyFrameButton.trailingAnchor.constraint(equalTo: trailingAnchor),
-//                keyFrameButton.widthAnchor.constraint(lessThanOrEqualToConstant: 50),
-                documentView.leadingAnchor.constraint(equalTo: keyFrameButton.leadingAnchor)
+                keyFrameButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -5),
+                keyFrameButton.widthAnchor.constraint(lessThanOrEqualToConstant: 50),
+                documentView.trailingAnchor.constraint(equalTo: keyFrameButton.leadingAnchor, constant: -5)
             ])
         }
     }
@@ -141,10 +143,34 @@ class Animateable<T>: Input<T>, AnimateableInterface {
     }
     
     @objc func addCurrentKeyFrame() {
+        keyFrameButton.currentState.toggle()
+        keyFrameButton.setImage()
+        
+        guard let currentFrame = currentFrame else { return }
+        
+        if keyFrameButton.currentState {
+            // FIXME: Probably doesn't work for compound inputs (DimensionalInput)
+            for (index, output) in doubleOutput.enumerated() {
+                addKeyFrame(index: index, frame: currentFrame, value: output)
+            }
+        } else {
+            for index in 0..<keyFrames.count {
+                keyFrames[index].removeAll(where: { $0.0 == currentFrame })
+            }
+        }
+        
         print("Adding current frame as key frame")
     }
     
-    func set(_ value: [Double]) {}
+    func set(_ value: [Double], frame: Int) {
+        self.currentFrame = frame
+        if keyFrames.contains(where: { $0.contains(where: { $0.0 == frame }) }) {
+            keyFrameButton.currentState = true
+        } else {
+            keyFrameButton.currentState = false
+        }
+        keyFrameButton.setImage()
+    }
     func setDidChange(_ value: Bool) {
         didChange = value
     }

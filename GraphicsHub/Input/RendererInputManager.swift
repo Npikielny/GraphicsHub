@@ -181,7 +181,7 @@ class AntialiasingInputManager: CappedInputManager {
     }
     
     override init(renderSpecificInputs: [NSView], imageSize: CGSize?) {
-        let renderPasses = SliderInput(name: "Passes", minValue: 1, currentValue: 10, maxValue: 100, tickMarks: 100)
+        let renderPasses = SliderInput(name: "Passes", minValue: 1, currentValue: 5, maxValue: 100, tickMarks: 100)
         super.init(renderSpecificInputs: [renderPasses] + renderSpecificInputs, imageSize: imageSize)
         inputOffset += 1
     }

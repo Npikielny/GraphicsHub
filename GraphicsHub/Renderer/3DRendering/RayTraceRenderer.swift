@@ -114,13 +114,13 @@ class RayTraceInputManager: AntialiasingInputManager {
         let fov = SliderInput(name: "FOV", minValue: 1, currentValue: 45, maxValue: 180)
         let aspectRatio = SliderInput(name: "Aspect Ratio", minValue: 0.1, currentValue: 1, maxValue: 10)
         
-        let cameraX = SliderInput(name: "Camera X", minValue: -100, currentValue: 0, maxValue: 100)
-        let cameraY = SliderInput(name: "Camera Y", minValue: -100, currentValue: 0, maxValue: 100)
-        let cameraZ = SliderInput(name: "Camera Z", minValue: -100, currentValue: 0, maxValue: 100)
+        let cameraX = SliderInput(name: "Camera X", minValue: -200, currentValue: 0, maxValue: 200)
+        let cameraY = SliderInput(name: "Camera Y", minValue: -200, currentValue: 0, maxValue: 200)
+        let cameraZ = SliderInput(name: "Camera Z", minValue: -200, currentValue: 0, maxValue: 200)
         
-        let rotationX = SliderInput(name: "Rotation X", minValue: -180, currentValue: 0, maxValue: 180)
-        let rotationY = SliderInput(name: "Rotation Y", minValue: -180, currentValue: 0, maxValue: 180)
-        let rotationZ = SliderInput(name: "Rotation Z", minValue: -180, currentValue: 0, maxValue: 180)
+        let rotationX = SliderInput(name: "Rotation X", minValue: -360, currentValue: 0, maxValue: 360)
+        let rotationY = SliderInput(name: "Rotation Y", minValue: -360, currentValue: 0, maxValue: 360)
+        let rotationZ = SliderInput(name: "Rotation Z", minValue: -360, currentValue: 0, maxValue: 360)
         
         let lightX = SliderInput(name: "Light X", minValue: -1, currentValue: 0.1, maxValue: 1)
         let lightY = SliderInput(name: "Light Y", minValue: -1, currentValue: -0.1, maxValue: 1)

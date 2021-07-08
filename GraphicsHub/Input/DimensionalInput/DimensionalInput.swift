@@ -150,7 +150,8 @@ class DimensionalInput<T>: Animateable<T> {
         didChange = value
     }
     
-    override func set(_ value: [Double]) {
+    override func set(_ value: [Double], frame: Int) {
+        super.set(value, frame: frame)
         xSlider.setValue(value: value[0])
         ySlider.setValue(value: value[1])
     }

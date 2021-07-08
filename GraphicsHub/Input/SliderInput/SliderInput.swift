@@ -92,7 +92,8 @@ class SliderInput: Animateable<Double> {
         changed = true
     }
 
-    override func set(_ value: [Double]) {
+    override func set(_ value: [Double], frame: Int) {
+        super.set(value, frame: frame)
         setValue(value: value[0])
     }
     

@@ -69,6 +69,7 @@
 		466C8FE326954B8E00B0AC6B /* Fluid Simulation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 466C8FE226954B8E00B0AC6B /* Fluid Simulation.swift */; };
 		466C8FE526954B9900B0AC6B /* Ray Tracing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 466C8FE426954B9900B0AC6B /* Ray Tracing.swift */; };
 		466C8FE726954BA000B0AC6B /* Slime Mold Simulation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 466C8FE626954BA000B0AC6B /* Slime Mold Simulation.swift */; };
+		467E626726967A6E00AA9727 /* KeyFrameButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 467E626626967A6E00AA9727 /* KeyFrameButton.swift */; };
 		467F4FA1266D98FD00C5A31A /* GraphView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 467F4FA0266D98FD00C5A31A /* GraphView.swift */; };
 		4695362E266702A400AFAFE7 /* AnimatorManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4695362D266702A400AFAFE7 /* AnimatorManager.swift */; };
 		46953638266703A500AFAFE7 /* AnimatorSetupController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 46953636266703A500AFAFE7 /* AnimatorSetupController.xib */; };
@@ -174,6 +175,7 @@
 		466C8FE226954B8E00B0AC6B /* Fluid Simulation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Fluid Simulation.swift"; sourceTree = "<group>"; };
 		466C8FE426954B9900B0AC6B /* Ray Tracing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Ray Tracing.swift"; sourceTree = "<group>"; };
 		466C8FE626954BA000B0AC6B /* Slime Mold Simulation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Slime Mold Simulation.swift"; sourceTree = "<group>"; };
+		467E626626967A6E00AA9727 /* KeyFrameButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyFrameButton.swift; sourceTree = "<group>"; };
 		467F4FA0266D98FD00C5A31A /* GraphView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GraphView.swift; sourceTree = "<group>"; };
 		4695362D266702A400AFAFE7 /* AnimatorManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnimatorManager.swift; sourceTree = "<group>"; };
 		46953636266703A500AFAFE7 /* AnimatorSetupController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = AnimatorSetupController.xib; sourceTree = "<group>"; };
@@ -272,6 +274,7 @@
 				309B401D263BCE1600300BBE /* Input.swift */,
 				3092B3212641DB5700902BB6 /* InputManager.swift */,
 				461200D5266EB4FF00AE750E /* RendererInputManager.swift */,
+				467E626626967A6E00AA9727 /* KeyFrameButton.swift */,
 				3024E44B2655A0B000DD195D /* ListInput */,
 				465FE21226752BD00038187F /* IncrementInput */,
 				3024E44A2655A0A000DD195D /* StateInput */,
@@ -748,6 +751,7 @@
 				466C8FE526954B9900B0AC6B /* Ray Tracing.swift in Sources */,
 				46E048F7268946BD00AC0AC0 /* PathTraceRendering.metal in Sources */,
 				46F663FF26852E8E007F72E3 /* Scene.swift in Sources */,
+				467E626726967A6E00AA9727 /* KeyFrameButton.swift in Sources */,
 				30AEDA2B263A261F007ED421 /* TesterRendering.metal in Sources */,
 				309B4021263BDDBE00300BBE /* InputController.swift in Sources */,
 				466C8FE726954BA000B0AC6B /* Slime Mold Simulation.swift in Sources */,
@@ -994,9 +998,10 @@
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				DEVELOPMENT_TEAM = 597PF7552F;
+				DEVELOPMENT_TEAM = "";
 				INFOPLIST_FILE = GraphicsHubTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -1016,9 +1021,10 @@
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				DEVELOPMENT_TEAM = 597PF7552F;
+				DEVELOPMENT_TEAM = "";
 				INFOPLIST_FILE = GraphicsHubTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",

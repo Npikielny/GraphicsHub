@@ -28,14 +28,7 @@ class CustomRayTraceRenderer: RayTraceRenderer {
     required init(device: MTLDevice, size: CGSize) {
         super.init(device: device,
                    size: size,
-                   objects: SceneManager.generate(objectCount: 10,
-                                                  objectTypes: [.Sphere, .Box],
-                                                  generationType: .procedural,
-                                                  positionType: .radial,
-                                                  collisionType: [.distinct, .grounded],
-                                                  objectSizeRange: (SIMD3<Float>(repeating: 0.1), SIMD3<Float>(repeating: 2)),
-                                                  objectPositionRange: (SIMD3<Float>(0, 0, 0), SIMD3<Float>(100, Float.pi * 2, 0)),
-                                                  materialType: .random),
+                   objects: SceneManager.concentric(radials: 5, materialType: .random),
                    inputManager: RayTraceInputManager(size: size),
                    imageCount: 2)
         name = "Vanilla Ray Trace Renderer"
