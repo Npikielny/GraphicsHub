@@ -91,17 +91,15 @@ extension InputAnimator {
         
         for point in pointsList {
             if frameRange.1 - frameRange.0 == 0 {
-                if point == frameRange.0 {
-                    let pointPosition = NSPoint(x: frame.width / 2, y: CGFloat(valueHeight(point)) + frame.height / 2)
-                    let path = NSBezierPath(roundedRect: NSRect(x: pointPosition.x - 5,
-                                                                y: pointPosition.y - 5,
-                                                                width: 10,
-                                                                height: 10),
-                                            xRadius: 5,
-                                            yRadius: 5)
-                    path.lineWidth = 3
-                    paths.append(path)
-                }
+                let pointPosition = NSPoint(x: frame.width / 2, y: CGFloat(valueHeight(point)) + frame.height / 2)
+                let path = NSBezierPath(roundedRect: NSRect(x: pointPosition.x - 5,
+                                                            y: pointPosition.y - 5,
+                                                            width: 10,
+                                                            height: 10),
+                                        xRadius: 5,
+                                        yRadius: 5)
+                path.lineWidth = 3
+                paths.append(path)
             } else {
                 let pointPosition = getPosition(frame: frame, frameRange: frameRange, position: (point, valueHeight(point)))
                 let path = NSBezierPath(roundedRect: NSRect(x: pointPosition.x - 5,
@@ -116,5 +114,9 @@ extension InputAnimator {
             
         }
         return paths
+    }
+    
+    func drawCurrentPoint(frame: NSRect, frameIndex: Int) -> NSBezierPath {
+        return drawPoints(frameRange: manager.frameDomain, frame: frame, pointsList: [frameIndex])[0]
     }
 }

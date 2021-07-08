@@ -20,7 +20,16 @@ class SinglyCappedRenderer: Renderer {
     
     override var resizeable: Bool { false }
     
-    internal var intermediateFrame: Int = 0
+    var intermediateFrame: Int {
+        get {
+            let inputManager = inputManager as! CappedInputManager
+            return inputManager.intermediateFrame
+        }
+        set {
+            let inputManager = inputManager as! CappedInputManager
+            inputManager.intermediateFrame = newValue
+        }
+    }
     
     init(device: MTLDevice, size: CGSize, inputManager: CappedInputManager? = nil, name: String = "SinglyCapped Renderer") {
         super.init(device: device, size: size, inputManager: inputManager ?? CappedInputManager(renderSpecificInputs: [], imageSize: size), name: name)
@@ -40,12 +49,16 @@ class SinglyCappedRenderer: Renderer {
         }
         (inputManager.inputs as! [InputShell]).forEach {
             if $0.didChange {
-                frame = inputManager.animatorManager.frameDomain.0
-                intermediateFrame = 0
+                resetRender()
                 return
             }
         }
         super.synchronizeInputs()
+    }
+    
+    func resetRender() {
+        frame = inputManager.animatorManager.frameDomain.0
+        intermediateFrame = 0
     }
     
     func computeSizeDidChange(size: CGSize) {}
@@ -60,18 +73,19 @@ class SinglyCappedRenderer: Renderer {
         self.size = size
         self.image = createTexture(size: size)
         self.computeSize = .clamp(value: computeSize, minValue: CGSize(width: 1, height: 1), maxValue: size)
-        frame = 0
+        inputManager.frame = 0
     }
     
     override func draw(commandBuffer: MTLCommandBuffer, view: MTKView) {
         if recordable {
-            frame += 1
-            intermediateFrame = 0
+            if !inputManager.paused {
+                inputManager.frame += 1
+                intermediateFrame = 0
+            }
         } else {
             intermediateFrame += 1
         }
     }
-    
 }
 
 class AntialiasingRenderer: SinglyCappedRenderer {
@@ -83,14 +97,22 @@ class AntialiasingRenderer: SinglyCappedRenderer {
     }
     private var averagePipeline: MTLComputePipelineState!
     
-    var renderPasses = 0
+    var renderPasses: Int {
+        get { let inputManager = inputManager as! AntialiasingRenderer; return inputManager.renderPasses }
+        set { let inputManager = inputManager as! AntialiasingRenderer; inputManager.renderPasses = newValue }
+    }
     var finalizedImage: Bool {
         guard let inputManager = inputManager as? AntialiasingInputManager else { fatalError() }
-        return renderPasses >= inputManager.renderPasses && filledRender
+        return renderPasses >= inputManager.renderPassesPerFrame && filledRender
     }
     
     override var recordable: Bool {
         return frame % inputManager.framesPerFrame == 0 && finalizedImage
+    }
+    
+    override func resetRender() {
+        super.resetRender()
+        renderPasses = 0
     }
     
     init(device: MTLDevice, size: CGSize, inputManager: CappedInputManager? = nil, imageCount: Int) {
@@ -146,9 +168,11 @@ class AntialiasingRenderer: SinglyCappedRenderer {
             images.swapAt(0, 1)
         }
         if finalizedImage {
-            frame += 1
-            renderPasses = 0
-            intermediateFrame = 0
+            if !inputManager.paused {
+                frame += 1
+                renderPasses = 0
+                intermediateFrame = 0
+            }
         }
         if filledRender {
             intermediateFrame = 0
@@ -162,5 +186,4 @@ class AntialiasingRenderer: SinglyCappedRenderer {
         pipeline.setFragmentTexture(images[0], index: 0)
         pipeline.setFragmentTexture(images[1], index: 1)
     }
-    
 }

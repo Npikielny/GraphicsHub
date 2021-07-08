@@ -7,7 +7,7 @@
 
 import Cocoa
 
-protocol RendererInputManager {
+protocol RendererInputManager: FrameInterface {
     var inputOffset: Int { get }
     
     var imageWidth: CGFloat { get set }
@@ -25,6 +25,9 @@ protocol RendererInputManager {
     
     var inputs: [NSView] { get set }
     
+    var frame: Int { get set }
+    func jumpToFrame(_ frame: Int)
+    
     func handlePerFrameChecks()
     
     func flagsChanged(event: NSEvent)
@@ -33,6 +36,7 @@ protocol RendererInputManager {
     func mouseDragged(event: NSEvent)
     func mouseMoved(event: NSEvent)
     func scrollWheel(event: NSEvent)
+    
 }
 
 extension RendererInputManager {
@@ -79,6 +83,8 @@ class BasicInputManager: RendererInputManager {
     var inputs = [NSView]()
     var animatorManager: AnimatorManager!
     
+    var frame: Int = 0
+    
     init(renderSpecificInputs: [NSView] = [], imageSize: CGSize?) {
         inputs.append(ScreenSizeInput(name: "Image Size", minSize: CGSize(width: 1, height: 1), size: CGSize(width: 3840, height: 2160)))
         inputs.append(StateInput(name: "Recording"))
@@ -87,6 +93,10 @@ class BasicInputManager: RendererInputManager {
         inputOffset = inputs.count
         inputs.append(contentsOf: renderSpecificInputs)
         animatorManager = AnimatorManager(manager: self)
+    }
+    
+    func jumpToFrame(_ frame: Int) {
+        self.frame = frame
     }
     
     func handlePerFrameChecks() {}
@@ -140,6 +150,9 @@ class CappedInputManager: RendererInputManager {
     var inputs = [NSView]()
     var animatorManager: AnimatorManager!
     
+    var frame: Int = 0
+    internal var intermediateFrame: Int = 0
+    
     init(renderSpecificInputs: [NSView], imageSize: CGSize?) {
         inputs.append(ScreenSizeInput(name: "Image Size", size: CGSize(width: 3840, height: 2160)))
         inputs.append(SizeInput(name: "Render Size", prefix: "Render", minSize: CGSize(width: 1, height: 1), size: CGSize(width: 512, height: 512), maxSize: CGSize(width: 4096, height: 4096)))
@@ -149,6 +162,11 @@ class CappedInputManager: RendererInputManager {
         inputOffset = inputs.count
         inputs.append(contentsOf: renderSpecificInputs)
         animatorManager = AnimatorManager(manager: self)
+    }
+    
+    func jumpToFrame(_ frame: Int) {
+        self.frame = frame
+        intermediateFrame = 0
     }
     
     func handleImageSizeChanges() {
@@ -176,13 +194,19 @@ extension CappedInputManager {
 }
 
 class AntialiasingInputManager: CappedInputManager {
-    var renderPasses: Int {
+    var renderPassesPerFrame: Int {
         Int((inputs[5] as! SliderInput).output)
     }
+    var renderPasses = 0
     
     override init(renderSpecificInputs: [NSView], imageSize: CGSize?) {
         let renderPasses = SliderInput(name: "Passes", minValue: 1, currentValue: 5, maxValue: 100, tickMarks: 100)
         super.init(renderSpecificInputs: [renderPasses] + renderSpecificInputs, imageSize: imageSize)
         inputOffset += 1
+    }
+    
+    override func jumpToFrame(_ frame: Int) {
+        super.jumpToFrame(frame)
+        renderPasses = 0
     }
 }

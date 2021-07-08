@@ -52,7 +52,7 @@ class CustomPathRenderer: RayTraceRenderer {
     }
     
     override func draw(commandBuffer: MTLCommandBuffer, view: MTKView) {
-        
+
         let rayEncoder = commandBuffer.makeComputeCommandEncoder()
         rayEncoder?.setComputePipelineState(rayPipeline)
         

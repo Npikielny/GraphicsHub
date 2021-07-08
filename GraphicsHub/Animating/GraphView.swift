@@ -9,8 +9,6 @@ import Cocoa
 
 class GraphView: NSView {
 
-    override var acceptsFirstResponder: Bool { true }
-    
     var animators: [InputAnimator]?
     
     var seed: Int = 0
@@ -21,8 +19,57 @@ class GraphView: NSView {
         return NSColor(seed: seed)
     }
     
+    override init(frame frameRect: NSRect) {
+        super.init(frame: frameRect)
+    }
+    
+    var frameController: FrameInterface!
+    
+    var animatorManager: AnimatorManager?
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
+    
+    override func mouseEntered(with event: NSEvent) {
+        frameController.paused = true
+    }
+    
+    override func mouseExited(with event: NSEvent) {
+        frameController.paused = false
+    }
+    
+    var frameDomain: (Int, Int)? {
+        animatorManager?.frameDomain
+    }
+    
+    override func mouseMoved(with event: NSEvent) {
+        let position = positionInView(event)
+        if isMousePoint(position, in: bounds) {
+            guard let frameDomain = frameDomain else { return }
+            let frame = Int(position.x / frame.width * CGFloat(frameDomain.1 - frameDomain.0)) + frameDomain.0
+            frameController.jumpToFrame(frame)
+            display()
+        }
+    }
+    
     override func draw(_ dirtyRect: NSRect) {
         super.draw(dirtyRect)
+        guard let frameDomain = frameDomain else { return }
+        
+        let path = NSBezierPath()
+        path.lineWidth = 3
+        NSColor.red.setFill()
+        NSColor.red.setStroke()
+
+        let x: CGFloat = (frameDomain.1 - frameDomain.0) == 0 ? frame.width / 2 : frame.width / CGFloat(frameDomain.1 - frameDomain.0) * CGFloat(frameController.frame)
+        path.move(to: NSPoint(x: x, y: 0))
+        path.line(to: NSPoint(x: x, y: frame.height))
+
+        path.stroke()
+        path.fill()
+        
         if let animators = animators {
             for animator in animators {
                 let path = animator.drawPath(dirtyRect)
@@ -36,6 +83,11 @@ class GraphView: NSView {
                     $0.stroke()
                     $0.fill()
                 }
+                let point = animator.drawCurrentPoint(frame: dirtyRect, frameIndex: frameController.frame)
+                NSColor.red.setFill()
+                color.setStroke()
+                point.stroke()
+                point.fill()
             }
             if let description = animators[editingIndex].getDescription() {
                 description.draw(at: NSPoint(x: 5, y: 5), withAttributes: [
@@ -44,40 +96,43 @@ class GraphView: NSView {
                 ])
             }
         }
-        
         seed = 0
+    }
+    
+    func positionInView(_ event: NSEvent) -> NSPoint {
+        return convert(event.locationInWindow, from: superview!)
     }
     
     override func mouseDown(with event: NSEvent) {
         if let animators = animators {
-            animators[editingIndex].leftMouseDown(frame: frame, location: convert(event.locationInWindow, from: superview!))
+            animators[editingIndex].leftMouseDown(frame: frame, location: positionInView(event))
         }
-        self.display()
+        display()
     }
     override func mouseDragged(with event: NSEvent) {
         if let animators = animators {
-            animators[editingIndex].leftMouseDragged(with: event, location: convert(event.locationInWindow, from: superview!), frame: frame)
+            animators[editingIndex].leftMouseDragged(with: event, location: positionInView(event), frame: frame)
         }
-        self.display()
+        display()
     }
     override func rightMouseDown(with event: NSEvent) {
         if let animators = animators {
-            animators[editingIndex].rightMouseDown(frame: frame, location: convert(event.locationInWindow, from: superview!))
+            animators[editingIndex].rightMouseDown(frame: frame, location: positionInView(event))
         }
-        self.display()
+        display()
     }
     override func rightMouseDragged(with event: NSEvent) {
         if let animators = animators {
-            animators[editingIndex].rightMouseDragged(with: event, location: convert(event.locationInWindow, from: superview!), frame: frame)
+            animators[editingIndex].rightMouseDragged(with: event, location: positionInView(event), frame: frame)
         }
-        self.display()
+        display()
     }
     
     override func scrollWheel(with event: NSEvent) {
         if let animators = animators {
             animators[editingIndex].scrollWheel(with: event)
         }
-        self.display()
+        display()
     }
     
 }

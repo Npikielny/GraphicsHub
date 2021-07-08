@@ -33,7 +33,7 @@ class TesterCappedRenderer: SinglyCappedRenderer {
         return shift.0 * shift.1;
     }
     override func draw(commandBuffer: MTLCommandBuffer, view: MTKView) {
-        if (intermediateFrame == 0) {
+        if (intermediateFrame == 0) && !inputManager.paused{
             seed = Int32.random(in: Int32.min...Int32.max)
         }
         let computeEncoder = commandBuffer.makeComputeCommandEncoder()

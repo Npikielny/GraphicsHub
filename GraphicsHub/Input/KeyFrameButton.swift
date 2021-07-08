@@ -21,7 +21,7 @@ class KeyFrameButton: NSButton {
         return image
     }()
     
-    var currentState: Bool = false { didSet { setImage() } }
+    var currentState = false { didSet { setImage() } }
     
     init(startingState: Bool = false, target: AnyObject?, action: Selector?) {
         let size = KeyFrameButton.selected.size

@@ -31,8 +31,6 @@ protocol RendererInfo {
     
     var renderPipelineState: MTLRenderPipelineState? { get }
     
-    var frame: Int { get set }
-    
     var initialized: Bool { get }
     
     init(device: MTLDevice, size: CGSize)
@@ -61,6 +59,11 @@ class Renderer: RendererInfo {
     
     var size: CGSize
     
+    var frame: Int {
+        get { inputManager.frame }
+        set { inputManager.frame = newValue }
+    }
+    
     var recordable: Bool { frame % inputManager.framesPerFrame == 0 }
     var recordPipeline: MTLComputePipelineState!
     var url: URL?
@@ -72,9 +75,7 @@ class Renderer: RendererInfo {
     
     var renderPipelineState: MTLRenderPipelineState?
     
-    var frame: Int = 0
-    
-    var initialized: Bool = false
+    var initialized = false
     
     required init(device: MTLDevice, size: CGSize) {
         name = "Renderer"
@@ -109,7 +110,7 @@ class Renderer: RendererInfo {
         frame = 0
     }
     
-    func draw(commandBuffer: MTLCommandBuffer, view: MTKView) { frame += 1}
+    func draw(commandBuffer: MTLCommandBuffer, view: MTKView) { if !inputManager.paused { frame += 1 } }
     
     func addAttachments(pipeline: MTLRenderCommandEncoder) {}
     
@@ -142,25 +143,17 @@ class Renderer: RendererInfo {
 extension Renderer {
     
     func handleAnimation() {
-        if !inputManager.paused {
-            self.inputManager.animatorManager.update()
-            let frameRange = self.inputManager.animatorManager.frameDomain
-            if frameRange.1 - frameRange.0 > 0 {
-                frame = (frame < frameRange.0) ? frameRange.0 : frame
-                if frame > frameRange.1 {
-                    frame = frameRange.0
-                    inputManager.recording = false
-                }
+        inputManager.animatorManager.update()
+        let frameRange = inputManager.animatorManager.frameDomain
+        if frameRange.1 - frameRange.0 > 0 {
+            frame = (frame < frameRange.0) ? frameRange.0 : frame
+            if frame > frameRange.1 {
+                frame = frameRange.0
+                inputManager.recording = false
             }
-            inputManager.animatorManager.setFrame(frame: frame)
         }
+        inputManager.animatorManager.setFrame(frame: frame)
         
-    }
-    
-    func handleDrawing(commandBuffer: MTLCommandBuffer, view: MTKView) {
-        if !inputManager.paused {
-            draw(commandBuffer: commandBuffer, view: view)
-        }
     }
 
     

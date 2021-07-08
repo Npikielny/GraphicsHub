@@ -10,7 +10,7 @@ import SceneKit
 
 class AnimatorController: NSViewController {
 
-    override var acceptsFirstResponder: Bool { true }
+//    override var acceptsFirstResponder: Bool { true }
     
     static let animationTypes: [InputAnimator.Type] = [
         LinearAnimator.self,
@@ -64,10 +64,14 @@ class AnimatorController: NSViewController {
     init(inputManager: RendererInputManager) {
         self.animatorManager = inputManager.animatorManager
         super.init(nibName: "AnimatorController", bundle: nil)
+        graphView.frameController = inputManager
+        animatorManager.frameController = inputManager
+        graphView.animatorManager = animatorManager
         selectorButton = NSPopUpButton(title: "", target: self, action: #selector(setInput))
         selectorButton.addItems(withTitles: animatorManager.animations.map({
             ($0.key as! AnimateableInterface).name
         }))
+        view.addTrackingArea(NSTrackingArea(rect: view.bounds, options: [.activeAlways, .mouseEnteredAndExited, .mouseMoved], owner: graphView, userInfo: nil))
     }
     
     required init?(coder: NSCoder) {

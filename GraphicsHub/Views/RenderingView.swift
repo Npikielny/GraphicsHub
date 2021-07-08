@@ -177,7 +177,7 @@ extension RenderingView: MTKViewDelegate {
             self.renderer!.handleAnimation()
             renderer.synchronizeInputs()
             renderer.updateAllInputs()
-            renderer.handleDrawing(commandBuffer: commandBuffer, view: self)
+            renderer.draw(commandBuffer: commandBuffer, view: self)
             self.renderer!.handleRecording(commandBuffer: commandBuffer, frameIndex: &frameIndex)
         }
         
