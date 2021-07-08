@@ -58,6 +58,7 @@ class InputController: NSViewController {
     
     @objc func showAnimator() {
         animatorWindow?.makeKeyAndOrderFront(nil)
+        animator?.drawGraphs()
     }
     
     override func viewDidLoad() {

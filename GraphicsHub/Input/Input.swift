@@ -106,7 +106,12 @@ class Animateable<T>: Input<T>, AnimateableInterface {
     
     var domain: [(Double, Double)]
     var doubleOutput: [Double]! { nil }
-    var keyFrames = [[(Int, Double)]]()
+    
+    private var _keyFrames = [[(Int, Double)]]()
+    var keyFrames: [[(Int, Double)]] {
+        get { _keyFrames }
+        set { _keyFrames = newValue }
+    }
     var requiredAnimators: Int
     
     lazy var keyFrameButton: KeyFrameButton = KeyFrameButton(target: self, action: #selector(addCurrentKeyFrame))
@@ -198,6 +203,11 @@ class Animateable<T>: Input<T>, AnimateableInterface {
         return nil
     }
 }
+// TODO: Compound animators
+//
+//class CompoundAnimateable<T>: Animateable<T> {
+//    internal var innerInputs = [Animateable]()
+//}
 
 // TODO: Text Input
 

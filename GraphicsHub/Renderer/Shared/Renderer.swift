@@ -170,6 +170,7 @@ extension Renderer {
         (inputManager.inputs as! [InputShell]).forEach {
             _ = $0.didChange
         }
+        // FIXME: Need to update the graphs as well!
     }
     
     func createTexture(size: CGSize) -> MTLTexture? {

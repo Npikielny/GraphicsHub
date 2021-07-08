@@ -157,7 +157,7 @@ class AnimatorController: NSViewController {
             view.addSubview($0)
         }
         NSLayoutConstraint.activate(inputSpecificConstraints)
-        graphView.display()
+        drawGraphs()
     }
     
     @objc func setSpecificAnimator(sender: Any) {
@@ -168,13 +168,13 @@ class AnimatorController: NSViewController {
         guard let animateableType = AnimatorController.animationTypes.first(where: { $0.name == sender.selectedItem?.title }) else { return }
         animatorManager.animations[interface]?[index / 2] = animateableType.init(input: animateableInterface, manager: animatorManager, index: index / 2)
         graphView.animators = animatorManager.animations[interface]
-        graphView.display()
+        drawGraphs()
     }
     
     @objc func editInput(sender: Any) {
         guard let editingIndex = inputSpecificViews.firstIndex(of: sender as! NSButton) else { return }
         graphView.editingIndex = editingIndex / 2
-        graphView.display()
+        drawGraphs()
     }
     
     func checkFrameRange() {
@@ -197,13 +197,12 @@ class AnimatorController: NSViewController {
     func setFrameRange() {
         if let frameRange = (Int(minFrame.stringValue), Int(maxFrame.stringValue)) as? (Int, Int) {
             animatorManager.frameDomain = frameRange
-            graphView.display()
+            drawGraphs()
         }
     }
     
-    func drawGraphs(animators: [InputAnimator]) {
-        graphView.animators = animators
-        graphView.draw(graphView.frame)
+    func drawGraphs() {
+        graphView.display()
     }
     
 }
