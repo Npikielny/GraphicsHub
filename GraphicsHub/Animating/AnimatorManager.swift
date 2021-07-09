@@ -15,11 +15,16 @@ protocol FrameInterface {
 
 class AnimatorManager {
     
-    var frameDomain = (0, 0)
+    var frameDomain = (0, 0) {
+        didSet {
+            graphView?.frameDomain = frameDomain
+        }
+    }
     var animations: [NSView: [InputAnimator]] = [:]
     var window: NSWindow!
     
     var frameController: FrameInterface!
+    var graphView: GraphView?
     
     init(manager: RendererInputManager) {
         for input in manager.inputs {
@@ -35,6 +40,7 @@ class AnimatorManager {
     
     func setFrame(frame: Int) {
         frameController.frame = frame
+        graphView?.display()
         for (input, animators) in animations {
             if let input = input as? AnimateableInterface {
                 let temp = input.didChange

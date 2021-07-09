@@ -25,8 +25,6 @@ class GraphView: NSView {
     
     var frameController: FrameInterface!
     
-    var animatorManager: AnimatorManager?
-    
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
@@ -40,23 +38,18 @@ class GraphView: NSView {
         frameController.paused = false
     }
     
-    var frameDomain: (Int, Int)? {
-        animatorManager?.frameDomain
-    }
+    var frameDomain: (Int, Int) = (0, 0)
     
     override func mouseMoved(with event: NSEvent) {
         let position = positionInView(event)
         if isMousePoint(position, in: bounds) {
-            guard let frameDomain = frameDomain else { return }
             let frame = Int(position.x / frame.width * CGFloat(frameDomain.1 - frameDomain.0)) + frameDomain.0
             frameController.jumpToFrame(frame)
-            display()
         }
     }
     
     override func draw(_ dirtyRect: NSRect) {
         super.draw(dirtyRect)
-        guard let frameDomain = frameDomain else { return }
         
         let path = NSBezierPath()
         path.lineWidth = 3

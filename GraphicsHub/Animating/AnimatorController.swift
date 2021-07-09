@@ -66,7 +66,7 @@ class AnimatorController: NSViewController {
         super.init(nibName: "AnimatorController", bundle: nil)
         graphView.frameController = inputManager
         animatorManager.frameController = inputManager
-        graphView.animatorManager = animatorManager
+        animatorManager.graphView = graphView
         selectorButton = NSPopUpButton(title: "", target: self, action: #selector(setInput))
         selectorButton.addItems(withTitles: animatorManager.animations.map({
             ($0.key as! AnimateableInterface).name

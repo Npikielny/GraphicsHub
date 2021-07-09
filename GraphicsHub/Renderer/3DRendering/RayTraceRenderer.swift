@@ -16,6 +16,11 @@ class RayTraceRenderer: AntialiasingRenderer {
     var lightDirection: SIMD4<Float>
     var skyIntensity: Float = 1
     
+    override var renderPasses: Int {
+        get { let inputManager = inputManager as! RayTraceInputManager; return inputManager.renderPasses }
+        set { let inputManager = inputManager as! RayTraceInputManager; inputManager.renderPasses = newValue }
+    }
+    
     required init(device: MTLDevice, size: CGSize) {
         objects = SceneManager.generate(objectCount: 10,
                                         objectTypes: [.Sphere, .Box],
@@ -70,6 +75,7 @@ class RayTraceRenderer: AntialiasingRenderer {
 }
 
 class RayTraceInputManager: AntialiasingInputManager {
+    
     var fov: Float { Float((getInput(0) as! SliderInput).output)}
     var aspectRatio: Float { Float((getInput(1) as! SliderInput).output)}
     

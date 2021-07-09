@@ -168,6 +168,8 @@ extension RenderingView: MTKViewDelegate {
             DispatchQueue.main.async {
                 if !renderer.inputManager.paused {
                     animateLayer(FPS: 1/(commandBuffer.gpuEndTime - commandBuffer.gpuStartTime))
+                } else {
+                    animateLayer(FPS: 0)
                 }
             }
             self.semaphore.signal()
