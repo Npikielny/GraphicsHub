@@ -72,8 +72,16 @@ extension InputAnimator {
             return path
         }
         path.move(to: getPosition(frame: frame, frameRange: frameRange, position: (frameRange.0, getFrame(frameRange.0))))
-        for i in frameRange.0...frameRange.1 {
-            path.line(to: getPosition(frame: frame, frameRange: frameRange, position: (i, getFrame(i))))
+        
+        if frameRange.1 - frameRange.0 > 100 {
+            for i in 0...100 {
+                let point = Int(Float(i) * Float(manager.frameDomain.1 - manager.frameDomain.0) / 100) + manager.frameDomain.0
+                path.line(to: getPosition(frame: frame, frameRange: frameRange, position: (point, getFrame(point))))
+            }
+        } else {
+            for i in frameRange.0...frameRange.1 {
+                path.line(to: getPosition(frame: frame, frameRange: frameRange, position: (i, getFrame(i))))
+            }
         }
         return path
     }

@@ -40,7 +40,9 @@ class AnimatorManager {
     
     func setFrame(frame: Int) {
         frameController.frame = frame
-        graphView?.display()
+        if graphView?.window?.isKeyWindow ?? false {
+            graphView?.display()
+        }
         for (input, animators) in animations {
             if let input = input as? AnimateableInterface {
                 let temp = input.didChange

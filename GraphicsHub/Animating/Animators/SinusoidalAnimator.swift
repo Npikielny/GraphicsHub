@@ -67,13 +67,16 @@ class SinusoidalAnimator: InputAnimator {
     }
     
     func drawPoints(_ frame: NSRect) -> [NSBezierPath] {
-        
-        // FIXME: Some optimization for drawing high point count
-//        let points: [Int] = manager.frameRange.1 - manager.frameRange.0 + 1 > 100 ?
-//            Array(0...100).map { (manager.frameRange.1 - manager.frameRange.0) * $0 / 100 + manager.frameRange.0 } :
-//            Array(manager.frameRange.0...manager.frameRange.1)
-        let points = Array(manager.frameDomain.0...manager.frameDomain.1)
-        return drawPoints(frameRange: manager.frameDomain, frame: frame, pointsList: points)
+        if manager.frameDomain.1 - manager.frameDomain.0 > 100 {
+            var points = [Int]()
+            for i in 0...100 {
+                points.append(Int(Float(i) * Float(manager.frameDomain.1 - manager.frameDomain.0) / 100) + manager.frameDomain.0)
+            }
+            return drawPoints(frameRange: manager.frameDomain, frame: frame, pointsList: points)
+        } else {
+            let points = Array(manager.frameDomain.0...manager.frameDomain.1)
+            return drawPoints(frameRange: manager.frameDomain, frame: frame, pointsList: points)
+        }
     }
     
     func getDescription() -> NSString? {

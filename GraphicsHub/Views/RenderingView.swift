@@ -52,7 +52,17 @@ class RenderingView: MTKView {
         
         self.delegate = self
         
+        timer = Timer.scheduledTimer(withTimeInterval: 1/120, repeats: true, block: { timer in
+            if self.renderer?.inputManager.recording ?? false {
+                self.timeElapsed += 1/120
+            } else {
+                self.timeElapsed = 0
+            }
+        })
+        
     }
+    var timeElapsed: Double = 0
+    var timer: Timer!
     
     var frameLayer = CAShapeLayer()
     func animateLayer(FPS: Double) {
@@ -125,10 +135,74 @@ class RenderingView: MTKView {
                 frameLayer.addSublayer(frameText)
             }
         }
-        
-        
-        
         layer?.addSublayer(frameLayer)
+    }
+    
+    var recordLayer = CAShapeLayer()
+    func recordingProgress() {
+        recordLayer.removeFromSuperlayer()
+        guard let renderer = renderer else { return }
+        let frameDomain = renderer.inputManager.animatorManager.frameDomain
+        if frameDomain.1 == frameDomain.0 { return }
+        if !renderer.inputManager.recording { return }
+        
+        recordLayer = CAShapeLayer()
+        let fillPath = CGMutablePath()
+        let centerPoint = CGPoint(x: 75 + 20, y: 25 + 10)
+        fillPath.addArc(center: centerPoint, radius: 25, startAngle: 0 + CGFloat.pi/2, endAngle: CGFloat.pi * 2 + CGFloat.pi/2, clockwise: false)
+        recordLayer.path = fillPath
+        recordLayer.strokeColor = .none
+        recordLayer.fillColor = .black
+        
+        let path = CGMutablePath()
+        let percent: Double = {
+            if frameDomain.1 - frameDomain.0 == 0 {
+                return 1
+            } else {
+                return 1 - Double(frameDomain.1 - renderer.inputManager.frame) / Double(frameDomain.1 - frameDomain.0 + 1)
+            }
+        }()
+        let final = CGFloat.pi * 2 * CGFloat(percent)
+        let strokeLayer = CAShapeLayer()
+        path.addArc(center: centerPoint, radius: 25, startAngle: 0 + CGFloat.pi/2, endAngle: final + CGFloat.pi/2, clockwise: false)
+        strokeLayer.path = path
+        strokeLayer.fillColor = .none
+        
+        let colors: [NSColor] = [.red, .orange, .green]
+        
+        let value = percent * Double(colors.count - 1)
+        let minColor = min(max(Int(value),0),1)
+        let percentInRange = CGFloat(value - floor(value))
+        strokeLayer.strokeColor = NSColor(red: colors[minColor].redComponent * percentInRange + colors[minColor + 1].redComponent * (1 - percentInRange),
+                                          green: colors[minColor].greenComponent * percentInRange + colors[minColor + 1].greenComponent * (1 - percentInRange),
+                                          blue: colors[minColor].blueComponent * percentInRange + colors[minColor + 1].blueComponent * (1 - percentInRange),
+                                          alpha: 1).cgColor
+        
+        strokeLayer.lineWidth = 5.0
+        recordLayer.addSublayer(strokeLayer)
+        
+        let textLayer = CATextLayer()
+        textLayer.font = NSFont.boldSystemFont(ofSize: 15)
+        textLayer.fontSize = 15
+        textLayer.alignmentMode = .center
+        textLayer.frame = CGRect(x: 0, y: 0, width: 50, height: 50)
+        textLayer.position = CGPoint(x: 75 + 20, y: 10 + 10)
+        textLayer.contentsScale = 1
+        textLayer.foregroundColor = .white
+        let time = Double(timeElapsed) * Double(frameDomain.1 - frameDomain.0 + 1) / (Double(renderer.inputManager.frame - frameDomain.0) + 0.01) - Double(timeElapsed)
+        let hours = time / 60 / 60
+        let minutes = Int(time) % (60 * 60) / 60
+        let seconds = Int(time) % 60
+        if hours > 0 {
+            textLayer.string = "\(hours)h \(minutes)m"
+        } else if minutes > 0 {
+            textLayer.string = "\(minutes)m \(seconds)s"
+        } else {
+            textLayer.string = "\(seconds)s"
+        }
+        recordLayer.addSublayer(textLayer)
+        
+        layer?.addSublayer(recordLayer)
     }
     
     required init(coder: NSCoder) {
@@ -171,6 +245,7 @@ extension RenderingView: MTKViewDelegate {
                 } else {
                     animateLayer(FPS: 0)
                 }
+                recordingProgress()
             }
             self.semaphore.signal()
         }
