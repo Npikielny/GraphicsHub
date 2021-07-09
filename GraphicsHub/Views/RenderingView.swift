@@ -190,7 +190,7 @@ class RenderingView: MTKView {
         textLayer.contentsScale = 1
         textLayer.foregroundColor = .white
         let time = Double(timeElapsed) * Double(frameDomain.1 - frameDomain.0 + 1) / (Double(renderer.inputManager.frame - frameDomain.0) + 0.01) - Double(timeElapsed)
-        let hours = time / 60 / 60
+        let hours = Int(time) / 60 / 60
         let minutes = Int(time) % (60 * 60) / 60
         let seconds = Int(time) % 60
         if hours > 0 {

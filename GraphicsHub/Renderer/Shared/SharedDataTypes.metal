@@ -76,3 +76,7 @@ float4 project(float4 base, float4 value) {
 float4 orthogonal(float4 base, float4 value) {
     return value - project(base, value);
 }
+
+float mod(float value, float cap) {
+    return value - cap * float(int(value / cap));
+}
