@@ -10,45 +10,49 @@ import MetalPerformanceShaders
 
 class AcceleratedRayTraceRenderer: RayTraceRenderer {
     
-    var rayPipeline, shadePipeline, shadowPipeline, copyPipeline: MTLComputePipelineState!
+    var rayPipeline: MTLComputePipelineState!
     
-    var instanceBuffer,
-        rayBuffer,
-        shadowRayBuffer,
-        intersectionBuffer,
-        triangleMaskBuffer: MTLBuffer!
-    
-    let TRIANGLE_MASK_GEOMETRY: Int32 = 1
-    let TRIANGLE_MASK_LIGHT: Int32 = 2
-
-    let RAY_MASK_PRIMARY: Int32 = 3
-    let RAY_MASK_SHADOW: Int32 = 1
-    let RAY_MASK_SECONDARY: Int32 = 1
-    
-    let rayStride = MemoryLayout<Ray>.stride // 48
+    var instanceBuffer: MTLBuffer!
+//
+//    let TRIANGLE_MASK_GEOMETRY: Int32 = 1
+//    let TRIANGLE_MASK_LIGHT: Int32 = 2
+//
+//    let RAY_MASK_PRIMARY: Int32 = 3
+//    let RAY_MASK_SHADOW: Int32 = 1
+//    let RAY_MASK_SECONDARY: Int32 = 1
     
     var intersectionFunctions: MTLLinkedFunctions!
     var functionTable: MTLIntersectionFunctionTable!
     
     var accelerationStructure: MTLAccelerationStructure?
     
+    var skyTexture: MTLTexture!
+    var skySize: SIMD2<Int32>!
+    
     required init(device: MTLDevice, size: CGSize) {
         let inputManager = RayTraceInputManager(size: size)
         super.init(device: device,
                    size: size,
-                   objects: SceneManager.generate(objectCount: 10,
-                                                  objectTypes: [.Sphere, .Box],
-                                                  generationType: .procedural,
-                                                  positionType: .radial,
-                                                  collisionType: [.distinct, .grounded],
-                                                  objectSizeRange: (SIMD3<Float>(repeating: 0.1), SIMD3<Float>(repeating: 2)),
-                                                  objectPositionRange: (SIMD3<Float>(0, 0, 0), SIMD3<Float>(100, Float.pi * 2, 0)),
-                                                  materialType: .random),
+                   objects: [Object.sphere(material: Material(albedo: SIMD3<Float>(1, 1, 0), specular: SIMD3<Float>(1, 0, 0), n: 1, transparency: 1),
+                                           position: SIMD3<Float>(-1, 0, 0),
+                                           size: SIMD3<Float>(1, 1, 1)),
+                             Object.sphere(material: Material(albedo: SIMD3<Float>(0, 1, 0), specular: SIMD3<Float>(1, 0, 0), n: 1, transparency: 1),
+                                                     position: SIMD3<Float>(0, 0, 0),
+                                                     size: SIMD3<Float>(1, 1, 1)),
+                             Object.sphere(material: Material(albedo: SIMD3<Float>(0, 0, 1), specular: SIMD3<Float>(1, 0, 0), n: 1, transparency: 1),
+                                                     position: SIMD3<Float>(1, 0, 0),
+                                                     size: SIMD3<Float>(1, 1, 1))],
                    inputManager: inputManager,
                    imageCount: 2)
         setupPipelines()
-        setupIntersector()
         computeSizeDidChange(size: inputManager.computeSize())
+        do {
+            skyTexture = try loadTexture(name: "cape_hill_4k")
+            skySize = SIMD2<Int32>(Int32(skyTexture.width), Int32(skyTexture.height))
+        } catch {
+            print(error)
+            fatalError()
+        }
     }
     
     
@@ -56,33 +60,25 @@ class AcceleratedRayTraceRenderer: RayTraceRenderer {
         let computeDescriptor = MTLComputePipelineDescriptor()
         computeDescriptor.threadGroupSizeIsMultipleOfThreadExecutionWidth = true
         
-        let functions = createFunctions(names: "populateRays", "shadeRays", "shadowRays", "copyRaysToTexture")
+        let functions = createFunctions(names: "acceleratedRays", "boundingBoxIntersection")
         do {
             computeDescriptor.computeFunction = functions[0]
             rayPipeline = try device.makeComputePipelineState(descriptor: computeDescriptor,
                                                               options: [],
                                                               reflection: nil)
-            computeDescriptor.computeFunction = functions[1]
-            shadePipeline = try device.makeComputePipelineState(descriptor: computeDescriptor,
-                                                                options: [],
-                                                                reflection: nil)
-            computeDescriptor.computeFunction = functions[2]
-            shadowPipeline = try device.makeComputePipelineState(descriptor: computeDescriptor,
-                                                                 options: [],
-                                                                 reflection: nil)
-            computeDescriptor.computeFunction = functions[3]
-            copyPipeline = try device.makeComputePipelineState(descriptor: computeDescriptor,
-                                                                 options: [],
-                                                                 reflection: nil)
+            let tableDescriptor = MTLIntersectionFunctionTableDescriptor()
+            tableDescriptor.functionCount = 1
+            functionTable = rayPipeline.makeIntersectionFunctionTable(descriptor: tableDescriptor)
+            functionTable.setBuffer(objectBuffer, offset: 0, index: 0)
+            // FIXME: Bind resource buffer
+            let handle = rayPipeline.functionHandle(function: functions[1]!)
+            functionTable.setFunction(handle, index: 0)
+            
+            
         } catch {
             print(error)
             fatalError()
         }
-    }
-    
-    fileprivate func setupIntersectionFunctions() {
-        
-        
     }
     
     private func accelerationStructureWithDescriptor(descriptor: MTLAccelerationStructureDescriptor, commandQueue: MTLCommandQueue?) -> MTLAccelerationStructure {
@@ -117,142 +113,81 @@ class AcceleratedRayTraceRenderer: RayTraceRenderer {
                                        destinationAccelerationStructure: compactedAccelerationStructure)
         compactEncoder?.endEncoding()
         commandBuffer?.commit()
+        commandBuffer?.waitUntilCompleted()
         
         return compactedAccelerationStructure
     }
     
     override func setupResources(commandQueue: MTLCommandQueue?, semaphore: DispatchSemaphore) {
         
-        var packages: [Object.ObjectType: [Object.BoundingBox]] = [:]
-        
-        var primitiveAccelerationStructures = [MTLAccelerationStructure]()
-        
-        for object in objects {
-            guard let objectType = object.getType() else { fatalError() }
-            if !packages.keys.contains(objectType) {
-                packages[objectType] = []
-            }
-            packages[objectType]?.append(object.boundingBoxes)
-        }
-        if packages.count == 0 { return }
-        
-        for (index, (objectType, package)) in packages.sorted(by: { $0.key.rawValue < $1.key.rawValue }).enumerated() {
+        var primitiveAccelerationStrucutures = [MTLAccelerationStructure]()
+        instanceBuffer = device.makeBuffer(length: MemoryLayout<MTLAccelerationStructureInstanceDescriptor>.stride * objects.count,
+                                                options: .storageModeManaged)
+        let instances = instanceBuffer.contents().bindMemory(to: MTLAccelerationStructureInstanceDescriptor.self, capacity: objects.count)
+        for (index, object) in objects.enumerated() {
+            let geometryDescriptor: MTLAccelerationStructureGeometryDescriptor = {
+                switch object.getType() {
+                case .Sphere, .Box:
+                    let descriptor = MTLAccelerationStructureBoundingBoxGeometryDescriptor()
+                    let boundingBoxes = object.boundingBoxes
+                    descriptor.boundingBoxBuffer = device.makeBuffer(bytes: [boundingBoxes], length: MemoryLayout<Object.BoundingBox>.stride, options: .storageModeManaged)
+                    descriptor.boundingBoxCount = 1
+                    return descriptor
+                default:
+                    fatalError()
+                }
+            }()
+//            geometryDescriptor.intersectionFunctionTableOffset = object.getIntersectionFunctionIndex()
             
-            switch objectType {
-            case .Box, .Sphere:
-                let geometryDescriptor = MTLAccelerationStructureBoundingBoxGeometryDescriptor()
-                geometryDescriptor.boundingBoxBuffer = device.makeBuffer(bytes: package, length: MemoryLayout<Object.BoundingBox>.stride * package.count, options: .storageModeManaged)
-                geometryDescriptor.boundingBoxCount = package.count
-                geometryDescriptor.intersectionFunctionTableOffset = index
-                
-                let accelDescriptor = MTLPrimitiveAccelerationStructureDescriptor()
-                accelDescriptor.geometryDescriptors = [geometryDescriptor]
-                primitiveAccelerationStructures.append(
-                    accelerationStructureWithDescriptor(
-                        descriptor: accelDescriptor,
-                        commandQueue: commandQueue
-                    )
-                )
-            }
-        }
-        
-        instanceBuffer = device.makeBuffer(
-            length: MemoryLayout<MTLAccelerationStructureInstanceDescriptor>.stride * packages.count, options: .storageModeShared
-        )
-        // Create individual acceleration structures
-        let instancePointer = instanceBuffer.contents().assumingMemoryBound(to: MTLAccelerationStructureInstanceDescriptor.self)
-        for (index,object) in objects.enumerated() {
-            instancePointer[index].accelerationStructureIndex = 0
-            instancePointer[index].options = MTLAccelerationStructureInstanceOptions(rawValue: 0)
-            instancePointer[index].intersectionFunctionTableOffset = UInt32(object.getType()?.rawValue ?? 0)
-            // TODO: MASK?
-        }
-        // Mapping objects to acceleration structure
-        for (objectType, package) in packages {
+            let primitiveDescriptor = MTLPrimitiveAccelerationStructureDescriptor()
+            primitiveDescriptor.geometryDescriptors = [ geometryDescriptor ]
+            
+            primitiveAccelerationStrucutures.append(accelerationStructureWithDescriptor(descriptor: primitiveDescriptor, commandQueue: commandQueue))
+            
+            instances[index].accelerationStructureIndex = UInt32(index)
+            instances[index].options = .opaque
+            // FIXME: Intersection table
+            instances[index].intersectionFunctionTableOffset = 0
+            // TODO: Masks
+            instances[index].mask = ((1 << 6) - 1)
             
         }
-            
+        instanceBuffer.didModifyRange(0..<instanceBuffer.length)
+        
         let accelerationDescriptor = MTLInstanceAccelerationStructureDescriptor()
+        accelerationDescriptor.instancedAccelerationStructures = primitiveAccelerationStrucutures
         accelerationDescriptor.instanceCount = objects.count
         accelerationDescriptor.instanceDescriptorBuffer = instanceBuffer
-            
-            
-        let sizes = device.accelerationStructureSizes(descriptor: accelerationDescriptor)
-            
-        let accelerationStructure = device.makeAccelerationStructure(size: sizes.accelerationStructureSize)!
-        self.accelerationStructure = accelerationStructure
-        let scratchBuffer = device.makeBuffer(length: sizes.buildScratchBufferSize, options: .storageModePrivate)!
-            
-        guard let commandBuffer = commandQueue?.makeCommandBuffer() else { fatalError("Failed to create acceleration structure") }
-        let acceleratorEncoder = commandBuffer.makeAccelerationStructureCommandEncoder()
-        acceleratorEncoder?.build(accelerationStructure: accelerationStructure,
-                                  descriptor: accelerationDescriptor,
-                                  scratchBuffer: scratchBuffer,
-                                  scratchBufferOffset: 0)
-        acceleratorEncoder?.endEncoding()
-//
-//        accelerationStructure = MPSTriangleAccelerationStructure(device: device)
-//        accelerationStructure?.vertexBuffer = vertexPositionBuffer
-//        accelerationStructure?.maskBuffer = triangleMaskBuffer
-//        accelerationStructure?.triangleCount = vertices.count / 3
-//        accelerationStructure?.rebuild()
+        
+        accelerationStructure = accelerationStructureWithDescriptor(descriptor: accelerationDescriptor, commandQueue: commandQueue)
+        
         super.setupResources(commandQueue: commandQueue, semaphore: semaphore)
     }
     
-    fileprivate func setupIntersector() {
-        
-    }
-    
-    override func computeSizeDidChange(size: CGSize) {
-        super.computeSizeDidChange(size: size)
-        self.rayBuffer = device.makeBuffer(length: rayStride * Int(size.width * size.height), options: .storageModeManaged)
-        self.shadowRayBuffer = device.makeBuffer(length: rayStride * Int(size.width * size.height), options: .storageModeManaged)
-    }
-    
     override func draw(commandBuffer: MTLCommandBuffer, view: MTKView) {
-        guard let accelerator = accelerationStructure else { return }
+//        guard let accelerator = accelerationStructure else { return }
         
         let threadGroups = getCappedGroupSize()
         let threadsPerThreadGroup = MTLSize(width: 8, height: 8, depth: 1)
         
         let rayEncoder = commandBuffer.makeComputeCommandEncoder()
         rayEncoder?.setComputePipelineState(rayPipeline)
-        rayEncoder?.setBuffer(rayBuffer, offset: 0, index: 0)
-        rayEncoder?.setBytes([size.toVector()], length: MemoryLayout<SIMD2<Int32>>.stride, index: 1)
-        rayEncoder?.setBytes([computeSize.toVector()], length: MemoryLayout<SIMD2<Int32>>.stride, index: 2)
+        rayEncoder?.setBytes([size.toVector()], length: MemoryLayout<SIMD2<Int32>>.stride, index: 0)
+        rayEncoder?.setBytes([computeSize.toVector()], length: MemoryLayout<SIMD2<Int32>>.stride, index: 1)
+        rayEncoder?.setBytes([skySize], length: MemoryLayout<SIMD2<Int32>>.stride, index: 2)
         rayEncoder?.setBytes([SIMD2<Float>(Float.random(in: -0.5...0.5), Float.random(in: -0.5...0.5))], length: MemoryLayout<SIMD2<Float>>.stride, index: 3)
         rayEncoder?.setBytes([camera.makeModelMatrix()], length: MemoryLayout<float4x4>.stride, index: 4)
         rayEncoder?.setBytes([camera.makeProjectionMatrix()], length: MemoryLayout<float4x4>.stride, index: 5)
         rayEncoder?.setBytes([intermediateFrame], length: MemoryLayout<Int32>.stride, index: 6)
+        rayEncoder?.setBuffer(objectBuffer, offset: 0, index: 7)
+        rayEncoder?.setAccelerationStructure(accelerationStructure, bufferIndex: 8)
+        rayEncoder?.setIntersectionFunctionTable(functionTable, bufferIndex: 9)
+        rayEncoder?.setTexture(skyTexture, index: 0)
+        rayEncoder?.setTexture(images[0], index: 1)
+        
         rayEncoder?.dispatchThreadgroups(threadGroups, threadsPerThreadgroup: threadsPerThreadGroup)
         rayEncoder?.endEncoding()
-        
-//        for _ in 0..<1 {
-//            intersector.intersectionDataType = .distancePrimitiveIndexCoordinates
-//            intersector.encodeIntersection(commandBuffer: commandBuffer,
-//                                           intersectionType: .nearest,
-//                                           rayBuffer: rayBuffer,
-//                                           rayBufferOffset: 0,
-//                                           intersectionBuffer: intersectionBuffer,
-//                                           intersectionBufferOffset: 0,
-//                                           rayCount: Int(computeSize.width * computeSize.height),
-//                                           accelerationStructure: accelerationStructure)
-//            let shadeEncoder = commandBuffer.makeComputeCommandEncoder()
-//
-//            shadeEncoder?.dispatchThreadgroups(threadGroups, threadsPerThreadgroup: threadsPerThreadGroup)
-//            shadeEncoder?.endEncoding()
-//        }
 
-        let copyEncoder = commandBuffer.makeComputeCommandEncoder()
-        copyEncoder?.setComputePipelineState(copyPipeline)
-        copyEncoder?.setBuffer(rayBuffer, offset: 0, index: 0)
-        copyEncoder?.setBytes([size.toVector()], length: MemoryLayout<SIMD2<Int32>>.stride, index: 1)
-        copyEncoder?.setBytes([computeSize.toVector()], length: MemoryLayout<SIMD2<Int32>>.stride, index: 2)
-        copyEncoder?.setBytes([intermediateFrame], length: MemoryLayout<Int32>.stride, index: 3)
-        copyEncoder?.setTexture(images[0], index: 0)
-        copyEncoder?.dispatchThreadgroups(threadGroups, threadsPerThreadgroup: threadsPerThreadGroup)
-        copyEncoder?.endEncoding()
-        
         super.draw(commandBuffer: commandBuffer, view: view)
     }
 }

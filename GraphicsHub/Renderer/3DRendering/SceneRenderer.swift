@@ -27,7 +27,7 @@ class SceneManager {
         case random
     }
     
-    static func concentric(radials: Int, materialType: Material.MaterialType) -> [Object] {
+    static func concentric(radials: Int, objectTypes: [Object.ObjectType], materialType: Material.MaterialType) -> [Object] {
         var objects = [Object]()
         let radius: (Float) -> (Float) = { return 15 / powf(1.1, 0.4 * Float($0))}
 
@@ -44,8 +44,7 @@ class SceneManager {
                 let theta: Float = Float(k)/Float(radialCount)*Float.pi*2
                 let position = SIMD3<Float>(innerRadiusSize * cos(theta), rad, innerRadiusSize * sin(theta))
                 let size: SIMD3<Float> = SIMD3(rad, 0, 0)
-
-                objects.append(Object.sphere(materialType: materialType, position: position, size: size))
+                objects.append(Object.newObject(materialType: materialType, position: position, size: size, objectType: objectTypes.randomElement()!))
             }
         }
 
@@ -108,16 +107,7 @@ class SceneManager {
                 }
             }()
             
-            let object: Object = {
-                switch objectTypes {
-                    case .Sphere:
-                        return Object.sphere(materialType: materialType, position: position, size: size)
-                    case .Box:
-                        return Object.box(materialType: materialType, position: position, size: size)
-                    default:
-                        return Object.sphere(materialType: materialType, position: position, size: size)
-                }
-            }()
+            let object = Object.newObject(materialType: materialType, position: position, size: size, objectType: objectTypes)
             
             let collision = objects.contains(where: { Object.intersect(object1: $0, object2: object) })
             if (collision && collisionType.contains(.distinct)) || (!collision && collisionType.contains(.intersecting)) {

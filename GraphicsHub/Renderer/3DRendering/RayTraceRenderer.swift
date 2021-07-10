@@ -21,6 +21,17 @@ class RayTraceRenderer: AntialiasingRenderer {
         set { let inputManager = inputManager as! RayTraceInputManager; inputManager.renderPasses = newValue }
     }
     
+    override func synchronizeInputs() {
+        super.synchronizeInputs()
+        guard let inputManager = inputManager as? RayTraceInputManager else { return }
+        camera.fov = inputManager.fov
+        camera.aspectRatio = inputManager.aspectRatio
+        camera.position = inputManager.position
+        camera.rotation = inputManager.rotation
+        lightDirection = inputManager.light
+        skyIntensity = inputManager.skyIntensity
+    }
+    
     required init(device: MTLDevice, size: CGSize) {
         objects = SceneManager.generate(objectCount: 10,
                                         objectTypes: [.Sphere, .Box],

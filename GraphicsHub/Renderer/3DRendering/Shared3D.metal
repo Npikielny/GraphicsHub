@@ -59,20 +59,26 @@ void IntersectGroundPlane(Ray ray, thread RayHit &bestHit) {
         bestHit.position = ray.origin + t * ray.direction;
         bestHit.normal = float3(0.0f, 1.0f, 0.0f);
         bestHit.material = groundMaterial;
-        
     }
 }
 
-void IntersectSphere(Ray ray, thread RayHit &bestHit, Object object) {
-    // Calculate distance along the ray where the sphere is intersected
-    float3 d = ray.origin - object.position;
-    float p1 = -dot(ray.direction, d);
+float IntersectSphere(float3 origin, float3 direction, Object object) {
+    float3 d = origin - object.position;
+    float p1 = -dot(direction, d);
     float p2sqr = p1 * p1 - dot(d, d) + object.size.x * object.size.x;
     if (p2sqr < 0)
-        return;
+        return INFINITY;
     float p2 = sqrt(p2sqr);
     float t = p1 - p2 > 0 ? p1 - p2 : p1 + p2;
-    if (t > 0 && t < bestHit.distance)
+    if (t > 0) {
+        return t;
+    }
+    return INFINITY;
+}
+
+void IntersectSphere(Ray ray, thread RayHit &bestHit, Object object) {
+    float t = IntersectSphere(ray.origin, ray.direction, object);
+    if (t < bestHit.distance)
     {
         bestHit.distance = t;
         bestHit.position = ray.origin + t * ray.direction;
@@ -81,52 +87,64 @@ void IntersectSphere(Ray ray, thread RayHit &bestHit, Object object) {
     }
 }
 
-void checkFace (Ray ray, thread RayHit &bestHit, Object box, int tSide, int signSide) {
+float checkFace (float3 origin, float3 direction, Object box, int tSide, int signSide) {
     float3 faceCenter = box.position;
     signSide = signSide * 2 - 1;
     faceCenter += box.size * signSide;
     float t = INFINITY;
     bool inFace = false;
     if (tSide == 0) { //Z
-        t = (faceCenter.z - ray.origin.z) / ray.direction.z;
-        float3 position = ray.origin + ray.direction * t - box.position;
+        t = (faceCenter.z - origin.z) / direction.z;
+        float3 position = origin + direction * t - box.position;
         if (abs(position.y) <= box.size.y && abs(position.x) <= box.size.x) {
             inFace = true;
         }
     }else if (tSide == 1) {// Y
-        t = (faceCenter.y - ray.origin.y)/ray.direction.y;
-        float3 position = ray.origin + ray.direction * t - box.position;
+        t = (faceCenter.y - origin.y)/direction.y;
+        float3 position = origin + direction * t - box.position;
         if (abs(position.z) <= box.size.z && abs(position.x) <= box.size.x) {
             inFace = true;
         }
     }else {//X
-        t = (faceCenter.x - ray.origin.x)/ray.direction.x;
-        float3 position = ray.origin + ray.direction * t - box.position;
+        t = (faceCenter.x - origin.x)/direction.x;
+        float3 position = origin + direction * t - box.position;
         if (abs(position.y) <= box.size.y && abs(position.z) <= box.size.z) {
             inFace = true;
         }
     }
-    float Distance = length(ray.direction * t);
-    if (inFace && Distance > 0 && Distance < bestHit.distance && t > 0)
-    {
-        bestHit.distance = Distance;
-        bestHit.position = ray.origin + t * ray.direction;
-        if (tSide == 0) { //Z
-            bestHit.normal = normalize(float3(0,0,signSide));
-        }else if (tSide == 1) {// Y
-            bestHit.normal = normalize(float3(0,signSide,0));
-        }else {//X
-            bestHit.normal = normalize(float3(signSide,0,0));
-        }
-        
-        bestHit.material = box.material;
+    if (inFace && t > 0) {
+        return t;
     }
+    return INFINITY;
 }
 
 void IntersectCube(Ray ray, thread RayHit &bestHit, Object box) {
     for (int i = 0; i < 6; i ++) {
-        checkFace(ray, bestHit, box,i / 2, i % 2);
+        int tSide = i / 2;
+        int signSide = i % 2;
+        float t = checkFace(ray.origin, ray.direction, box, i / 2, i % 2);
+        if (t < bestHit.distance) {
+            bestHit.distance = t;
+            bestHit.position = ray.origin + t * ray.direction;
+            if (tSide == 0) { //Z
+                bestHit.normal = normalize(float3(0, 0, signSide));
+            }else if (tSide == 1) {// Y
+                bestHit.normal = normalize(float3(0, signSide, 0));
+            }else {//X
+                bestHit.normal = normalize(float3(signSide, 0, 0));
+            }
+    
+            bestHit.material = box.material;
+        }
     }
+}
+
+float IntersectCube(float3 origin, float3 direction, Object box) {
+    float minDistance = INFINITY;
+    for (int i = 0; i < 6; i ++) {
+        minDistance = min(checkFace(origin, direction, box,i / 2, i % 2), minDistance);
+    }
+    return minDistance;
 }
 
 // MARK: Tracing

@@ -88,7 +88,7 @@ class BasicInputManager: RendererInputManager {
     init(renderSpecificInputs: [NSView] = [], imageSize: CGSize?) {
         inputs.append(ScreenSizeInput(name: "Image Size", minSize: CGSize(width: 1, height: 1), size: CGSize(width: 3840, height: 2160)))
         inputs.append(StateInput(name: "Recording"))
-        inputs.append(StateInput(name: "Paused"))
+        inputs.append(StateInput(name: "Paused", integralRenderingSetting: false))
         inputs.append(SliderInput(name: "Frames Per Recording Frame", minValue: 1, currentValue: 1, maxValue: 50, tickMarks: 50, animateable: false))
         inputOffset = inputs.count
         inputs.append(contentsOf: renderSpecificInputs)
@@ -158,7 +158,7 @@ class CappedInputManager: RendererInputManager {
         inputs.append(ScreenSizeInput(name: "Image Size", size: CGSize(width: 3840, height: 2160)))
         inputs.append(SizeInput(name: "Render Size", prefix: "Render", minSize: CGSize(width: 1, height: 1), size: CGSize(width: 512, height: 512), maxSize: CGSize(width: 4096, height: 4096)))
         inputs.append(StateInput(name: "Recording"))
-        inputs.append(StateInput(name: "Paused"))
+        inputs.append(StateInput(name: "Paused", integralRenderingSetting: false))
         inputs.append(SliderInput(name: "Frames Per Recording Frame", minValue: 1, currentValue: 1, maxValue: 50, tickMarks: 50, animateable: false))
         inputOffset = inputs.count
         inputs.append(contentsOf: renderSpecificInputs)

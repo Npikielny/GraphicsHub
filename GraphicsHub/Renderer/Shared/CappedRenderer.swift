@@ -48,7 +48,7 @@ class SinglyCappedRenderer: Renderer {
             computeSizeDidChange(size: currentComputeSize)
         }
         (inputManager.inputs as! [InputShell]).forEach {
-            if $0.didChange {
+            if $0.didChange && $0.integralRenderingSetting {
                 resetRender()
                 return
             }

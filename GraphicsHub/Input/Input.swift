@@ -12,6 +12,7 @@ protocol Containable {
 }
 
 protocol InputShell {
+    var integralRenderingSetting: Bool { get }
     func reset()
     func collapse()
     func expand()
@@ -28,6 +29,7 @@ class Input<T>: NSView, InputShell {
             changed = true
         }
     }
+    var integralRenderingSetting: Bool
     internal var changed = true
     var didChange: Bool {
         get { let temp = changed; changed = false; return temp }
@@ -47,13 +49,13 @@ class Input<T>: NSView, InputShell {
     var animateable = false
     var documentView: NSView!
     
-    init(name: String, defaultValue: T, transform: ((T) -> T)? = nil, expectedHeight: CGFloat) {
+    init(name: String, defaultValue: T, transform: ((T) -> T)? = nil, expectedHeight: CGFloat, integralRenderingSetting: Bool = true) {
         self.transform = transform
         self.name = name
         self.current = defaultValue
         self.defaultValue = defaultValue
         self.expectedHeight = expectedHeight
-        
+        self.integralRenderingSetting = integralRenderingSetting
         super.init(frame: .zero)
         documentView = self
         
@@ -118,7 +120,7 @@ class Animateable<T>: Input<T>, AnimateableInterface {
     
     var currentFrame: Int?
     
-    init(name: String, defaultValue: T, transform: ((T) -> T)? = nil, expectedHeight: CGFloat, requiredAnimators: Int, animateable: Bool, domain: [(Double, Double)]) {
+    init(name: String, defaultValue: T, transform: ((T) -> T)? = nil, expectedHeight: CGFloat, requiredAnimators: Int, animateable: Bool, integralRenderingSetting: Bool = true, domain: [(Double, Double)]) {
         self.domain = domain
         self.requiredAnimators = requiredAnimators
         super.init(name: name, defaultValue: defaultValue, transform: transform, expectedHeight: expectedHeight)

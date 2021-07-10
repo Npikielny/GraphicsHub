@@ -112,6 +112,23 @@ struct Object {
                       material: Material.createMaterial(materialType: materialType))
     }
     
+    static func newObject(materialType: Material.MaterialType, position: SIMD3<Float>, size: SIMD3<Float>, objectType: ObjectType) -> Object {
+        switch objectType {
+        case .Sphere:
+            return sphere(materialType: materialType, position: position, size: size)
+        case .Box:
+            return box(materialType: materialType, position: position, size: size)
+        }
+    }
+    
+    static func sphere(material: Material, position: SIMD3<Float>, size: SIMD3<Float>) -> Object {
+        return Object(objectType: ObjectType.Sphere.rawValue,
+                      position: position,
+                      size: SIMD3<Float>(size.x, 0, 0),
+                      rotation: SIMD3<Float>(0, 0, 0),
+                      material: material)
+    }
+    
     static func sphere(materialType: Material.MaterialType, position: SIMD3<Float>, size: SIMD3<Float>) -> Object {
         return Object(objectType: ObjectType.Sphere.rawValue,
                       position: position,
@@ -150,6 +167,10 @@ struct Object {
             }
         }
         return nil
+    }
+    
+    func getIntersectionFunctionIndex() -> Int {
+        return 0
     }
     
     var radius: Float {

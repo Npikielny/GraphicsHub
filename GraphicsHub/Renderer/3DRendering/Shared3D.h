@@ -51,8 +51,10 @@ RayHit CreateRayHit();
 
 uint2 sampleSky (float3 direction, int2 skySize);
 void IntersectGroundPlane(Ray ray, thread RayHit &bestHit);
+float IntersectSphere(float3 origin, float3 direction, Object object);
 void IntersectSphere(Ray ray, thread RayHit &bestHit, Object object);
 void IntersectCube(Ray ray, thread RayHit &bestHit, Object box);
+float IntersectCube(float3 origin, float3 direction, Object box);
 
 RayHit Trace(Ray ray, int objectCount, constant Object *objects);
 float3 Shade(thread Ray &ray, RayHit hit, texture2d<float> sky, int2 skyDimensions, int sphereCount, constant Object * objects, float4 lightDirection, float skyIntensity);

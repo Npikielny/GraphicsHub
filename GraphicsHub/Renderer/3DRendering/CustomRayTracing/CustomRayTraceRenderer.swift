@@ -14,21 +14,18 @@ class CustomRayTraceRenderer: RayTraceRenderer {
         
     var rayPipeline: MTLComputePipelineState!
     
-    override func synchronizeInputs() {
-        super.synchronizeInputs()
-        guard let inputManager = inputManager as? RayTraceInputManager else { return }
-        camera.fov = inputManager.fov
-        camera.aspectRatio = inputManager.aspectRatio
-        camera.position = inputManager.position
-        camera.rotation = inputManager.rotation
-        lightDirection = inputManager.light
-        skyIntensity = inputManager.skyIntensity
-    }
-    
     required init(device: MTLDevice, size: CGSize) {
         super.init(device: device,
                    size: size,
-                   objects: SceneManager.concentric(radials: 5, materialType: .random),
+                   objects: [Object.sphere(material: Material(albedo: SIMD3<Float>(1, 1, 0), specular: SIMD3<Float>(1, 0, 0), n: 1, transparency: 1),
+                                           position: SIMD3<Float>(-1, 0, 3),
+                                           size: SIMD3<Float>(1, 1, 1)),
+                             Object.sphere(material: Material(albedo: SIMD3<Float>(0, 1, 0), specular: SIMD3<Float>(1, 0, 0), n: 1, transparency: 1),
+                                                     position: SIMD3<Float>(0, 0, 3),
+                                                     size: SIMD3<Float>(1, 1, 1)),
+                             Object.sphere(material: Material(albedo: SIMD3<Float>(0, 0, 1), specular: SIMD3<Float>(1, 0, 0), n: 1, transparency: 1),
+                                                     position: SIMD3<Float>(1, 0, 3),
+                                                     size: SIMD3<Float>(1, 1, 1))],
                    inputManager: RayTraceInputManager(size: size),
                    imageCount: 2)
         name = "Vanilla Ray Trace Renderer"
