@@ -33,7 +33,9 @@ protocol RendererInputManager: FrameInterface {
     func flagsChanged(event: NSEvent)
     func keyDown(event: NSEvent)
     func mouseDown(event: NSEvent)
+    func rightMouseDown(event: NSEvent)
     func mouseDragged(event: NSEvent)
+    func rightMouseDragged(event: NSEvent)
     func mouseMoved(event: NSEvent)
     func scrollWheel(event: NSEvent)
     
@@ -105,7 +107,9 @@ class BasicInputManager: RendererInputManager {
     func flagsChanged(event: NSEvent) {}
     func keyDown(event: NSEvent) {}
     func mouseDown(event: NSEvent) {}
+    func rightMouseDown(event: NSEvent) {}
     func mouseDragged(event: NSEvent) {}
+    func rightMouseDragged(event: NSEvent) {}
     func mouseMoved(event: NSEvent) {}
     func scrollWheel(event: NSEvent) {}
     
@@ -183,7 +187,9 @@ class CappedInputManager: RendererInputManager {
     func flagsChanged(event: NSEvent) {}
     func keyDown(event: NSEvent) {}
     func mouseDown(event: NSEvent) {}
+    func rightMouseDown(event: NSEvent) {}
     func mouseDragged(event: NSEvent) {}
+    func rightMouseDragged(event: NSEvent) {}
     func mouseMoved(event: NSEvent) {}
     func scrollWheel(event: NSEvent) {}
 }
@@ -201,7 +207,7 @@ class AntialiasingInputManager: CappedInputManager {
     var renderPasses = 0
     
     override init(renderSpecificInputs: [NSView], imageSize: CGSize?) {
-        let renderPasses = SliderInput(name: "Passes", minValue: 1, currentValue: 5, maxValue: 100, tickMarks: 100)
+        let renderPasses = SliderInput(name: "Passes", minValue: 1, currentValue: 5, maxValue: 1000, tickMarks: 101)
         super.init(renderSpecificInputs: [renderPasses] + renderSpecificInputs, imageSize: imageSize)
         inputOffset += 1
     }
@@ -210,4 +216,5 @@ class AntialiasingInputManager: CappedInputManager {
         super.jumpToFrame(frame)
         renderPasses = 0
     }
+    
 }

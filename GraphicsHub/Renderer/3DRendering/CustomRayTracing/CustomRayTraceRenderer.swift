@@ -17,15 +17,14 @@ class CustomRayTraceRenderer: RayTraceRenderer {
     required init(device: MTLDevice, size: CGSize) {
         super.init(device: device,
                    size: size,
-                   objects: [Object.sphere(material: Material(albedo: SIMD3<Float>(1, 1, 0), specular: SIMD3<Float>(1, 0, 0), n: 1, transparency: 1),
-                                           position: SIMD3<Float>(-1, 0, 3),
-                                           size: SIMD3<Float>(1, 1, 1)),
-                             Object.sphere(material: Material(albedo: SIMD3<Float>(0, 1, 0), specular: SIMD3<Float>(1, 0, 0), n: 1, transparency: 1),
-                                                     position: SIMD3<Float>(0, 0, 3),
-                                                     size: SIMD3<Float>(1, 1, 1)),
-                             Object.sphere(material: Material(albedo: SIMD3<Float>(0, 0, 1), specular: SIMD3<Float>(1, 0, 0), n: 1, transparency: 1),
-                                                     position: SIMD3<Float>(1, 0, 3),
-                                                     size: SIMD3<Float>(1, 1, 1))],
+                   objects: SceneManager.generate(objectCount: 30,
+                                                  objectTypes: [.Box, .Sphere, .Triangle],
+                                                  generationType: .procedural,
+                                                  positionType: .radial,
+                                                  collisionType: [.grounded],
+                                                  objectSizeRange: (SIMD3<Float>(repeating: 0.1), SIMD3<Float>(repeating: 2)),
+                                                  objectPositionRange: (SIMD3<Float>(0, 0, 0), SIMD3<Float>(100, Float.pi * 2, 0)),
+                                                  materialType: .random),
                    inputManager: RayTraceInputManager(size: size),
                    imageCount: 2)
         name = "Vanilla Ray Trace Renderer"

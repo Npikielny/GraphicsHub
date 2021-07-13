@@ -955,7 +955,7 @@
 				CODE_SIGN_ENTITLEMENTS = GraphicsHub/GraphicsHub.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				DEVELOPMENT_TEAM = 597PF7552F;
+				DEVELOPMENT_TEAM = "";
 				ENABLE_HARDENED_RUNTIME = YES;
 				INFOPLIST_FILE = GraphicsHub/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -979,7 +979,7 @@
 				CODE_SIGN_ENTITLEMENTS = GraphicsHub/GraphicsHub.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				DEVELOPMENT_TEAM = 597PF7552F;
+				DEVELOPMENT_TEAM = "";
 				ENABLE_HARDENED_RUNTIME = YES;
 				INFOPLIST_FILE = GraphicsHub/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (

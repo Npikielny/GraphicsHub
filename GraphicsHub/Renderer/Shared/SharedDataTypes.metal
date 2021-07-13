@@ -11,6 +11,11 @@ using namespace metal;
 
 // TODO: Add spiral shiftedTid
 // TODO: Add rotation
+int computeCount(int2 imageSize, int2 computeSize) {
+    int2 shift = int2(ceil(float2(imageSize)/float2(computeSize)));
+    return shift.x * shift.y;
+}
+
 uint2 shiftedTid(uint2 tid,
                  int2 imageSize,
                  int2 computeSize,

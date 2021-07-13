@@ -104,6 +104,14 @@ protocol AnimateableInterface {
     func removeKeyFrame(index: Int, frame: Int)
 }
 
+extension AnimateableInterface {
+    func addCurrentKeyFrame(currentFrame: Int) {
+        for (index, output) in doubleOutput.enumerated() {
+            addKeyFrame(index: index, frame: currentFrame, value: output)
+        }
+    }
+}
+
 class Animateable<T>: Input<T>, AnimateableInterface {
     
     var domain: [(Double, Double)]
@@ -157,9 +165,7 @@ class Animateable<T>: Input<T>, AnimateableInterface {
         
         if keyFrameButton.currentState {
             // FIXME: Probably doesn't work for compound inputs (DimensionalInput)
-            for (index, output) in doubleOutput.enumerated() {
-                addKeyFrame(index: index, frame: currentFrame, value: output)
-            }
+            addCurrentKeyFrame(currentFrame: currentFrame)
         } else {
             for index in 0..<keyFrames.count {
                 keyFrames[index].removeAll(where: { $0.0 == currentFrame })

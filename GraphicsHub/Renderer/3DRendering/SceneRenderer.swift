@@ -28,6 +28,8 @@ class SceneManager {
     }
     
     static func concentric(radials: Int, objectTypes: [Object.ObjectType], materialType: Material.MaterialType) -> [Object] {
+        assert(!objectTypes.contains(.Triangle))
+        
         var objects = [Object]()
         let radius: (Float) -> (Float) = { return 15 / powf(1.1, 0.4 * Float($0))}
 
@@ -44,7 +46,7 @@ class SceneManager {
                 let theta: Float = Float(k)/Float(radialCount)*Float.pi*2
                 let position = SIMD3<Float>(innerRadiusSize * cos(theta), rad, innerRadiusSize * sin(theta))
                 let size: SIMD3<Float> = SIMD3(rad, 0, 0)
-                objects.append(Object.newObject(materialType: materialType, position: position, size: size, objectType: objectTypes.randomElement()!))
+                objects.append(Object.newObject(materialType: materialType, position: position, size: size, rotation: SIMD3<Float>(0, 0, 0), objectType: objectTypes.randomElement()!))
             }
         }
 
@@ -80,6 +82,9 @@ class SceneManager {
                     return positionGenerator(Float.random(in: 0...1), Float.random(in: 0...1))
                 }
             }()
+            
+            guard let objectTypes = objectTypes.randomElement() else { continue }
+            
             let size: SIMD3<Float> = {
                 if generationType == .procedural {
                     return SIMD3<Float>(
@@ -95,11 +100,9 @@ class SceneManager {
                 }
             }()
             
-            guard let objectTypes = objectTypes.randomElement() else { continue }
-            
             let position: SIMD3<Float> = {
                 if collisionType.contains(.grounded) {
-                    return SIMD3(xzPosition.x, objectTypes == .Sphere ? size.x : size.y, xzPosition.y)
+                    return SIMD3(xzPosition.x, objectTypes == .Sphere ? size.x : size.y / 2, xzPosition.y)
                 } else {
                     return SIMD3(xzPosition.x,
                                  Float.lerp(a: objectPositionRange.0.y, b: objectPositionRange.1.y, p: generationType == .procedural ? generate() : Float.random(in: 0...1)),
@@ -107,7 +110,41 @@ class SceneManager {
                 }
             }()
             
-            let object = Object.newObject(materialType: materialType, position: position, size: size, objectType: objectTypes)
+            if objectTypes == .Triangle {
+                let length = Float.lerp(a: objectSizeRange.0.x, b: objectSizeRange.1.x, p: generate())
+                let theta = Float.random(in: 0...Float.pi * 2)
+                let matrix = float3x3([SIMD3<Float>(cos(theta), 0, sin(theta)),
+                                       SIMD3<Float>(0, 1, 0),
+                                       SIMD3<Float>(-sin(theta), 0, cos(theta))] )
+//                    let matrix = float3x3([SIMD3(1, 0, 0),
+//                                           SIMD3(0, 1, 0),
+//                                           SIMD3(0, 0, 1)])
+//
+                let v0 = position + SIMD3(0, 0, length) - SIMD3(0, position.y, 0)
+                let v1 = position + SIMD3(length / pow(3, 0.5) * 2, 0, -length / pow(3, 0.5)) * matrix - SIMD3(0, position.y, 0)
+                let v2 = position + SIMD3(-length / pow(3, 0.5) * 2, 0, -length / pow(3, 0.5)) * matrix - SIMD3(0, position.y, 0)
+                let v3 = position + SIMD3(0, length, 0) * matrix - SIMD3(0, position.y, 0)
+                
+                let material = Material.createMaterial(materialType: materialType)
+                
+                let t1 = Object.triangle(material: material, v0: v0, v1: v1, v2: v2)
+                let collision = objects.contains(where: { Object.intersect(object1: $0, object2: t1) })
+                if (collision && collisionType.contains(.distinct)) || (!collision && collisionType.contains(.intersecting)) {
+                    continue
+                }
+                
+                objects.append(t1)
+                objects.append(Object.triangle(material: material, v0: v0, v1: v1, v2: v3))
+                objects.append(Object.triangle(material: material, v0: v0, v1: v3, v2: v2))
+                objects.append(Object.triangle(material: material, v0: v3, v1: v1, v2: v2))
+                continue
+            }
+            
+            let object = Object.newObject(materialType: materialType,
+                                          position: position,
+                                          size: size,
+                                          rotation: SIMD3<Float>(0, Float.random(in: 0...Float.pi * 2), 0),
+                                          objectType: objectTypes)
             
             let collision = objects.contains(where: { Object.intersect(object1: $0, object2: object) })
             if (collision && collisionType.contains(.distinct)) || (!collision && collisionType.contains(.intersecting)) {

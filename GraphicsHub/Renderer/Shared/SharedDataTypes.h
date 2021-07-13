@@ -22,6 +22,8 @@ struct CopyVertexOut {
     float2 uv;
 };
 
+int computeCount(int2 imageSize, int2 computeSize);
+
 uint2 shiftedTid(uint2 tid,
                  int2 imageSize,
                  int2 computeSize,

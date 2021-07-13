@@ -14,26 +14,16 @@ class CustomPathRenderer: RayTraceRenderer {
         
     var rayPipeline: MTLComputePipelineState!
     
-    override func synchronizeInputs() {
-        super.synchronizeInputs()
-        guard let inputManager = inputManager as? RayTraceInputManager else { return }
-        camera.fov = inputManager.fov
-        camera.aspectRatio = inputManager.aspectRatio
-        camera.position = inputManager.position
-        camera.rotation = inputManager.rotation
-        lightDirection = inputManager.light
-    }
-    
     required init(device: MTLDevice, size: CGSize) {
         super.init(device: device,
                    size: size,
-                   objects: SceneManager.generate(objectCount: 10,
-                                                  objectTypes: [.Sphere, .Box],
+                   objects: SceneManager.generate(objectCount: 1000,
+                                                  objectTypes: [.Box, .Sphere, .Triangle],
                                                   generationType: .procedural,
                                                   positionType: .radial,
-                                                  collisionType: [.distinct, .grounded],
+                                                  collisionType: [.grounded, .distinct],
                                                   objectSizeRange: (SIMD3<Float>(repeating: 0.1), SIMD3<Float>(repeating: 2)),
-                                                  objectPositionRange: (SIMD3<Float>(0, 0, 0), SIMD3<Float>(100, Float.pi * 2, 0)),
+                                                  objectPositionRange: (SIMD3<Float>(0, 0, 0), SIMD3<Float>(15, Float.pi * 2, 0)),
                                                   materialType: .random),
                    inputManager: RayTraceInputManager(size: size),
                    imageCount: 2)
@@ -42,17 +32,17 @@ class CustomPathRenderer: RayTraceRenderer {
         if let rayFunction = functions[0] {
             do {
                 rayPipeline = try device.makeComputePipelineState(function: rayFunction)
-                skyTexture = try loadTexture(name: "cape_hill_4k")
+                skyTexture = try loadTexture(name: "rural_landscape_4k")
                 skySize = SIMD2<Int32>(Int32(skyTexture.width), Int32(skyTexture.height))
             } catch {
                 print(error)
                 fatalError()
             }
         }
+//        renderPipelineState = nil
     }
     
     override func draw(commandBuffer: MTLCommandBuffer, view: MTKView) {
-
         let rayEncoder = commandBuffer.makeComputeCommandEncoder()
         rayEncoder?.setComputePipelineState(rayPipeline)
         
@@ -65,12 +55,15 @@ class CustomPathRenderer: RayTraceRenderer {
         rayEncoder?.setBytes([lightDirection], length: MemoryLayout<SIMD4<Float>>.stride, index: 6)
         rayEncoder?.setBytes([SIMD2<Float>(Float.random(in: -0.5...0.5),Float.random(in: -0.5...0.5))], length: MemoryLayout<SIMD2<Float>>.stride, index: 7)
         rayEncoder?.setBytes([Int32(intermediateFrame)], length: MemoryLayout<Int32>.stride, index: 8)
+        rayEncoder?.setBytes([Int32(renderPasses)], length: MemoryLayout<Int32>.stride, index: 9)
+        rayEncoder?.setBytes([Int32(renderPassesPerFrame)], length: MemoryLayout<Int32>.stride, index: 10)
+        rayEncoder?.setBytes([Int32(frame)], length: MemoryLayout<Int32>.stride, index: 11)
+        rayEncoder?.setBytes([skyIntensity], length: MemoryLayout<Int32>.stride, index: 12)
         rayEncoder?.setTexture(skyTexture, index: 0)
         rayEncoder?.setTexture(images[0], index: 1)
         
         rayEncoder?.dispatchThreadgroups(getCappedGroupSize(), threadsPerThreadgroup: MTLSize(width: 8, height: 8, depth: 1))
         rayEncoder?.endEncoding()
-        
         super.draw(commandBuffer: commandBuffer, view: view)
     }
 }
