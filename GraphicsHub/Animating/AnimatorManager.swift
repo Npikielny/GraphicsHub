@@ -46,6 +46,14 @@ class AnimatorManager {
         for (input, animators) in animations {
             if let input = input as? AnimateableInterface {
                 let temp = input.didChange
+                if temp {
+                    if let animateable = temp as? AnimateableInterface {
+                        if animateable.keyFrames.count > 0 {
+                            animateable.addCurrentKeyFrame(currentFrame: frame)
+                        }
+                    }
+                }
+                
                 input.set(animators.map({ $0.getFrame(frame) }), frame: frame)
                 input.setDidChange(temp)
             }

@@ -15,6 +15,7 @@ float3 complexColor(constant float3 * colors, int colorCount, float percent) {
     } else if (percent <= 0) {
         return colors[0];
     } else {
+        // FIXME: I think this is wrong
         float value = percent * float(colorCount - 1);
         int minColor = value;
         float percentInRange = value - floor(value);

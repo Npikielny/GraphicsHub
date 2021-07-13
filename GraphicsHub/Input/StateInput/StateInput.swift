@@ -31,8 +31,9 @@ class StateInput: Input<Bool>, Containable {
         changed = true
     }
     
-    convenience init(name: String, defaultValue: Bool = false) {
+    convenience init(name: String, defaultValue: Bool = false, integralRenderingSetting: Bool = true) {
         self.init(name: name)
+        self.integralRenderingSetting = integralRenderingSetting
         self.defaultValue = defaultValue
         output = defaultValue
     }

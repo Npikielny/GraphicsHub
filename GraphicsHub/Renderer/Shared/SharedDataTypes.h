@@ -22,6 +22,8 @@ struct CopyVertexOut {
     float2 uv;
 };
 
+int computeCount(int2 imageSize, int2 computeSize);
+
 uint2 shiftedTid(uint2 tid,
                  int2 imageSize,
                  int2 computeSize,
@@ -42,4 +44,6 @@ bool inImage(uint2 position, int2 shift, int2 size);
 
 float4 project(float4 base, float4 value);
 float4 orthogonal(float4 base, float4 value);
+
+float mod(float value, float cap);
 #endif /* SharedDataTypes_h */

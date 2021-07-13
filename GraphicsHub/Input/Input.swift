@@ -12,6 +12,7 @@ protocol Containable {
 }
 
 protocol InputShell {
+    var integralRenderingSetting: Bool { get }
     func reset()
     func collapse()
     func expand()
@@ -28,6 +29,7 @@ class Input<T>: NSView, InputShell {
             changed = true
         }
     }
+    var integralRenderingSetting: Bool
     internal var changed = true
     var didChange: Bool {
         get { let temp = changed; changed = false; return temp }
@@ -47,13 +49,13 @@ class Input<T>: NSView, InputShell {
     var animateable = false
     var documentView: NSView!
     
-    init(name: String, defaultValue: T, transform: ((T) -> T)? = nil, expectedHeight: CGFloat) {
+    init(name: String, defaultValue: T, transform: ((T) -> T)? = nil, expectedHeight: CGFloat, integralRenderingSetting: Bool = true) {
         self.transform = transform
         self.name = name
         self.current = defaultValue
         self.defaultValue = defaultValue
         self.expectedHeight = expectedHeight
-        
+        self.integralRenderingSetting = integralRenderingSetting
         super.init(frame: .zero)
         documentView = self
         
@@ -102,6 +104,14 @@ protocol AnimateableInterface {
     func removeKeyFrame(index: Int, frame: Int)
 }
 
+extension AnimateableInterface {
+    func addCurrentKeyFrame(currentFrame: Int) {
+        for (index, output) in doubleOutput.enumerated() {
+            addKeyFrame(index: index, frame: currentFrame, value: output)
+        }
+    }
+}
+
 class Animateable<T>: Input<T>, AnimateableInterface {
     
     var domain: [(Double, Double)]
@@ -118,7 +128,7 @@ class Animateable<T>: Input<T>, AnimateableInterface {
     
     var currentFrame: Int?
     
-    init(name: String, defaultValue: T, transform: ((T) -> T)? = nil, expectedHeight: CGFloat, requiredAnimators: Int, animateable: Bool, domain: [(Double, Double)]) {
+    init(name: String, defaultValue: T, transform: ((T) -> T)? = nil, expectedHeight: CGFloat, requiredAnimators: Int, animateable: Bool, integralRenderingSetting: Bool = true, domain: [(Double, Double)]) {
         self.domain = domain
         self.requiredAnimators = requiredAnimators
         super.init(name: name, defaultValue: defaultValue, transform: transform, expectedHeight: expectedHeight)
@@ -155,9 +165,7 @@ class Animateable<T>: Input<T>, AnimateableInterface {
         
         if keyFrameButton.currentState {
             // FIXME: Probably doesn't work for compound inputs (DimensionalInput)
-            for (index, output) in doubleOutput.enumerated() {
-                addKeyFrame(index: index, frame: currentFrame, value: output)
-            }
+            addCurrentKeyFrame(currentFrame: currentFrame)
         } else {
             for index in 0..<keyFrames.count {
                 keyFrames[index].removeAll(where: { $0.0 == currentFrame })

@@ -35,7 +35,7 @@ fragment float4 copyFragment(CopyVertexOut in [[stage_in]],
     
     // Apply a very simple tonemapping function to reduce the dynamic range of the
     // input image into a range which can be displayed on screen.
-//    float4 color = color / (1.0f + color);
+//    color = color / (1.0f + color);
     
     return color;
 }
@@ -92,17 +92,17 @@ kernel void averageImages(uint2 tid [[thread_position_in_grid]],
 
 // Simple fragment shader which copies a texture and applies a simple tonemapping function
 fragment float4 cappedCopyFragment(CopyVertexOut in [[stage_in]],
-                             texture2d<float> tex1,
-                             texture2d<float>tex2)
-{
+                                   texture2d<float> tex1,
+                                   texture2d<float>tex2,
+                                   constant int & frames) {
     constexpr sampler sam(min_filter::nearest, mag_filter::nearest, mip_filter::none);
     
     float4 color1 = tex1.sample(sam, in.uv);
-    float4 color2 = tex2.sample(sam, in.uv);
+    float4 color2 = tex2.sample(sam, in.uv) * frames;
     
     // Apply a very simple tonemapping function to reduce the dynamic range of the
     // input image into a range which can be displayed on screen.
 //    color = color / (1.0f + color);
     
-    return (color1 + color2) / 2;
+    return (color1 + color2) / float(frames + 1);
 }

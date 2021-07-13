@@ -35,10 +35,8 @@ class ConwayRenderer: Renderer {
     override func synchronizeInputs() {
         super.synchronizeInputs()
         if let inputManager = inputManager as? ConwayInputManager {
-            if inputManager.colorsDidChange {
-                memcpy(colorBuffer.contents(), inputManager.colors, colorBuffer.length)
-                colorBuffer.didModifyRange(0..<colorBuffer.length)
-            }
+            memcpy(colorBuffer.contents(), inputManager.colors, colorBuffer.length)
+            colorBuffer.didModifyRange(0..<colorBuffer.length)
             if inputManager.cellCountDidChange {
                 resetCells()
             }
@@ -116,25 +114,33 @@ class ConwayInputManager: BasicInputManager {
     
     var iterationsPerFrame: Int { Int((getInput(3) as! SliderInput).output) }
     
-    var colors: [SIMD4<Float>] { (getInput(4) as! ListInput<NSColor, ColorPickerInput>).output.map { $0.toVector() } }
-    var colorsDidChange: Bool { (getInput(4) as! ListInput<NSColor, ColorPickerInput>).didChange }
+    var colors: [SIMD4<Float>] { Array(0..<4).map { (getInput($0 + 4) as! ColorPickerInput).output.toVector() } }
+    
+    var colorsDidChange: Bool { (Array(0..<4).map { (getInput($0 + 4) as! ColorPickerInput).didChange }).contains(true) }
     
     override init(renderSpecificInputs: [NSView] = [], imageSize: CGSize?) {
         let cellCount = SizeInput(name: "Cells", prefix: "Cell", minSize: CGSize(width: 50, height: 50), size: CGSize(width: 512, height: 512), maxSize: CGSize(width: 2048, height: 2048))
         let spawnProbability = SliderInput(name: "Spawn Probability", minValue: 1, currentValue: 30, maxValue: 100, tickMarks: 100, animateable: false)
         let outlineInput = StateInput(name: "Draw Outlines")
         let iterationsPerFrame = SliderInput(name: "Iterations Per Frame", minValue: 1, currentValue: 1, maxValue: 10, tickMarks: 10, animateable: false)
-        let colorList = ListInput<NSColor, ColorPickerInput>(name: "Colors", inputs: [
-            ColorPickerInput(name: "Background", defaultColor: NSColor(red: 0, green: 0, blue: 0, alpha: 1), animateable: false),
-            ColorPickerInput(name: "New Cell", defaultColor: NSColor(red: 1, green: 0, blue: 0, alpha: 1), animateable: false),
-            ColorPickerInput(name: "Old Cell", defaultColor: NSColor(red: 0, green: 0, blue: 1, alpha: 1), animateable: false),
-            ColorPickerInput(name: "Outline", defaultColor: NSColor(red: 1, green: 1, blue: 1, alpha: 1), animateable: false),
-        ])
+//        let colorList = ListInput<NSColor, ColorPickerInput>(name: "Colors", inputs: [
+//            ColorPickerInput(name: "Background", defaultColor: NSColor(red: 0, green: 0, blue: 0, alpha: 1), animateable: false),
+//            ColorPickerInput(name: "New Cell", defaultColor: NSColor(red: 1, green: 0, blue: 0, alpha: 1), animateable: false),
+//            ColorPickerInput(name: "Old Cell", defaultColor: NSColor(red: 0, green: 0, blue: 1, alpha: 1), animateable: false),
+//            ColorPickerInput(name: "Outline", defaultColor: NSColor(red: 1, green: 1, blue: 1, alpha: 1), animateable: false),
+//        ])
+        let background = ColorPickerInput(name: "Background", defaultColor: NSColor(red: 0, green: 0, blue: 0, alpha: 1), animateable: true)
+        let newCell = ColorPickerInput(name: "New Cell", defaultColor: NSColor(red: 1, green: 0, blue: 0, alpha: 1), animateable: true)
+        let oldCell = ColorPickerInput(name: "Old Cell", defaultColor: NSColor(red: 0, green: 0, blue: 1, alpha: 1), animateable: true)
+        let outline = ColorPickerInput(name: "Outline", defaultColor: NSColor(red: 1, green: 1, blue: 1, alpha: 1), animateable: true)
         super.init(renderSpecificInputs: [cellCount,
                                           spawnProbability,
                                           outlineInput,
                                           iterationsPerFrame,
-                                          colorList] + renderSpecificInputs, imageSize: imageSize)
+                                          background,
+                                          newCell,
+                                          oldCell,
+                                          outline] + renderSpecificInputs, imageSize: imageSize)
     }
     
 }

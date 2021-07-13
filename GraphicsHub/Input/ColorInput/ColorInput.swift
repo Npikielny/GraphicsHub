@@ -29,6 +29,7 @@ class ColorPickerInput: Animateable<NSColor>, Containable {
             Double(color.redComponent),
             Double(color.greenComponent),
             Double(color.blueComponent),
+            Double(color.alphaComponent)
         ]
     }
 
@@ -137,6 +138,14 @@ class ColorPickerInput: Animateable<NSColor>, Containable {
         colorPicker.makeKeyAndOrderFront(self)
     }
 
+    override func set(_ value: [Double], frame: Int) {
+        super.set(value, frame: frame)
+        output = NSColor(red: CGFloat(value[0]),
+                                    green: CGFloat(value[1]),
+                                    blue: CGFloat(value[2]),
+                                    alpha: CGFloat(value[3]))
+    }
+    
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }

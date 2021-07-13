@@ -16,9 +16,15 @@ class RayTraceRenderer: AntialiasingRenderer {
     var lightDirection: SIMD4<Float>
     var skyIntensity: Float = 1
     
-    override var renderPasses: Int {
-        get { let inputManager = inputManager as! RayTraceInputManager; return inputManager.renderPasses }
-        set { let inputManager = inputManager as! RayTraceInputManager; inputManager.renderPasses = newValue }
+    override func synchronizeInputs() {
+        super.synchronizeInputs()
+        guard let inputManager = inputManager as? RayTraceInputManager else { return }
+        camera.fov = inputManager.fov
+        camera.aspectRatio = inputManager.aspectRatio
+        camera.position = inputManager.position
+        camera.rotation = inputManager.rotation
+        lightDirection = inputManager.light
+        skyIntensity = inputManager.skyIntensity
     }
     
     required init(device: MTLDevice, size: CGSize) {
@@ -94,10 +100,17 @@ class RayTraceInputManager: AntialiasingInputManager {
     }
     
     var rotation: SIMD3<Float> {
-        SIMD3<Float>(
-            Float((getInput(5) as! SliderInput).output),
-            Float((getInput(6) as! SliderInput).output),
-            Float((getInput(7) as! SliderInput).output))
+        get {
+            SIMD3<Float>(
+                Float((getInput(5) as! SliderInput).output),
+                Float((getInput(6) as! SliderInput).output),
+                Float((getInput(7) as! SliderInput).output))
+        }
+        set {
+                (getInput(5) as! SliderInput).setValue(value: Double(newValue.x))
+                (getInput(6) as! SliderInput).setValue(value: Double(newValue.y))
+                (getInput(7) as! SliderInput).setValue(value: Double(newValue.z))
+        }
     }
     
     var light: SIMD4<Float> {
@@ -158,6 +171,24 @@ class RayTraceInputManager: AntialiasingInputManager {
     
     override func mouseDragged(event: NSEvent) {
         position += SIMD3(Float(event.deltaX),0,Float(event.deltaY))
+    }
+    
+    override func rightMouseDragged(event: NSEvent) {
+        if rotation.y - Float(event.deltaX) < -360 {
+            rotation.y += 360 * 2 - Float(event.deltaX)
+        } else if rotation.y - Float(event.deltaX) > 360 {
+            rotation.y += -360 * 2 - Float(event.deltaX)
+        } else {
+            rotation.y -= Float(event.deltaX)
+        }
+        
+        if rotation.x + Float(event.deltaY) < -360 {
+            rotation.x += 360 * 2 + Float(event.deltaY)
+        } else if rotation.x + Float(event.deltaY) > 360 {
+            rotation.x += -360 * 2 + Float(event.deltaY)
+        } else {
+            rotation.x += Float(event.deltaY)
+        }
     }
     
     override func flagsChanged(event: NSEvent) {

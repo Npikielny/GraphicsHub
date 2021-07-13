@@ -33,7 +33,9 @@ protocol RendererInputManager: FrameInterface {
     func flagsChanged(event: NSEvent)
     func keyDown(event: NSEvent)
     func mouseDown(event: NSEvent)
+    func rightMouseDown(event: NSEvent)
     func mouseDragged(event: NSEvent)
+    func rightMouseDragged(event: NSEvent)
     func mouseMoved(event: NSEvent)
     func scrollWheel(event: NSEvent)
     
@@ -88,7 +90,7 @@ class BasicInputManager: RendererInputManager {
     init(renderSpecificInputs: [NSView] = [], imageSize: CGSize?) {
         inputs.append(ScreenSizeInput(name: "Image Size", minSize: CGSize(width: 1, height: 1), size: CGSize(width: 3840, height: 2160)))
         inputs.append(StateInput(name: "Recording"))
-        inputs.append(StateInput(name: "Paused"))
+        inputs.append(StateInput(name: "Paused", integralRenderingSetting: false))
         inputs.append(SliderInput(name: "Frames Per Recording Frame", minValue: 1, currentValue: 1, maxValue: 50, tickMarks: 50, animateable: false))
         inputOffset = inputs.count
         inputs.append(contentsOf: renderSpecificInputs)
@@ -105,7 +107,9 @@ class BasicInputManager: RendererInputManager {
     func flagsChanged(event: NSEvent) {}
     func keyDown(event: NSEvent) {}
     func mouseDown(event: NSEvent) {}
+    func rightMouseDown(event: NSEvent) {}
     func mouseDragged(event: NSEvent) {}
+    func rightMouseDragged(event: NSEvent) {}
     func mouseMoved(event: NSEvent) {}
     func scrollWheel(event: NSEvent) {}
     
@@ -158,7 +162,7 @@ class CappedInputManager: RendererInputManager {
         inputs.append(ScreenSizeInput(name: "Image Size", size: CGSize(width: 3840, height: 2160)))
         inputs.append(SizeInput(name: "Render Size", prefix: "Render", minSize: CGSize(width: 1, height: 1), size: CGSize(width: 512, height: 512), maxSize: CGSize(width: 4096, height: 4096)))
         inputs.append(StateInput(name: "Recording"))
-        inputs.append(StateInput(name: "Paused"))
+        inputs.append(StateInput(name: "Paused", integralRenderingSetting: false))
         inputs.append(SliderInput(name: "Frames Per Recording Frame", minValue: 1, currentValue: 1, maxValue: 50, tickMarks: 50, animateable: false))
         inputOffset = inputs.count
         inputs.append(contentsOf: renderSpecificInputs)
@@ -183,7 +187,9 @@ class CappedInputManager: RendererInputManager {
     func flagsChanged(event: NSEvent) {}
     func keyDown(event: NSEvent) {}
     func mouseDown(event: NSEvent) {}
+    func rightMouseDown(event: NSEvent) {}
     func mouseDragged(event: NSEvent) {}
+    func rightMouseDragged(event: NSEvent) {}
     func mouseMoved(event: NSEvent) {}
     func scrollWheel(event: NSEvent) {}
 }
@@ -201,7 +207,7 @@ class AntialiasingInputManager: CappedInputManager {
     var renderPasses = 0
     
     override init(renderSpecificInputs: [NSView], imageSize: CGSize?) {
-        let renderPasses = SliderInput(name: "Passes", minValue: 1, currentValue: 5, maxValue: 100, tickMarks: 100)
+        let renderPasses = SliderInput(name: "Passes", minValue: 1, currentValue: 5, maxValue: 1000, tickMarks: 101)
         super.init(renderSpecificInputs: [renderPasses] + renderSpecificInputs, imageSize: imageSize)
         inputOffset += 1
     }
@@ -210,4 +216,5 @@ class AntialiasingInputManager: CappedInputManager {
         super.jumpToFrame(frame)
         renderPasses = 0
     }
+    
 }

@@ -14,6 +14,7 @@ struct Material {
     float3 specular;
     float n;
     float transparency;
+    float3 emission;
 };
 
 struct Object {
@@ -51,10 +52,13 @@ RayHit CreateRayHit();
 
 uint2 sampleSky (float3 direction, int2 skySize);
 void IntersectGroundPlane(Ray ray, thread RayHit &bestHit);
+float IntersectSphere(float3 origin, float3 direction, Object object);
 void IntersectSphere(Ray ray, thread RayHit &bestHit, Object object);
 void IntersectCube(Ray ray, thread RayHit &bestHit, Object box);
+float IntersectCube(float3 origin, float3 direction, Object box);
 
-RayHit Trace(Ray ray, int objectCount, constant Object *objects);
+RayHit Trace(Ray ray, int objectCount, constant Object *objects, bool groundPlane);
+RayHit Trace(Ray ray, int objectCount, constant Object *objects, float t);
 float3 Shade(thread Ray &ray, RayHit hit, texture2d<float> sky, int2 skyDimensions, int sphereCount, constant Object * objects, float4 lightDirection, float skyIntensity);
 
 #endif /* Shared3D_h */

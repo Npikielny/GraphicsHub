@@ -189,8 +189,15 @@ class RenderingView: MTKView {
         textLayer.position = CGPoint(x: 75 + 20, y: 10 + 10)
         textLayer.contentsScale = 1
         textLayer.foregroundColor = .white
-        let time = Double(timeElapsed) * Double(frameDomain.1 - frameDomain.0 + 1) / (Double(renderer.inputManager.frame - frameDomain.0) + 0.01) - Double(timeElapsed)
-        let hours = time / 60 / 60
+        let time: Double = {
+//            if let renderer = renderer as? AntialiasingRenderer {
+//                let iterationsPerFrame = renderer.renderPassesPerFrame * renderer.rendersPerFill
+//                return Double(timeElapsed) * Double(frameDomain.1 - frameDomain.0 + 1) / (Double(renderer.frame - frameDomain.0) + Double(renderer.intermediateFrame + renderer.rendersPerFill * renderer.renderPasses) / Double(iterationsPerFrame) + 0.01) - Double(timeElapsed)
+//            } else {
+                return Double(timeElapsed) * Double(frameDomain.1 - frameDomain.0 + 1) / (Double(renderer.inputManager.frame - frameDomain.0) + 0.01) - Double(timeElapsed)
+//            }
+        }()
+        let hours = Int(time) / 60 / 60
         let minutes = Int(time) % (60 * 60) / 60
         let seconds = Int(time) % 60
         if hours > 0 {
@@ -283,8 +290,14 @@ extension RenderingView {
     override func mouseDown(with event: NSEvent) {
         renderer?.inputManager.mouseDown(event: event)
     }
+    override func rightMouseDown(with event: NSEvent) {
+        renderer?.inputManager.rightMouseDown(event: event)
+    }
     override func mouseDragged(with event: NSEvent) {
         renderer?.inputManager.mouseDragged(event: event)
+    }
+    override func rightMouseDragged(with event: NSEvent) {
+        renderer?.inputManager.rightMouseDragged(event: event)
     }
     override func mouseMoved(with event: NSEvent) {
         renderer?.inputManager.mouseMoved(event: event)

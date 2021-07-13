@@ -34,13 +34,17 @@ class ListInput<InputType, View: Input<InputType> & Containable >: Input<[InputT
 
     lazy var addButton = NSButton(image: NSImage(named: NSImage.addTemplateName)!, target: self, action: #selector(addInput))
     @objc func addInput() {
-        if OutputType.self == [NSColor].self {
+        if OutputType.self == [NSColor].self && customizeable {
             addInputView(Views: [View.init(name: "Color \(inputs.count + 1)")], customizeable: customizeable)
         }
     }
     lazy var removeButton = NSButton(image: NSImage(named: NSImage.removeTemplateName)!, target: self, action: #selector(removeInput))
     @objc func removeInput() {
-
+        if customizeable {
+            inputs.last?.constraints.forEach { $0.isActive = false }
+            inputs.last?.removeFromSuperview()
+            inputs.removeLast()
+        }
     }
     lazy var collapseButton = NSButton(image: NSImage(named: NSImage.touchBarGoUpTemplateName)!, target: self, action: #selector(collapseInputs))
     @objc func collapseInputs() {

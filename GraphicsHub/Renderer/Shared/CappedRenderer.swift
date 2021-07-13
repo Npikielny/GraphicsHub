@@ -11,8 +11,10 @@ class SinglyCappedRenderer: Renderer {
     
     var computeSize: CGSize = CGSize(width: 512, height: 512)
     
+    var rendersPerFill: Int { (Int(ceil(size.width / computeSize.width)) * Int(ceil(size.height / computeSize.height))) }
+    
     var filledRender: Bool {
-        return intermediateFrame != 0 && intermediateFrame % (Int(ceil(size.width / computeSize.width)) * Int(ceil(size.height / computeSize.height))) == 0
+        return intermediateFrame != 0 && intermediateFrame % rendersPerFill == 0
     }
     override var recordable: Bool {
         return frame % inputManager.framesPerFrame == 0 && filledRender
@@ -48,7 +50,7 @@ class SinglyCappedRenderer: Renderer {
             computeSizeDidChange(size: currentComputeSize)
         }
         (inputManager.inputs as! [InputShell]).forEach {
-            if $0.didChange {
+            if $0.didChange && $0.integralRenderingSetting {
                 resetRender()
                 return
             }
@@ -98,9 +100,15 @@ class AntialiasingRenderer: SinglyCappedRenderer {
     private var averagePipeline: MTLComputePipelineState!
     
     var renderPasses: Int {
-        get { let inputManager = inputManager as! AntialiasingRenderer; return inputManager.renderPasses }
-        set { let inputManager = inputManager as! AntialiasingRenderer; inputManager.renderPasses = newValue }
+        get { let inputManager = inputManager as! AntialiasingInputManager; return inputManager.renderPasses }
+        set { let inputManager = inputManager as! AntialiasingInputManager; inputManager.renderPasses = newValue }
     }
+    
+    var renderPassesPerFrame: Int {
+        let inputManager = inputManager as! AntialiasingInputManager
+        return inputManager.renderPassesPerFrame
+    }
+    
     var finalizedImage: Bool {
         guard let inputManager = inputManager as? AntialiasingInputManager else { fatalError() }
         return renderPasses >= inputManager.renderPassesPerFrame && filledRender
@@ -173,8 +181,7 @@ class AntialiasingRenderer: SinglyCappedRenderer {
                 renderPasses = 0
                 intermediateFrame = 0
             }
-        }
-        if filledRender {
+        } else if filledRender {
             intermediateFrame = 0
             renderPasses += 1
         } else {
@@ -185,5 +192,6 @@ class AntialiasingRenderer: SinglyCappedRenderer {
     override func addAttachments(pipeline: MTLRenderCommandEncoder) {
         pipeline.setFragmentTexture(images[0], index: 0)
         pipeline.setFragmentTexture(images[1], index: 1)
+        pipeline.setFragmentBytes([Int32(renderPasses)], length: MemoryLayout<Int32>.stride, index: 0)
     }
 }
