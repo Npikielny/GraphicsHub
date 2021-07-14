@@ -18,6 +18,8 @@
 		3028F1A7263C93E0006922F0 /* EditorViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 3028F1A5263C93E0006922F0 /* EditorViewController.xib */; };
 		3028F1AA263C9529006922F0 /* TemplateController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3028F1A8263C9529006922F0 /* TemplateController.swift */; };
 		3028F1AB263C9529006922F0 /* TemplateController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 3028F1A9263C9529006922F0 /* TemplateController.xib */; };
+		30302D31269E2F940002AE2F /* RayMarchingRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30302D30269E2F940002AE2F /* RayMarchingRenderer.swift */; };
+		30302D33269E30040002AE2F /* RayMarchRendering.metal in Sources */ = {isa = PBXBuildFile; fileRef = 30302D32269E30040002AE2F /* RayMarchRendering.metal */; };
 		3061CF31265C2FAA00D48CFA /* AnimatorController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3061CF2F265C2FAA00D48CFA /* AnimatorController.swift */; };
 		3061CF32265C2FAA00D48CFA /* AnimatorController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 3061CF30265C2FAA00D48CFA /* AnimatorController.xib */; };
 		3092B3222641DB5700902BB6 /* InputManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3092B3212641DB5700902BB6 /* InputManager.swift */; };
@@ -55,7 +57,7 @@
 		30FCB99B263BA94B00910FED /* ConwayRendering.metal in Sources */ = {isa = PBXBuildFile; fileRef = 30FCB99A263BA94B00910FED /* ConwayRendering.metal */; };
 		461200D6266EB4FF00AE750E /* RendererInputManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 461200D5266EB4FF00AE750E /* RendererInputManager.swift */; };
 		4658EDD826866447000828B4 /* AcceleratedRayTraceRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4658EDD726866447000828B4 /* AcceleratedRayTraceRenderer.swift */; };
-		4658EDDD268664EB000828B4 /* RayTraceRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4658EDDC268664EB000828B4 /* RayTraceRenderer.swift */; };
+		4658EDDD268664EB000828B4 /* RayRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4658EDDC268664EB000828B4 /* RayRenderer.swift */; };
 		465FE21426752BF30038187F /* IncrementInput.swift in Sources */ = {isa = PBXBuildFile; fileRef = 465FE21326752BF30038187F /* IncrementInput.swift */; };
 		465FE21A267531EF0038187F /* Helpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 465FE219267531EF0038187F /* Helpers.swift */; };
 		4661A618267A6E5B00BADC8F /* SceneRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4661A617267A6E5B00BADC8F /* SceneRenderer.swift */; };
@@ -116,6 +118,8 @@
 		3028F1A5263C93E0006922F0 /* EditorViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = EditorViewController.xib; sourceTree = "<group>"; };
 		3028F1A8263C9529006922F0 /* TemplateController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TemplateController.swift; sourceTree = "<group>"; };
 		3028F1A9263C9529006922F0 /* TemplateController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = TemplateController.xib; sourceTree = "<group>"; };
+		30302D30269E2F940002AE2F /* RayMarchingRenderer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RayMarchingRenderer.swift; sourceTree = "<group>"; };
+		30302D32269E30040002AE2F /* RayMarchRendering.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = RayMarchRendering.metal; sourceTree = "<group>"; };
 		3061CF2F265C2FAA00D48CFA /* AnimatorController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnimatorController.swift; sourceTree = "<group>"; };
 		3061CF30265C2FAA00D48CFA /* AnimatorController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = AnimatorController.xib; sourceTree = "<group>"; };
 		3092B3212641DB5700902BB6 /* InputManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InputManager.swift; sourceTree = "<group>"; };
@@ -161,7 +165,7 @@
 		30FCB99A263BA94B00910FED /* ConwayRendering.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = ConwayRendering.metal; sourceTree = "<group>"; };
 		461200D5266EB4FF00AE750E /* RendererInputManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RendererInputManager.swift; sourceTree = "<group>"; };
 		4658EDD726866447000828B4 /* AcceleratedRayTraceRenderer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AcceleratedRayTraceRenderer.swift; sourceTree = "<group>"; };
-		4658EDDC268664EB000828B4 /* RayTraceRenderer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RayTraceRenderer.swift; sourceTree = "<group>"; };
+		4658EDDC268664EB000828B4 /* RayRenderer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RayRenderer.swift; sourceTree = "<group>"; };
 		465FE21326752BF30038187F /* IncrementInput.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IncrementInput.swift; sourceTree = "<group>"; };
 		465FE219267531EF0038187F /* Helpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Helpers.swift; sourceTree = "<group>"; };
 		4661A617267A6E5B00BADC8F /* SceneRenderer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneRenderer.swift; sourceTree = "<group>"; };
@@ -257,6 +261,15 @@
 				3024E4542655A15D00DD195D /* ListInput.swift */,
 			);
 			path = ListInput;
+			sourceTree = "<group>";
+		};
+		30302D2F269E2F840002AE2F /* RayMarchingRenderer */ = {
+			isa = PBXGroup;
+			children = (
+				30302D30269E2F940002AE2F /* RayMarchingRenderer.swift */,
+				30302D32269E30040002AE2F /* RayMarchRendering.metal */,
+			);
+			path = RayMarchingRenderer;
 			sourceTree = "<group>";
 		};
 		309B4019263BC40800300BBE /* ComplexRenderer */ = {
@@ -453,9 +466,10 @@
 			children = (
 				466938912677FAD4003616E0 /* DataTypes.swift */,
 				4661A617267A6E5B00BADC8F /* SceneRenderer.swift */,
-				4658EDDC268664EB000828B4 /* RayTraceRenderer.swift */,
+				4658EDDC268664EB000828B4 /* RayRenderer.swift */,
 				46E048FB2689471F00AC0AC0 /* Shared3D.metal */,
 				46E049002689475000AC0AC0 /* Shared3D.h */,
+				30302D2F269E2F840002AE2F /* RayMarchingRenderer */,
 				4658EDD026866407000828B4 /* AcceleratedRayTracing */,
 				46E048ED2689463600AC0AC0 /* CustomPathTracingRenderer */,
 				4658EDCC268663FA000828B4 /* CustomRayTracing */,
@@ -740,6 +754,7 @@
 				30B391712694FBF600ACF840 /* Matrix.swift in Sources */,
 				30E26260264648CE00311F44 /* SlimeMoldRenderer.swift in Sources */,
 				46C2B64A26759A21005E2733 /* LinearAnimator.swift in Sources */,
+				30302D33269E30040002AE2F /* RayMarchRendering.metal in Sources */,
 				3024E4532655A14200DD195D /* StateInput.swift in Sources */,
 				46C75A262666FA8C007A87E4 /* InputAnimator.swift in Sources */,
 				467F4FA1266D98FD00C5A31A /* GraphView.swift in Sources */,
@@ -761,7 +776,7 @@
 				30BADFBB2656EB1C006719F7 /* TestInputRenderer.swift in Sources */,
 				3028F1A6263C93E0006922F0 /* EditorViewController.swift in Sources */,
 				30FCB99B263BA94B00910FED /* ConwayRendering.metal in Sources */,
-				4658EDDD268664EB000828B4 /* RayTraceRenderer.swift in Sources */,
+				4658EDDD268664EB000828B4 /* RayRenderer.swift in Sources */,
 				30AEDA21263A1F2E007ED421 /* MainController.swift in Sources */,
 				3061CF31265C2FAA00D48CFA /* AnimatorController.swift in Sources */,
 				466C8FE126954B8500B0AC6B /* Conway's Game of Life.swift in Sources */,
@@ -774,6 +789,7 @@
 				46F6640026852E8E007F72E3 /* Transforms.swift in Sources */,
 				309B4018263BC40000300BBE /* ComplexRenderer.swift in Sources */,
 				4661A625267A6F5500BADC8F /* CustomRayTraceRendering.metal in Sources */,
+				30302D31269E2F940002AE2F /* RayMarchingRenderer.swift in Sources */,
 				46E048EF2689465000AC0AC0 /* CustomPathRenderer.swift in Sources */,
 				30AED9F6263A1F15007ED421 /* AppDelegate.swift in Sources */,
 				309B401B263BC4AE00300BBE /* ComplexRendering.metal in Sources */,

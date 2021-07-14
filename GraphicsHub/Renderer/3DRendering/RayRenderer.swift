@@ -7,7 +7,7 @@
 
 import MetalKit
 
-class RayTraceRenderer: AntialiasingRenderer {
+class RayRenderer: AntialiasingRenderer {
     
     var camera: Camera
     
@@ -18,7 +18,7 @@ class RayTraceRenderer: AntialiasingRenderer {
     
     override func synchronizeInputs() {
         super.synchronizeInputs()
-        guard let inputManager = inputManager as? RayTraceInputManager else { return }
+        guard let inputManager = inputManager as? RayInputManager else { return }
         camera.fov = inputManager.fov
         camera.aspectRatio = inputManager.aspectRatio
         camera.position = inputManager.position
@@ -80,7 +80,7 @@ class RayTraceRenderer: AntialiasingRenderer {
     
 }
 
-class RayTraceInputManager: AntialiasingInputManager {
+class RayInputManager: AntialiasingInputManager {
     
     var fov: Float { Float((getInput(0) as! SliderInput).output)}
     var aspectRatio: Float { Float((getInput(1) as! SliderInput).output)}
@@ -166,7 +166,7 @@ class RayTraceInputManager: AntialiasingInputManager {
             lightIntensity,
             
             skyIntensity
-        ], imageSize: imageSize)
+        ] + renderSpecificInputs, imageSize: imageSize)
     }
     
     override func mouseDragged(event: NSEvent) {
@@ -201,7 +201,7 @@ class RayTraceInputManager: AntialiasingInputManager {
     }
 }
 
-extension RayTraceRenderer {
+extension RayRenderer {
     
     struct Ray {
         var origin: SIMD3<Float>

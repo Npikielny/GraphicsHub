@@ -8,7 +8,7 @@
 import MetalKit
 import MetalPerformanceShaders
 
-class AcceleratedRayTraceRenderer: RayTraceRenderer {
+class AcceleratedRayTraceRenderer: RayRenderer {
     
     var rayPipeline: MTLComputePipelineState!
     
@@ -30,7 +30,7 @@ class AcceleratedRayTraceRenderer: RayTraceRenderer {
     var skySize: SIMD2<Int32>!
     
     required init(device: MTLDevice, size: CGSize) {
-        let inputManager = RayTraceInputManager(size: size)
+        let inputManager = RayInputManager(size: size)
         super.init(device: device,
                    size: size,
                    objects: [Object.sphere(material: Material(albedo: SIMD3<Float>(1, 1, 0), specular: SIMD3<Float>(1, 0, 0), n: 1, transparency: 1, emission: SIMD3<Float>(repeating: 0)),

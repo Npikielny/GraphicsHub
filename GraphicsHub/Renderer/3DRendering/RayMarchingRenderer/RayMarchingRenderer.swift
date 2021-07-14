@@ -1,34 +1,47 @@
 //
-//  CustomRayTraceRenderer.swift
+//  RayMarchingRenderer.swift
 //  GraphicsHub
 //
-//  Created by Noah Pikielny on 6/16/21.
+//  Created by Noah Pikielny on 7/13/21.
 //
 
 import MetalKit
 
-class CustomRayTraceRenderer: RayRenderer {
+class RayMarchingRenderer: RayRenderer {
     
     var skyTexture: MTLTexture!
     var skySize: SIMD2<Int32>!
         
     var rayPipeline: MTLComputePipelineState!
     
+    var iterations: Int {
+        guard let inputManager = inputManager as? RayMarchingInputManager else { fatalError() }
+        return inputManager.iterations
+    }
+    var maxDistance: Float {
+        guard let inputManager = inputManager as? RayMarchingInputManager else  { fatalError() }
+        return inputManager.maxDistance
+    }
+    var precision: Float {
+        guard let inputManager = inputManager as? RayMarchingInputManager else  { fatalError() }
+        return inputManager.precision
+    }
+    
     required init(device: MTLDevice, size: CGSize) {
         super.init(device: device,
                    size: size,
                    objects: SceneManager.generate(objectCount: 30,
-                                                  objectTypes: [.Box, .Sphere, .Triangle],
+                                                  objectTypes: [.Box, .Sphere],
                                                   generationType: .procedural,
                                                   positionType: .radial,
                                                   collisionType: [.grounded],
                                                   objectSizeRange: (SIMD3<Float>(repeating: 0.1), SIMD3<Float>(repeating: 2)),
                                                   objectPositionRange: (SIMD3<Float>(0, 0, 0), SIMD3<Float>(100, Float.pi * 2, 0)),
                                                   materialType: .random),
-                   inputManager: RayInputManager(size: size),
+                   inputManager: RayMarchingInputManager(renderSpecificInputs: [], imageSize: size),
                    imageCount: 2)
         name = "Vanilla Ray Trace Renderer"
-        let functions = createFunctions(names: "rayTrace")
+        let functions = createFunctions(names: "rayMarch")
         if let rayFunction = functions[0] {
             do {
                 rayPipeline = try device.makeComputePipelineState(function: rayFunction)
@@ -56,6 +69,9 @@ class CustomRayTraceRenderer: RayRenderer {
         rayEncoder?.setBytes([SIMD2<Float>(Float.random(in: -0.5...0.5),Float.random(in: -0.5...0.5))], length: MemoryLayout<SIMD2<Float>>.stride, index: 7)
         rayEncoder?.setBytes([skyIntensity], length: MemoryLayout<Float>.stride, index: 8)
         rayEncoder?.setBytes([Int32(intermediateFrame)], length: MemoryLayout<Int32>.stride, index: 9)
+        rayEncoder?.setBytes([Int32(iterations)], length: MemoryLayout<Int32>.stride, index: 10)
+        rayEncoder?.setBytes([maxDistance], length: MemoryLayout<Float>.stride, index: 11)
+        rayEncoder?.setBytes([precision], length: MemoryLayout<Float>.stride, index: 12)
         rayEncoder?.setTexture(skyTexture, index: 0)
         rayEncoder?.setTexture(images[0], index: 1)
         
@@ -63,6 +79,27 @@ class CustomRayTraceRenderer: RayRenderer {
         rayEncoder?.endEncoding()
         
         super.draw(commandBuffer: commandBuffer, view: view)
+    }
+    
+}
+
+class RayMarchingInputManager: RayInputManager {
+    
+    var iterations: Int {
+        Int((getInput(13) as! SliderInput).output)
+    }
+    var maxDistance: Float {
+        Float((getInput(14) as! SliderInput).output)
+    }
+    var precision: Float {
+        Float((getInput(15) as! SliderInput).output)
+    }
+    
+    override init(renderSpecificInputs: [NSView], imageSize: CGSize?) {
+        let iterations = SliderInput(name: "Iterations", minValue: 1, currentValue: 100, maxValue: 1000)
+        let maxDistance = SliderInput(name: "Max Distance", minValue: 0, currentValue: 400, maxValue: 1000)
+        let precision = SliderInput(name: "Precision", minValue: 0.000001, currentValue: 0.1, maxValue: 1)
+        super.init(renderSpecificInputs: [iterations, maxDistance, precision] + renderSpecificInputs, imageSize: imageSize)
     }
     
 }
