@@ -28,16 +28,34 @@ class RayMarchingRenderer: RayRenderer {
     }
     
     required init(device: MTLDevice, size: CGSize) {
+        var locations = [SIMD3<Float>]()
+        locations.append(SIMD3<Float>(10,10,5))
+        locations.append(SIMD3<Float>(-10,10,5))
+        for i in 0...30 {
+            locations.append(SIMD3<Float>(Float(i) * 60 / 30 - 30, pow(Float(i - 15)/3, 2) - 30, 5))
+        }
+        var tongueLocations = [SIMD3<Float>]()
+        for i in 0...20 {
+            tongueLocations.append(SIMD3<Float>(Float(i) * 25 / 20 - 12.5, pow(Float(i - 10)/2, 2) - 52.5, 5))
+        }
+        for i in 1...7 {
+            tongueLocations.append(SIMD3<Float>(0, Float(i) * 2 - 47.5, 5))
+        }
+        let rotationMatrix: float3x3 = Matrix<Float>.rotationMatrix(rotation: SIMD3<Float>(0, 0, 0.65))
+        locations.append(contentsOf: tongueLocations.map({ $0 * rotationMatrix }))
+        
         super.init(device: device,
                    size: size,
-                   objects: SceneManager.generate(objectCount: 30,
-                                                  objectTypes: [.Box, .Sphere],
-                                                  generationType: .procedural,
-                                                  positionType: .radial,
-                                                  collisionType: [.grounded],
-                                                  objectSizeRange: (SIMD3<Float>(repeating: 0.1), SIMD3<Float>(repeating: 2)),
-                                                  objectPositionRange: (SIMD3<Float>(0, 0, 0), SIMD3<Float>(100, Float.pi * 2, 0)),
-                                                  materialType: .random),
+                   objects: SceneManager.marchGenerate(locations: locations,
+                                                       materialType: .randomNormal),
+//                   objects: SceneManager.generate(objectCount: 30,
+//                                                  objectTypes: [.Box, .Sphere],
+//                                                  generationType: .procedural,
+//                                                  positionType: .radial,
+//                                                  collisionType: [.grounded],
+//                                                  objectSizeRange: (SIMD3<Float>(repeating: 0.1), SIMD3<Float>(repeating: 2)),
+//                                                  objectPositionRange: (SIMD3<Float>(0, 0, 0), SIMD3<Float>(100, Float.pi * 2, 0)),
+//                                                  materialType: .randomNormal),
                    inputManager: RayMarchingInputManager(renderSpecificInputs: [], imageSize: size),
                    imageCount: 2)
         name = "Vanilla Ray Trace Renderer"
@@ -45,7 +63,7 @@ class RayMarchingRenderer: RayRenderer {
         if let rayFunction = functions[0] {
             do {
                 rayPipeline = try device.makeComputePipelineState(function: rayFunction)
-                skyTexture = try loadTexture(name: "cape_hill_4k")
+                skyTexture = try loadTexture(name: "christmas_photo_studio_04_4k")
                 skySize = SIMD2<Int32>(Int32(skyTexture.width), Int32(skyTexture.height))
             } catch {
                 print(error)
@@ -98,7 +116,7 @@ class RayMarchingInputManager: RayInputManager {
     override init(renderSpecificInputs: [NSView], imageSize: CGSize?) {
         let iterations = SliderInput(name: "Iterations", minValue: 1, currentValue: 100, maxValue: 1000)
         let maxDistance = SliderInput(name: "Max Distance", minValue: 0, currentValue: 400, maxValue: 1000)
-        let precision = SliderInput(name: "Precision", minValue: 0.000001, currentValue: 0.1, maxValue: 1)
+        let precision = SliderInput(name: "Precision", minValue: 0.0001, currentValue: 0.1, maxValue: 1)
         super.init(renderSpecificInputs: [iterations, maxDistance, precision] + renderSpecificInputs, imageSize: imageSize)
     }
     

@@ -5,7 +5,7 @@
 //  Created by Noah Pikielny on 7/6/21.
 //
 
-import Foundation
+import SceneKit
 
 // FIXME: There must be a better way to solve this
 protocol Divisable: Numeric, _ExpressibleByBuiltinIntegerLiteral {
@@ -278,4 +278,25 @@ class Matrix<T: Divisable>: NSObject {
         }
         return output
     }
+    
+    static func rotationMatrix(rotation: SIMD3<Float>) -> Matrix<Float> {
+        let Rx = Matrix<Float>(Rows: [[1, 0, 0],
+                                      [0, cos(rotation.x), -1 * sin(rotation.x)],
+                                      [0, sin(rotation.x), cos(rotation.x)]])
+        let Ry = Matrix<Float>(Rows: [[cos(rotation.y), 0, sin(rotation.y)],
+                                      [0, 1, 0],
+                                      [-sin(rotation.y), 0, cos(rotation.y)]])
+        let Rz = Matrix<Float>(Rows: [[cos(rotation.z), -sin(rotation.z), 0],
+                                      [sin(rotation.z), cos(rotation.z), 0],
+                                      [0, 0, 1]]);
+        return Rx * Ry * Rz;
+    }
+    
+    static func rotationMatrix(rotation: SIMD3<Float>) -> float3x3 {
+        let matrix: Matrix<Float> = rotationMatrix(rotation: rotation)
+        return float3x3(rows: matrix.rows.map({
+            SIMD3<Float>($0[0], $0[1], $0[2])
+        }))
+    }
+
 }

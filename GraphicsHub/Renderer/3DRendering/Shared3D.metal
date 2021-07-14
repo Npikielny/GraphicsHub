@@ -9,6 +9,34 @@
 using namespace metal;
 #include "Shared3D.h"
 
+Material createMaterial(float3 albedo,
+                        float3 specular,
+                        float n,
+                        float transparency,
+                        float3 emission) {
+    Material material = Material();
+    material.albedo = albedo;
+    material.specular = specular;
+    material.n = n;
+    material.transparency = transparency;
+    material.emission = emission;
+    return material;
+}
+
+Object createObject(int objectType,
+                    float3 position,
+                    float3 size,
+                    float3 rotation,
+                    Material material) {
+    Object object = Object();
+    object.objectType = objectType;
+    object.position = position;
+    object.size = size;
+    object.rotation = rotation;
+    object.material = material;
+    return object;
+}
+
 Ray CreateRay(float3 origin, float3 direction) {
     Ray ray;
     ray.origin = origin;
@@ -333,9 +361,11 @@ void IntersectWaterPlane(Ray ray, thread RayHit &bestHit, float time) {
         float size = 3;
         float3 minPosition = floor((ray.origin + ray.direction * t) / size) * size;
         minPosition.y = 0;
-        Material material;
-        material.albedo = float3(1, 1, 1) * 0.01;
-        material.specular = float3(1, 1, 1) * 0.99;
+        Material material = createMaterial(float3(1) * 0.01,
+                                           float3(1) * 0.99,
+                                           1,
+                                           1,
+                                           float3(0));
         Object triangle;
         triangle.material = material;
         for (int x = 0; x <= 1; x ++) {

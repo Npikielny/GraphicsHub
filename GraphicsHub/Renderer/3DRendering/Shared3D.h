@@ -17,6 +17,12 @@ struct Material {
     float3 emission;
 };
 
+Material createMaterial(float3 albedo,
+                        float3 specular,
+                        float n,
+                        float transparency,
+                        float3 emission);
+
 struct Object {
     int objectType;
     float3 position;
@@ -25,9 +31,19 @@ struct Object {
     Material material;
 };
 
+Object createObject(int objectType,
+                    float3 position,
+                    float3 size,
+                    float3 rotation,
+                    Material material);
+
+constant int groundPlane = -1;
 constant int sphere = 0;
 constant int box = 1;
 constant int triangle = 2;
+constant int Torus = 3;
+constant int prism = 4;
+constant int cylinder = 5;
 
 //  MARK: Ray setup
 struct Ray {

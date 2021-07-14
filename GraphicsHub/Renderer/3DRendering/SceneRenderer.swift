@@ -156,6 +156,20 @@ class SceneManager {
         return objects
     }
     
+    static func marchGenerate(locations: [SIMD3<Float>], materialType: Material.MaterialType) -> [Object] {
+        var objects = [Object]()
+        
+        for location in locations {
+            objects.append(Object(objectType: Int32([0, 1, 3].randomElement()!),
+                                  position: location,
+                                  size: SIMD3<Float>(1, 1, 1),
+                                  rotation: SIMD3<Float>(Float.random(in: 0...Float.pi * 2), Float.random(in: 0...Float.pi * 2), Float.random(in: 0...Float.pi * 2)),
+                                  material: Material.createMaterial(materialType: materialType)))
+        }
+        
+        return objects
+    }
+    
     private static func radialGenerate(seed: (Float, Float), objectPositionRange: (SIMD3<Float>, SIMD3<Float>)) -> SIMD2<Float> {
         // R, Theta, Phi
         let r = Float.lerp(a: objectPositionRange.0.x, b: objectPositionRange.1.x, p: seed.0)
