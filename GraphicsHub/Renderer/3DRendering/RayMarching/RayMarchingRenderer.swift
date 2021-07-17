@@ -27,7 +27,27 @@ class RayMarchingRenderer: RayRenderer {
         return inputManager.precision
     }
     
-    required init(device: MTLDevice, size: CGSize) {
+    init(device: MTLDevice, size: CGSize, objects: [Object]) {
+        super.init(device: device,
+                   size: size,
+                   objects: objects,
+                   inputManager: RayMarchingInputManager(renderSpecificInputs: [], imageSize: size),
+                   imageCount: 2)
+        name = "Vanilla Ray Trace Renderer"
+        let functions = createFunctions(names: "rayMarch")
+        if let rayFunction = functions[0] {
+            do {
+                rayPipeline = try device.makeComputePipelineState(function: rayFunction)
+                skyTexture = try loadTexture(name: "christmas_photo_studio_04_4k")
+                skySize = SIMD2<Int32>(Int32(skyTexture.width), Int32(skyTexture.height))
+            } catch {
+                print(error)
+                fatalError()
+            }
+        }
+    }
+    
+    convenience required init(device: MTLDevice, size: CGSize) {
         var locations = [SIMD3<Float>]()
         locations.append(SIMD3<Float>(10,10,5))
         locations.append(SIMD3<Float>(-10,10,5))
@@ -44,32 +64,8 @@ class RayMarchingRenderer: RayRenderer {
         let rotationMatrix: float3x3 = Matrix<Float>.rotationMatrix(rotation: SIMD3<Float>(0, 0, 0.65))
         locations.append(contentsOf: tongueLocations.map({ $0 * rotationMatrix }))
         
-        super.init(device: device,
-                   size: size,
-                   objects: SceneManager.marchGenerate(locations: locations,
-                                                       materialType: .randomNormal),
-//                   objects: SceneManager.generate(objectCount: 30,
-//                                                  objectTypes: [.Box, .Sphere],
-//                                                  generationType: .procedural,
-//                                                  positionType: .radial,
-//                                                  collisionType: [.grounded],
-//                                                  objectSizeRange: (SIMD3<Float>(repeating: 0.1), SIMD3<Float>(repeating: 2)),
-//                                                  objectPositionRange: (SIMD3<Float>(0, 0, 0), SIMD3<Float>(100, Float.pi * 2, 0)),
-//                                                  materialType: .randomNormal),
-                   inputManager: RayMarchingInputManager(renderSpecificInputs: [], imageSize: size),
-                   imageCount: 2)
-        name = "Vanilla Ray Trace Renderer"
-        let functions = createFunctions(names: "rayMarch")
-        if let rayFunction = functions[0] {
-            do {
-                rayPipeline = try device.makeComputePipelineState(function: rayFunction)
-                skyTexture = try loadTexture(name: "christmas_photo_studio_04_4k")
-                skySize = SIMD2<Int32>(Int32(skyTexture.width), Int32(skyTexture.height))
-            } catch {
-                print(error)
-                fatalError()
-            }
-        }
+        self.init(device: device, size: size, objects: SceneManager.marchGenerate(locations: locations,
+                                                                         materialType: .randomNormal))
     }
     
     override func draw(commandBuffer: MTLCommandBuffer, view: MTKView) {

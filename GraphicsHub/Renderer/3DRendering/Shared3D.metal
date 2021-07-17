@@ -45,6 +45,10 @@ Ray CreateRay(float3 origin, float3 direction) {
     return ray;
 }
 
+float2 uv(uint2 tid, float2 randomDirection, int2 imageSize) {
+    return float2((float2(tid) + randomDirection / 2 + float2(0.5f, 0.5f)) / float2(imageSize.x, imageSize.y) * 2.0f - 1.0f);
+}
+
 Ray CreateCameraRay(float2 uv, float4x4 modelMatrix, float4x4 cameraProjectionMatrix) {
     // Transform the camera origin to world space
     float3 origin = (modelMatrix*float4(0.0f, 0.0f, 0.0f, 1.0f)).xyz;
@@ -73,6 +77,7 @@ uint2 sampleSky (float3 direction, int2 skySize) {
     return uint2(skySize.x * xzAngle,(1 - yAngle) * skySize.y);
 }
 
+// MARK: RayTracing
 void IntersectGroundPlane(Ray ray, thread RayHit &bestHit) {
     // Calculate distance along the ray where the ground plane is intersected
     float t = -ray.origin.y / ray.direction.y;
@@ -450,6 +455,112 @@ float3 Shade(thread Ray &ray, RayHit hit, texture2d<float> sky, int2 skyDimensio
    }
 }
 
-float2 uv(uint2 tid, float2 randomDirection, int2 imageSize) {
-    return float2((float2(tid) + randomDirection / 2 + float2(0.5f, 0.5f)) / float2(imageSize.x, imageSize.y) * 2.0f - 1.0f);
+// MARK: Ray Marching
+float GroundPlaneDistance(float3 origin) {
+    return origin.y;
+}
+
+float SphereDistance(float3 origin, Object object) {
+    return distance(origin, object.position) - object.size.x;
+}
+
+float BoxDistance(float3 ray, Object Box) {
+    
+    float3x3 Rx = float3x3(float3(1, 0, 0),
+                           float3(0, cos(-Box.rotation.x), -1 * sin(-Box.rotation.x)),
+                           float3(0, sin(-Box.rotation.x), cos(-Box.rotation.x)));
+    float3x3 Ry = float3x3(float3(cos(-Box.rotation.y), 0, sin(-Box.rotation.y)),
+                           float3(0, 1, 0),
+                           float3(-sin(-Box.rotation.y), 0, cos(-Box.rotation.y)));
+    float3x3 Rz = float3x3(float3(cos(-Box.rotation.z), -sin(-Box.rotation.z), 0),
+                           float3(sin(-Box.rotation.z), cos(-Box.rotation.z), 0),
+                           float3(0, 0, 1));
+    float3x3 RotationMatrix = Rx * Ry * Rz;
+    float3 rotatedPoint = ((ray-Box.position) * RotationMatrix);
+    
+    float3 q = abs(rotatedPoint) - Box.size;
+    
+    return length(max(q, 0) + min(max3(q.x, q.y, q.z), 0.0));
+}
+
+float TorusDistance(float3 ray, Object Torus)
+{
+    float2 q = float2(length((ray - Torus.position).xz) - Torus.size.x, ray.y - Torus.position.y);
+    return length(q) - Torus.size.y;
+}
+
+float PrismDistance(float3 ray, Object Prism) {
+    float3 q = abs(ray - Prism.position);
+    return max(q.z - Prism.size.y,max(q.x * 0.866025+ray.y*0.5,-ray.y) - Prism.size.x * 0.5);
+}
+
+float CylinderDistance(float3 ray, Object Cylinder) {
+    float2 d = abs(float2(length((ray - Cylinder.position).xz), ray.y)) - Cylinder.size.xy;
+    return length(max(d, 0.0)) + max(min(d.x, 0.0),min(d. y, 0.0));
+}
+
+float getDistance(float3 origin, Object object) {
+    if (object.objectType == sphere) {
+        return SphereDistance(origin, object);
+    } else if (object.objectType == box) {
+        return BoxDistance(origin, object);
+    } else if (object.objectType == groundPlane) {
+        return GroundPlaneDistance(origin);
+    }else if (object.objectType == Torus) {
+        return TorusDistance(origin, object);
+    } else if (object.objectType == prism) {
+        return PrismDistance(origin, object);
+    } else if (object.objectType == cylinder) {
+        return CylinderDistance(origin, object);
+    } else {
+        return INFINITY;
+    }
+}
+
+float SDF(Ray ray, constant Object * objects, int objectCount, thread Object & object, bool groundPlane) {
+    if (groundPlane) {
+        object = GroundPlane;
+    }
+    float minDist = groundPlane ? GroundPlaneDistance(ray.origin) : INFINITY;
+    for (int i = 0; i < objectCount; i ++) {
+        float dist = getDistance(ray.origin, objects[i]);
+        if (dist < minDist) {
+            minDist = dist;
+            object = objects[i];
+        }
+    }
+    return minDist;
+}
+
+float3 estimateNormal (float3 ray, Object object, float precision) {
+    return normalize(float3(getDistance(ray + float3(precision, 0, 0), object) - getDistance(ray - float3(precision, 0, 0), object),
+                            getDistance(ray + float3(0, precision, 0), object) - getDistance(ray - float3(0, precision, 0), object),
+                            getDistance(ray + float3(0, 0, precision), object) - getDistance(ray - float3(0, 0, precision), object)));
+}
+
+
+float3 getNormal(float3 origin, Object object, float precision) {
+//    if (object.objectType == sphere) {
+//        return normalize(origin - object.position);
+//    } else {
+        return estimateNormal(origin, object, precision);
+//    }
+}
+
+float3 march(int maxIterations, float maxDistance, Ray cameraRay, constant Object * objects, int objectCount, float precision, float4 lightingDirection, texture2d<float, access::read> sky, int2 skySize) {
+    int iterations = 0;
+    float dist = 0;
+    thread Object && object = Object();
+    while (iterations < maxIterations && dist < maxDistance) {
+        iterations += 1;
+        dist = SDF(cameraRay, objects, objectCount, object, false);
+        if (dist < precision) {
+            float3 normal = getNormal(cameraRay.origin + cameraRay.direction * (dist - precision), object, precision);
+            float3 result = saturate(dot(normal, lightingDirection.xyz) * -1) * lightingDirection.w * object.material.albedo * (1 - object.material.specular) + object.material.specular * sky.read(sampleSky(reflect(cameraRay.direction, normal), skySize)).xyz;
+            return result;
+            
+        }
+        cameraRay.origin += cameraRay.direction * dist;
+    }
+    return sky.read(sampleSky(cameraRay.direction, skySize)).xyz;
 }

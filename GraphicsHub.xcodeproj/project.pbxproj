@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		3012B95426A201FD008F0525 /* BoidRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3012B95326A201FD008F0525 /* BoidRenderer.swift */; };
+		3012B95626A20226008F0525 /* BoidsRendering.metal in Sources */ = {isa = PBXBuildFile; fileRef = 3012B95526A20226008F0525 /* BoidsRendering.metal */; };
 		3023A02926543AC30062D011 /* ImageController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3023A02726543AC30062D011 /* ImageController.swift */; };
 		3023A02A26543AC30062D011 /* ImageController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 3023A02826543AC30062D011 /* ImageController.xib */; };
 		3024E44F2655A0E600DD195D /* ColorInput.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3024E44E2655A0E600DD195D /* ColorInput.swift */; };
@@ -107,6 +109,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		3012B95326A201FD008F0525 /* BoidRenderer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BoidRenderer.swift; sourceTree = "<group>"; };
+		3012B95526A20226008F0525 /* BoidsRendering.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = BoidsRendering.metal; sourceTree = "<group>"; };
 		3023A02726543AC30062D011 /* ImageController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageController.swift; sourceTree = "<group>"; };
 		3023A02826543AC30062D011 /* ImageController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ImageController.xib; sourceTree = "<group>"; };
 		3024E44E2655A0E600DD195D /* ColorInput.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorInput.swift; sourceTree = "<group>"; };
@@ -223,6 +227,15 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		3012B95726A20231008F0525 /* Boids */ = {
+			isa = PBXGroup;
+			children = (
+				3012B95326A201FD008F0525 /* BoidRenderer.swift */,
+				3012B95526A20226008F0525 /* BoidsRendering.metal */,
+			);
+			path = Boids;
+			sourceTree = "<group>";
+		};
 		3024E4472655A05200DD195D /* SliderInput */ = {
 			isa = PBXGroup;
 			children = (
@@ -263,13 +276,13 @@
 			path = ListInput;
 			sourceTree = "<group>";
 		};
-		30302D2F269E2F840002AE2F /* RayMarchingRenderer */ = {
+		30302D2F269E2F840002AE2F /* RayMarching */ = {
 			isa = PBXGroup;
 			children = (
 				30302D30269E2F940002AE2F /* RayMarchingRenderer.swift */,
 				30302D32269E30040002AE2F /* RayMarchRendering.metal */,
 			);
-			path = RayMarchingRenderer;
+			path = RayMarching;
 			sourceTree = "<group>";
 		};
 		309B4019263BC40800300BBE /* ComplexRenderer */ = {
@@ -376,6 +389,7 @@
 				30FCB99C263BA95F00910FED /* Conway */,
 				46FDE62D2686D18B003C9F43 /* FluidDynamics */,
 				466938902677FAC1003616E0 /* 3DRendering */,
+				3012B95726A20231008F0525 /* Boids */,
 				46DF058526713C0500B0110F /* Shared */,
 				466C8FBE2695450300B0AC6B /* RendererCatalog */,
 			);
@@ -469,7 +483,7 @@
 				4658EDDC268664EB000828B4 /* RayRenderer.swift */,
 				46E048FB2689471F00AC0AC0 /* Shared3D.metal */,
 				46E049002689475000AC0AC0 /* Shared3D.h */,
-				30302D2F269E2F840002AE2F /* RayMarchingRenderer */,
+				30302D2F269E2F840002AE2F /* RayMarching */,
 				4658EDD026866407000828B4 /* AcceleratedRayTracing */,
 				46E048ED2689463600AC0AC0 /* CustomPathTracingRenderer */,
 				4658EDCC268663FA000828B4 /* CustomRayTracing */,
@@ -737,6 +751,7 @@
 				3092B3222641DB5700902BB6 /* InputManager.swift in Sources */,
 				465FE21A267531EF0038187F /* Helpers.swift in Sources */,
 				466C8FBD269544A000B0AC6B /* RendererCatalog.swift in Sources */,
+				3012B95426A201FD008F0525 /* BoidRenderer.swift in Sources */,
 				3024E4512655A11900DD195D /* DimensionalInput.swift in Sources */,
 				465FE21426752BF30038187F /* IncrementInput.swift in Sources */,
 				46FDE62F2686D1B4003C9F43 /* FlatFluidRenderer.swift in Sources */,
@@ -783,6 +798,7 @@
 				3024E4672655A4BE00DD195D /* SliderInput.swift in Sources */,
 				466938922677FAD4003616E0 /* DataTypes.swift in Sources */,
 				3024E4552655A15D00DD195D /* ListInput.swift in Sources */,
+				3012B95626A20226008F0525 /* BoidsRendering.metal in Sources */,
 				461200D6266EB4FF00AE750E /* RendererInputManager.swift in Sources */,
 				30AEDA3B263A5B5B007ED421 /* RenderingOption.swift in Sources */,
 				30CC8734263B492C0002B0B8 /* TesterCappedRenderer.swift in Sources */,
