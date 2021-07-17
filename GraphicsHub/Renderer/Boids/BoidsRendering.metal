@@ -15,44 +15,65 @@ struct Boid {
     float3 position;
 };
 
-float3 steerTowards(float3 heading, float3 target, float strength) {
-    return heading + (target - heading) * strength;
+void steerTowards(thread float3 & acceleration, device Boid & boid, float3 target, float strength) {
+    acceleration += (target - boid.position) * strength;
 }
 
 kernel void boid(uint tid [[thread_position_in_grid]],
-                 device Boid * boids [[buffer(0)]],
-                 device Object * objects [[buffer(1)]],
-                 constant int & boidCount [[buffer(2)]],
-                 constant float & perceptionDistance [[buffer(3)]],
-                 constant float & perceptionAngle [[buffer(4)]],
-                 constant float & deltaT [[buffer(5)]]) {
+                 device Boid * readBoids [[buffer(0)]],
+                 device Boid * writeBoids [[buffer(1)]],
+                 device Object * objects [[buffer(2)]],
+                 constant int & boidCount [[buffer(3)]],
+                 constant float & perceptionDistance [[buffer(4)]],
+                 constant float & perceptionAngle [[buffer(5)]],
+                 constant float & deltaT [[buffer(6)]]) {
     // Compute boid headings
     if (int(tid) > boidCount) { return; }
-    int counted = 0;
-    float3 heading = 0;
-    float3 center = 0;
-    device Boid & computeBoid = boids[tid];
-    for (int i = 0; i < boidCount; i ++) {
-        if (int(tid) == i) { continue; }
-        Boid boid = boids[i];
-        if (distance(boid.position, computeBoid.position) <= perceptionDistance) {
-            counted += 1;
-            heading += boid.heading;
-            center += boid.position;
-        }
-    }
-    heading = heading / float(max(counted, 1));
-    center = heading / float(max(counted, 1));
-    // FIXME: Add collision detection
-    computeBoid.heading = steerTowards(computeBoid.heading, heading, 0.25) * 0.5 + normalize(steerTowards(computeBoid.position, center, 0.5)) * 0.5;
+    device Boid & computeBoid = writeBoids[tid];
+    thread float3 && acceleration = float3(0);
+//    int counted = 0;
+//    float3 heading = 0;
+//    float3 center = 0;
+//    for (int i = 0; i < boidCount; i ++) {
+//        if (int(tid) == i) { continue; }
+//        Boid boid = readBoids[i];
+//        if (distance(boid.position, computeBoid.position) <= perceptionDistance) {
+//            counted += 1;
+//            heading += boid.heading;
+//            center += boid.position;
+//        }
+//    }
+//    heading = heading / float(max(counted, 1));
+//    center = heading / float(max(counted, 1));
+//    // FIXME: Add collision detection
+//    computeBoid.heading = steerTowards(computeBoid.heading, heading, 0.01) * 0.5 + normalize(steerTowards(computeBoid.position, center, 0.01)) * 0.5 + computeBoid.heading * 0.95;
     
-    if (length(computeBoid.position) > 50) {
-        computeBoid.heading += steerTowards(computeBoid.heading, normalize(-computeBoid.position), distance(computeBoid.position, float3(0) / 50));
+//    if (length(computeBoid.position) > 100) {
+//        computeBoid.heading += steerTowards(computeBoid.heading, normalize(-computeBoid.position), 1 - distance(computeBoid.position, float3(0)) / 100);
+//            computeBoid.heading += normalize(float3(0) - computeBoid.position) * (1 - distance(computeBoid.position, float3(0)) / 100) * deltaT * 0.5;
+
+//    }
+//    float amnt = 0.01;
+//    computeBoid.heading += normalize(float3(0) - computeBoid.position) * deltaT * amnt;
+//    computeBoid.heading /= 1 + deltaT * amnt;
+    
+//    steerTowards(acceleration, computeBoid, float3(0), pow(1 - length(computeBoid.position) / 100, 2) * 0.1);
+    
+//    computeBoid.heading += acceleration * deltaT;
+    
+    if (length(computeBoid.position) > 100) {
+        computeBoid.heading = length(computeBoid.heading) * (normalize(computeBoid.heading) - normalize(computeBoid.position) * 0.5);
+        computeBoid.position += normalize(-computeBoid.position) * 0.1;
     }
-    float amnt = 0.01;
-    computeBoid.heading += normalize(float3(0) - computeBoid.position) * deltaT * amnt;
-    computeBoid.heading /= 1 + deltaT * amnt;
+    
     computeBoid.heading = clamp(computeBoid.heading, float3(-4), float3(4));
+//    if (length(computeBoid.heading) < 1) {
+//        if (length(computeBoid.heading) == 0) {
+//            computeBoid.heading = float3(1, 0,0);
+//        }else {
+//            computeBoid.heading /= length(computeBoid.heading);
+//        }
+//    }
     
     computeBoid.position += computeBoid.heading * deltaT;
     

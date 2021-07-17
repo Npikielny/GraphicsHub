@@ -17,9 +17,9 @@ class BoidRenderer: RayMarchingRenderer {
     
     required init(device: MTLDevice, size: CGSize) {
         var boids = [Boid]()
-        boidCount = 50
+        boidCount = 1000
         for _ in 0..<boidCount {
-            boids.append(Boid(heading: SIMD3<Float>(Float.random(in: -0.5...0.5), Float.random(in: -0.5...0.5), Float.random(in: -0.5...0.5)),
+            boids.append(Boid(heading: SIMD3<Float>(Float.random(in: -0.5...0.5), Float.random(in: -0.5...0.5), Float.random(in: -0.5...0.5)) * 4,
                               position: SIMD3<Float>(Float.random(in: -0.5...0.5), Float.random(in: -0.5...0.5), Float.random(in: -0.5...0.5)) * 100))
         }
         boidBuffer = device.makeBuffer(bytes: boids, length: MemoryLayout<Boid>.stride * boidCount, options: .storageModeManaged)
@@ -49,16 +49,19 @@ class BoidRenderer: RayMarchingRenderer {
         copyEncoder?.copy(from: boidBuffer, sourceOffset: 0, to: previousBuffer, destinationOffset: 0, size: boidBuffer.length)
         copyEncoder?.endEncoding()
         
+        for _ in 0..<inputManager.framesPerFrame {
         let boidEncoder = commandBuffer.makeComputeCommandEncoder()
-        boidEncoder?.setComputePipelineState(boidComputePipeline)
-        boidEncoder?.setBuffer(boidBuffer, offset: 0, index: 0)
-        boidEncoder?.setBuffer(objectBuffer, offset: 0, index: 1)
-        boidEncoder?.setBytes([Int32(boidCount)], length: MemoryLayout<Int32>.stride, index: 2)
-        boidEncoder?.setBytes([inputManager.perceptionDistance], length: MemoryLayout<Float>.stride, index: 3)
-        boidEncoder?.setBytes([inputManager.perceptionAngle], length: MemoryLayout<Float>.stride, index: 4)
-        boidEncoder?.setBytes([inputManager.step], length: MemoryLayout<Float>.stride, index: 5)
-        boidEncoder?.dispatchThreadgroups(MTLSize(width: (boidCount + 7) / 8, height: 1, depth: 1), threadsPerThreadgroup: MTLSize(width: 8, height: 1, depth: 1))
-        boidEncoder?.endEncoding()
+            boidEncoder?.setComputePipelineState(boidComputePipeline)
+            boidEncoder?.setBuffer(previousBuffer, offset: 0, index: 0)
+            boidEncoder?.setBuffer(boidBuffer, offset: 0, index: 1)
+            boidEncoder?.setBuffer(objectBuffer, offset: 0, index: 2)
+            boidEncoder?.setBytes([Int32(boidCount)], length: MemoryLayout<Int32>.stride, index: 3)
+            boidEncoder?.setBytes([inputManager.perceptionDistance], length: MemoryLayout<Float>.stride, index: 4)
+            boidEncoder?.setBytes([inputManager.perceptionAngle], length: MemoryLayout<Float>.stride, index: 5)
+            boidEncoder?.setBytes([inputManager.step], length: MemoryLayout<Float>.stride, index: 6)
+            boidEncoder?.dispatchThreadgroups(MTLSize(width: (boidCount + 7) / 8, height: 1, depth: 1), threadsPerThreadgroup: MTLSize(width: 8, height: 1, depth: 1))
+            boidEncoder?.endEncoding()
+        }
         super.draw(commandBuffer: commandBuffer, view: view)
     }
     
