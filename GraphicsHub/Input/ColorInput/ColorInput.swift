@@ -93,7 +93,7 @@ class ColorPickerInput: Animateable<NSColor>, Containable {
                    transform: nil,
                    expectedHeight: 30,
                    requiredAnimators: 3,
-                   animateable: false,
+                   animateable: true,
                    domain: [(0,1),(0,1),(0,1),(0,1)])
         titleLabel.string = name
 

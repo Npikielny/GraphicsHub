@@ -99,6 +99,7 @@ class BasicInputManager: RendererInputManager {
     
     func jumpToFrame(_ frame: Int) {
         self.frame = frame
+        animatorManager.setFrame(frame: frame)
         recording = false
     }
     

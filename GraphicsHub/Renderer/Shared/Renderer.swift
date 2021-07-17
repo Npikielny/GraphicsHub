@@ -63,6 +63,7 @@ class Renderer: RendererInfo {
         get { inputManager.frame }
         set { inputManager.frame = newValue }
     }
+    var frameStable: Bool = false
     
     var recordable: Bool { frame % inputManager.framesPerFrame == 0 }
     var recordPipeline: MTLComputePipelineState!
@@ -152,8 +153,10 @@ extension Renderer {
                 inputManager.recording = false
             }
         }
-        inputManager.animatorManager.setFrame(frame: frame)
-        
+        if !inputManager.paused || frameStable {
+            inputManager.animatorManager.setFrame(frame: frame)
+        }
+        inputManager.animatorManager.drawGraphs()
     }
 
     
@@ -281,6 +284,7 @@ extension Renderer {
     
     func handleRecording(commandBuffer: MTLCommandBuffer, frameIndex: inout Int) {
         if inputManager.recording && !inputManager.paused && recordable {
+            inputManager.paused = false
             do {
                 let url = try getDirectory(frameIndex: frameIndex)
                 self.url = url
