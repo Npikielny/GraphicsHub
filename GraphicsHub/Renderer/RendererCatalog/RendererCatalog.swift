@@ -13,7 +13,7 @@ class RendererCatalog {
                                                          ("Slime Mold Simulation", SlimeMoldRenderer.self),
                                                          ("Conway's Game of Life",ConwayRenderer.self),
                                                          ("Complex Image Generator",ComplexRenderer.self),
-                                                         ("Ray Marching", RayMarchingRenderer.self),
+                                                         ("Ray Marching", CappedRayMarchingRenderer.self),
                                                          ("Path Tracing", CustomPathRenderer.self),
                                                          ("Ray Tracing", CustomRayTraceRenderer.self),
                                                          ("Accelerated Ray Tracing", AcceleratedRayTraceRenderer.self),

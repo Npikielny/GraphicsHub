@@ -7,6 +7,13 @@
 
 import SceneKit
 
+struct Ray {
+    var origin: SIMD3<Float>
+    var direction: SIMD3<Float>
+    var energy: SIMD3<Float>
+    var result: SIMD3<Float>
+}
+
 struct Camera {
     var fov: Float = 30
     var aspectRatio: Float = 1

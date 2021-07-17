@@ -48,7 +48,7 @@ protocol RendererInfo {
     func getDirectory(frameIndex: Int) throws -> URL
 }
 
-class Renderer: RendererInfo {
+class Renderer: NSObject, RendererInfo {
     
     var name: String
     
@@ -90,6 +90,7 @@ class Renderer: RendererInfo {
         self.size = size
         self.inputManager = inputManager
         self.name = name
+        super.init()
         drawableSizeDidChange(size: size)
         do {
             recordPipeline = try getRecordPipeline()

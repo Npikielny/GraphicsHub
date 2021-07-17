@@ -20,13 +20,14 @@ float3 steerTowards(float3 heading, float3 target, float strength) {
 }
 
 kernel void boid(uint tid [[thread_position_in_grid]],
-                 device Boid * boids,
-                 device Object * objects,
-                 constant int & boidCount,
-                 constant float & perceptionDistance,
-                 constant float & perceptionAngle,
-                 constant float & deltaT) {
+                 device Boid * boids [[buffer(0)]],
+                 device Object * objects [[buffer(1)]],
+                 constant int & boidCount [[buffer(2)]],
+                 constant float & perceptionDistance [[buffer(3)]],
+                 constant float & perceptionAngle [[buffer(4)]],
+                 constant float & deltaT [[buffer(5)]]) {
     // Compute boid headings
+    if (int(tid) > boidCount) { return; }
     int counted = 0;
     float3 heading = 0;
     float3 center = 0;
@@ -44,6 +45,15 @@ kernel void boid(uint tid [[thread_position_in_grid]],
     center = heading / float(max(counted, 1));
     // FIXME: Add collision detection
     computeBoid.heading = steerTowards(computeBoid.heading, heading, 0.25) * 0.5 + normalize(steerTowards(computeBoid.position, center, 0.5)) * 0.5;
+    
+    if (length(computeBoid.position) > 50) {
+        computeBoid.heading += steerTowards(computeBoid.heading, normalize(-computeBoid.position), distance(computeBoid.position, float3(0) / 50));
+    }
+    float amnt = 0.01;
+    computeBoid.heading += normalize(float3(0) - computeBoid.position) * deltaT * amnt;
+    computeBoid.heading /= 1 + deltaT * amnt;
+    computeBoid.heading = clamp(computeBoid.heading, float3(-4), float3(4));
+    
     computeBoid.position += computeBoid.heading * deltaT;
     
     objects[tid].position = computeBoid.position;

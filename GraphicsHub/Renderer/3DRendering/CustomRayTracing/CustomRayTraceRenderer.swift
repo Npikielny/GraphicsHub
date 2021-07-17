@@ -7,7 +7,7 @@
 
 import MetalKit
 
-class CustomRayTraceRenderer: RayRenderer {
+class CustomRayTraceRenderer: HighFidelityRayRenderer {
     
     var skyTexture: MTLTexture!
     var skySize: SIMD2<Int32>!
@@ -25,7 +25,7 @@ class CustomRayTraceRenderer: RayRenderer {
                                                   objectSizeRange: (SIMD3<Float>(repeating: 0.1), SIMD3<Float>(repeating: 2)),
                                                   objectPositionRange: (SIMD3<Float>(0, 0, 0), SIMD3<Float>(100, Float.pi * 2, 0)),
                                                   materialType: .random),
-                   inputManager: RayInputManager(size: size),
+                   inputManager: HighFidelityRayInputManager(size: size),
                    imageCount: 2)
         name = "Vanilla Ray Trace Renderer"
         let functions = createFunctions(names: "rayTrace")
