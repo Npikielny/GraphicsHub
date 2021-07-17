@@ -9,14 +9,15 @@ import Cocoa
 
 class RendererCatalog {
     
-    static let catalog: [(String, RendererInfo.Type)] = [//("Fluid Simulation", FlatFluidRenderer.self),
-                                                  ("Slime Mold Simulation", SlimeMoldRenderer.self),
-                                                  ("Conway's Game of Life",ConwayRenderer.self),
-                                                  ("Complex Image Generator",ComplexRenderer.self),
-                                                  ("Ray Marching", RayMarchingRenderer.self),
-                                                  ("Path Tracing", CustomPathRenderer.self),
-                                                  ("Ray Tracing", CustomRayTraceRenderer.self),
-                                                  ("Accelerated Ray Tracing", AcceleratedRayTraceRenderer.self),
+    static let catalog: [(String, RendererInfo.Type)] = [("Boid Simullation", BoidRenderer.self),
+                                                         ("Slime Mold Simulation", SlimeMoldRenderer.self),
+                                                         ("Conway's Game of Life",ConwayRenderer.self),
+                                                         ("Complex Image Generator",ComplexRenderer.self),
+                                                         ("Ray Marching", RayMarchingRenderer.self),
+                                                         ("Path Tracing", CustomPathRenderer.self),
+                                                         ("Ray Tracing", CustomRayTraceRenderer.self),
+                                                         ("Accelerated Ray Tracing", AcceleratedRayTraceRenderer.self),
+                                                  //("Fluid Simulation", FlatFluidRenderer.self),
                                                   // ("Cornell Box", CornellBox.self),
                                                   // ("Tester",TesterBaseRenderer.self),
                                                   // ("Tester Capped Renderer",TesterCappedRenderer.self),
