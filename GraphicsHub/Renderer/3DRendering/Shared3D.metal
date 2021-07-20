@@ -41,7 +41,8 @@ Ray CreateRay(float3 origin, float3 direction) {
     Ray ray;
     ray.origin = origin;
     ray.direction = direction;
-    ray.energy = float3(1.0f,1.0f,1.0f);
+    ray.energy = 1.0;
+    ray.result = 0;
     return ray;
 }
 
@@ -83,12 +84,12 @@ void IntersectGroundPlane(Ray ray, thread RayHit &bestHit) {
     float t = -ray.origin.y / ray.direction.y;
     if (t > 0 && t < bestHit.distance) {
         Material groundMaterial;
-//        groundMaterial.albedo = float3(0.4, 0.2, 0.6) * 0.95;
-//        groundMaterial.specular = float3(0.4, 0.2, 0.6) * 0.05;
+        groundMaterial.albedo = float3(0.4, 0.2, 0.6) * 0.95;
+        groundMaterial.specular = float3(0.4, 0.2, 0.6) * 0.05;
 //        groundMaterial.albedo = float3(1) * 0.01;
 //        groundMaterial.specular = float3(1) * 0.99;
-        groundMaterial.albedo = float3(0.1) * 0.5;
-        groundMaterial.specular = float3(0.1) * 0.5;
+//        groundMaterial.albedo = float3(0.1) * 0.5;
+//        groundMaterial.specular = float3(0.1) * 0.5;
         groundMaterial.n = 1;
         groundMaterial.transparency = 0;
         
@@ -144,8 +145,8 @@ float checkFace (float3 origin, float3 direction, Object box, int tSide, int sig
     faceCenter += box.size * signSide;
     
     
-    float3x3 backwardsRotation = rotationMatrix(-box.rotation);
-    origin = (origin - box.position) * backwardsRotation;
+    float3x3 backwardsRotation = rotationMatrix(box.rotation);
+    origin = (origin - box.position) * backwardsRotation + box.position;
     direction = direction * backwardsRotation;
     
     float t = INFINITY;
@@ -327,8 +328,7 @@ void IntersectTriangle(Ray ray, thread RayHit & bestHit, Object triangle) {
                 bestHit.distance = t;
                 bestHit.position = ray.origin + t * ray.direction;
                 bestHit.normal = normalize(cross(triangle.size - triangle.position, triangle.rotation - triangle.position))*b;
-                bestHit.material.albedo = triangle.material.albedo;
-                bestHit.material.specular = triangle.material.specular;
+                bestHit.material = triangle.material;
             }
         }
     } else if (RayIntersectsTriangle(ray, triangle.size, triangle.position, triangle.rotation, point, b)) {
@@ -338,8 +338,7 @@ void IntersectTriangle(Ray ray, thread RayHit & bestHit, Object triangle) {
                 bestHit.distance = t;
                 bestHit.position = ray.origin + t * ray.direction;
                 bestHit.normal = normalize(cross(triangle.position - triangle.size, triangle.rotation - triangle.size))*b;
-                bestHit.material.albedo = triangle.material.albedo;
-                bestHit.material.specular = triangle.material.specular;
+                bestHit.material = triangle.material;
             }
         }
     }
@@ -353,6 +352,49 @@ void IntersectTriangle(Ray ray, thread RayHit & bestHit, Object triangle) {
 //            bestHit.specular = triangle.specular;
 //        }
 //    }
+}
+
+void IntersectCone(Ray ray, thread RayHit &bestHit, Object cone) {
+    float3x3 matrix = rotationMatrix(cone.rotation);
+    
+    ray.origin -= cone.position;
+    ray.origin *= matrix;
+    ray.origin += cone.position;
+    ray.direction *= matrix;
+    
+    float3 co = ray.origin - cone.position;
+    
+    float a = dot(ray.direction, float3(0, cone.size.z, 0)) * dot(ray.direction, float3(0, cone.size.z, 0)) - cone.size.x * cone.size.x;
+    float b = 2. * (dot(ray.direction,float3(0, cone.size.z, 0))*dot(co,float3(0, cone.size.z, 0)) - dot(ray.direction,co) * cone.size.x * cone.size.x);
+    float c = dot(co,float3(0, cone.size.z, 0))*dot(co,float3(0, cone.size.z, 0)) - dot(co,co) * cone.size.x * cone.size.x;
+
+    float det = b*b - 4 * a * c;
+    if (det < 0.) return;
+
+    det = sqrt(det);
+    float t1 = (-b - det) / (2. * a);
+    float t2 = (-b + det) / (2. * a);
+
+    // This is a bit messy; there ought to be a more elegant solution.
+    float t = t1;
+    if ((t < 0 || t2 > 0) && (t2 < t)) t = t2;
+    if (t <= 0) return;
+
+    float3 cp = ray.origin + t*ray.direction - cone.position;
+    float h = dot(cp, float3(0, 1, 0));
+    if (h < 0. || h > 1) return;
+
+    float3 n = normalize(cp * dot(float3(0, cone.size.z, 0), cp) / dot(cp, cp) - float3(0, cone.size.z, 0));
+
+//    return Hit(t, n, s.m);
+    if (t > 0 && t < bestHit.distance) {
+        bestHit.distance = t;
+        bestHit.material = cone.material;
+        float3 conePoint = ray.origin + t * ray.direction - cone.position;
+        bestHit.normal = n;
+        bestHit.material = cone.material;
+    }
+    
 }
 
 float3 getHeight(float3 position, float size, float t) {
@@ -401,6 +443,19 @@ void IntersectWaterPlane(Ray ray, thread RayHit &bestHit, float time) {
     }
 }
 
+RayHit Intersect(Ray ray, Object object, thread RayHit & bestHit) {
+    if (object.objectType == sphere) {
+        IntersectSphere(ray, bestHit, object);
+    } else if (object.objectType == box) {
+        IntersectCube(ray, bestHit, object);
+    } else if (object.objectType == triangle) {
+        IntersectTriangle(ray, bestHit, object);
+    } else if (object.objectType == cone) {
+        IntersectCone(ray, bestHit, object);
+    }
+    return bestHit;
+}
+
 // MARK: Tracing
 RayHit Trace(Ray ray, int objectCount, constant Object *objects, bool groundPlane) {
     thread RayHit && bestHit = CreateRayHit();
@@ -408,13 +463,7 @@ RayHit Trace(Ray ray, int objectCount, constant Object *objects, bool groundPlan
         IntersectGroundPlane(ray, bestHit);
     }
     for (int i = 0; i < objectCount; i++) {
-        if (objects[i].objectType == sphere) {
-            IntersectSphere(ray, bestHit, objects[i]);
-        } else if (objects[i].objectType == box) {
-            IntersectCube(ray, bestHit, objects[i]);
-        } else if (objects[i].objectType == triangle) {
-            IntersectTriangle(ray, bestHit, objects[i]);
-        }
+        Intersect(ray, objects[i], bestHit);
     }
     return bestHit;
 }
@@ -429,12 +478,14 @@ RayHit Trace(Ray ray, int objectCount, constant Object *objects, float t) {
             IntersectCube(ray, bestHit, objects[i]);
         } else if (objects[i].objectType == triangle) {
             IntersectTriangle(ray, bestHit, objects[i]);
+        } else if (objects[i].objectType == cone) {
+            IntersectCone(ray, bestHit, objects[i]);
         }
     }
     return bestHit;
 }
 
-float3 Shade(thread Ray &ray, RayHit hit, texture2d<float> sky, int2 skyDimensions, int sphereCount, constant Object * objects, float4 lightDirection, float skyIntensity) {
+float3 Shade(thread Ray &ray, RayHit hit, texture2d<float> sky, int2 skyDimensions, int objectCount, constant Object * objects, float4 lightDirection, float skyIntensity) {
     
    if (hit.distance < INFINITY) {
        // Return the normal
@@ -443,10 +494,26 @@ float3 Shade(thread Ray &ray, RayHit hit, texture2d<float> sky, int2 skyDimensio
        ray.energy *= hit.material.specular;
        
        Ray shadowRay = CreateRay(hit.position + hit.normal * 0.001f, -1 * lightDirection.xyz);
-       RayHit shadowHit = Trace(shadowRay, sphereCount, objects, true);
+       RayHit shadowHit = Trace(shadowRay, objectCount, objects, true);
        if (shadowHit.distance != INFINITY) {
            return float3(0.0f, 0.0f, 0.0f);
        }
+       return saturate(dot(hit.normal, lightDirection.xyz) * -1) * lightDirection.w * hit.material.albedo;
+   }else {
+       // Sample the skybox and write it
+       ray.energy = float3(0);
+       return sky.read(sampleSky(ray.direction, skyDimensions)).xyz * skyIntensity;
+   }
+}
+
+float3 Shade(thread Ray &ray, RayHit hit, texture2d<float> sky, int2 skyDimensions, float4 lightDirection, float skyIntensity) {
+    
+   if (hit.distance < INFINITY) {
+       // Return the normal
+       ray.origin = hit.position + hit.normal * 0.001f;
+       ray.direction = reflect(ray.direction, hit.normal);
+       ray.energy *= hit.material.specular;
+       
        return saturate(dot(hit.normal, lightDirection.xyz) * -1) * lightDirection.w * hit.material.albedo;
    }else {
        // Sample the skybox and write it
@@ -499,6 +566,25 @@ float CylinderDistance(float3 ray, Object Cylinder) {
     return length(max(d, 0.0)) + max(min(d.x, 0.0),min(d. y, 0.0));
 }
 
+float ConeDistance(float3 ray, Object cone) {
+  // c is the sin/cos of the angle, h is height
+  // Alternatively pass q instead of (c,h),
+  // which is the point at the base in 2D
+    ray -= cone.position;
+    ray *= rotationMatrix(cone.rotation);
+    float2 c = cone.size.xy;
+    float h = cone.size.z;
+    float2 q = h * float2(c.x/c.y,-1.0);
+    
+    float2 w = float2( length(ray.xz), ray.y );
+      float2 a = w - q*clamp( dot(w,q)/dot(q,q), 0.0, 1.0 );
+      float2 b = w - q * float2( clamp( w.x/q.x, 0.0, 1.0 ), 1.0 );
+      float k = sign( q.y );
+      float d = min(dot( a, a ),dot(b, b));
+      float s = max( k*(w.x*q.y-w.y*q.x),k*(w.y-q.y)  );
+      return sqrt(d)*sign(s);
+}
+
 float getDistance(float3 origin, Object object) {
     if (object.objectType == sphere) {
         return SphereDistance(origin, object);
@@ -512,6 +598,8 @@ float getDistance(float3 origin, Object object) {
         return PrismDistance(origin, object);
     } else if (object.objectType == cylinder) {
         return CylinderDistance(origin, object);
+    } else if (object.objectType == cone) {
+        return ConeDistance(origin, object);
     } else {
         return INFINITY;
     }
@@ -547,7 +635,7 @@ float3 getNormal(float3 origin, Object object, float precision) {
 //    }
 }
 
-float3 march(int maxIterations, float maxDistance, Ray cameraRay, constant Object * objects, int objectCount, float precision, float4 lightingDirection, texture2d<float, access::read> sky, int2 skySize) {
+float3 march(int maxIterations, float maxDistance, Ray cameraRay, constant Object * objects, int objectCount, float precision, float4 lightingDirection, texture2d<float, access::read> sky, int2 skySize, float skyIntensity) {
     int iterations = 0;
     float dist = 0;
     thread Object && object = Object();
@@ -556,11 +644,11 @@ float3 march(int maxIterations, float maxDistance, Ray cameraRay, constant Objec
         dist = SDF(cameraRay, objects, objectCount, object, false);
         if (dist < precision) {
             float3 normal = getNormal(cameraRay.origin + cameraRay.direction * (dist - precision), object, precision);
-            float3 result = saturate(dot(normal, lightingDirection.xyz) * -1) * lightingDirection.w * object.material.albedo * (1 - object.material.specular) + object.material.specular * sky.read(sampleSky(reflect(cameraRay.direction, normal), skySize)).xyz;
+            float3 result = saturate(dot(normal, lightingDirection.xyz) * -1) * lightingDirection.w * object.material.albedo * (1 - object.material.specular) + object.material.specular * sky.read(sampleSky(reflect(cameraRay.direction, normal), skySize)).xyz * skyIntensity;
             return result;
             
         }
         cameraRay.origin += cameraRay.direction * dist;
     }
-    return sky.read(sampleSky(cameraRay.direction, skySize)).xyz;
+    return sky.read(sampleSky(cameraRay.direction, skySize)).xyz * skyIntensity;
 }

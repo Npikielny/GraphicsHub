@@ -35,6 +35,6 @@ kernel void rayMarch (uint2 tid [[thread_position_in_grid]],
     Ray ray = CreateCameraRay(uv(tid, randomDirection, imageSize),
                               modelMatrix,
                               projectionMatrix);
-    float3 result = march(maxIterations, maxDistance, ray, objects, objectCount, precision, lightingDirection, sky, skySize);
+    float3 result = march(maxIterations, maxDistance, ray, objects, objectCount, precision, lightingDirection, sky, skySize, skyIntensity);
     image.write(float4(result, 1), tid);
 }

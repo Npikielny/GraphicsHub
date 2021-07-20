@@ -73,7 +73,6 @@ class SceneManager {
         let generate: () -> Float = { Float(generator.nextInt(upperBound: 1000))/1000 }
         
         while objects.count < objectCount && iterations < 10000 {
-            print(iterations)
             iterations += 1
             let xzPosition: SIMD2<Float> = {
                 if generationType == .procedural {
@@ -160,7 +159,7 @@ class SceneManager {
         var objects = [Object]()
         
         for location in locations {
-            objects.append(Object(objectType: Int32([0, 1, 3].randomElement()!),
+            objects.append(Object(objectType: Int32([0, 1, 3, 6].randomElement()!),
                                   position: location,
                                   size: SIMD3<Float>(1, 1, 1),
                                   rotation: SIMD3<Float>(Float.random(in: 0...Float.pi * 2), Float.random(in: 0...Float.pi * 2), Float.random(in: 0...Float.pi * 2)),

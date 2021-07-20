@@ -42,8 +42,6 @@ kernel void rayTrace (uint2 tid [[thread_position_in_grid]],
             }
         }
         
-        // FIXME: Why is this necessary?
-        result = clamp(result, float3(0), float3(1));
         image.write(float4(result,1), tid);
         return;
     }

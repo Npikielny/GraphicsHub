@@ -48,7 +48,7 @@ uint32_t createEntry(uint8_t red,
 }
 
 uint8_t toInt(float value) {
-    return int(value * 255);
+    return int(clamp(value, 0.0, 1.0) * 255);
 }
 
 uint32_t createEntry(float4 color) {

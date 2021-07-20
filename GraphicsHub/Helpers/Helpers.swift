@@ -103,6 +103,10 @@ extension CGSize {
         return CGSize(width: max(size1.width, size2.width), height: max(size1.height, size2.height))
     }
     
+    func toVector() -> SIMD2<Int32> {
+        return SIMD2(Int32(width), Int32(height))
+    }
+    
 }
 
 extension  SIMD4 {

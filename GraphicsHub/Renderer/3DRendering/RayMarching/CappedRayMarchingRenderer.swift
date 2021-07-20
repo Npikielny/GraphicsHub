@@ -33,7 +33,7 @@ class CappedRayMarchingRenderer: HighFidelityRayRenderer {
                    objects: objects,
                    inputManager: inputManager ?? FidelityRayMarchingInputManager(renderSpecificInputs: [], imageSize: size),
                    imageCount: 2)
-        name = "Vanilla Ray Trace Renderer"
+        name = "Fidelity Ray Marching Renderer"
         let functions = createFunctions(names: "rayMarch")
         if let rayFunction = functions[0] {
             do {
@@ -65,7 +65,7 @@ class CappedRayMarchingRenderer: HighFidelityRayRenderer {
         locations.append(contentsOf: tongueLocations.map({ $0 * rotationMatrix }))
         
         self.init(device: device, size: size, objects: SceneManager.marchGenerate(locations: locations,
-                                                                         materialType: .randomNormal))
+                                                                         materialType: .solid))
     }
     
     override func draw(commandBuffer: MTLCommandBuffer, view: MTKView) {

@@ -189,6 +189,17 @@ struct Object {
                       material: material)
     }
     
+    static func cone(materialType: Material.MaterialType, point: SIMD3<Float>, size: SIMD3<Float>, rotation: SIMD3<Float>) -> Object {
+        return cone(material: Material.createMaterial(materialType: materialType),
+                    point: point,
+                    size: size,
+                    rotation: rotation)
+    }
+    
+    static func cone(material: Material, point: SIMD3<Float>, size: SIMD3<Float>, rotation: SIMD3<Float>) -> Object {
+        return Object(objectType: 6, position: point, size: size, rotation: rotation, material: material)
+    }
+    
     enum ObjectType: Int32, Hashable {
         case Sphere
         case Box

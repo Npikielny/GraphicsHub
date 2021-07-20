@@ -17,17 +17,18 @@ class BoidRenderer: RayMarchingRenderer {
     
     required init(device: MTLDevice, size: CGSize) {
         var boids = [Boid]()
-        boidCount = 1000
+        boidCount = 25
         for _ in 0..<boidCount {
             boids.append(Boid(heading: SIMD3<Float>(Float.random(in: -0.5...0.5), Float.random(in: -0.5...0.5), Float.random(in: -0.5...0.5)) * 4,
                               position: SIMD3<Float>(Float.random(in: -0.5...0.5), Float.random(in: -0.5...0.5), Float.random(in: -0.5...0.5)) * 100))
         }
         boidBuffer = device.makeBuffer(bytes: boids, length: MemoryLayout<Boid>.stride * boidCount, options: .storageModeManaged)
         previousBuffer = device.makeBuffer(length: MemoryLayout<Boid>.stride * boidCount, options: .storageModePrivate)
+        let coneAngle: Float = Float.pi / 3
         super.init(device: device,
                    size: size,
                    objects: boids.map {
-                    Object.sphere(materialType: .randomNormal, position: $0.position, size: SIMD3<Float>(repeating: 0.5))
+                    Object.cone(materialType: .solid, point: $0.position, size: SIMD3<Float>(cos(coneAngle), sin(coneAngle), 3), rotation: SIMD3<Float>(Float.random(in: 0...Float.pi * 2), Float.random(in: 0...Float.pi * 2), Float.random(in: 0...Float.pi * 2)))
                    },
                    inputManager: BoidInputManager(renderSpecificInputs: [], imageSize: size))
         name = "Boids Renderer"

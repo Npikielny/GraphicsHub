@@ -290,8 +290,6 @@ extension Renderer {
                 let url = try getDirectory(frameIndex: frameIndex)
                 self.url = url
                 
-//                let texture = blitToTexture(commandBuffer: commandBuffer)
-                
                 let textureData = blitToBuffer(commandBuffer: commandBuffer)
                 let size = self.size
                 

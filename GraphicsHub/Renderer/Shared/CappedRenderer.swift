@@ -40,7 +40,6 @@ class SinglyCappedRenderer: Renderer {
     required init(device: MTLDevice, size: CGSize) {
         super.init(device: device, size: size, inputManager: CappedInputManager(renderSpecificInputs: [], imageSize: size), name: "SinglyCapped Renderer")
         recordPipeline = try! getRecordPipeline()
-        frameStable = true
     }
     
     override func synchronizeInputs() {
@@ -145,6 +144,7 @@ class AntialiasingRenderer: SinglyCappedRenderer {
         } catch {
             print(error)
         }
+        frameStable = true
         drawableSizeDidChange(size: size)
     }
     
