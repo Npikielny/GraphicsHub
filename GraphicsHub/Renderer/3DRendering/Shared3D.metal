@@ -9,7 +9,7 @@
 using namespace metal;
 #include "Shared3D.h"
 #include "../Shared/SharedDataTypes.h"
-#include "../PerlinNoise/Perlin.h"
+#include "../WhirlNoise/WhirlNoise.h"
 
 Material createMaterial(float3 albedo,
                         float3 specular,
@@ -416,16 +416,19 @@ void IntersectWaterPlane(Ray ray, thread RayHit &bestHit, float time) {
         bestHit.distance = t;
         bestHit.position = ray.origin + t * ray.direction;
         
-        float seed = (hash(hash(uint(bestHit.position.x)) * hash(bestHit.position.z)) - 0.5) * 0.5;
-        
-        float offset = perlin(int2(bestHit.position.x, bestHit.position.z), 5, 4, 38181912, 8483726, int(seed * 93838939082), 1);
+        float offset = whirlNoise(bestHit.position + float3(0, time, 0) / 10, float3(3), 2032835902);
         // x = sin(x + t) * 0.5
         // z = cos(z + t) * 0.5
         bestHit.normal = normalize(float3(
-                                          cos(bestHit.position.x + time * 0.1) * 0.5 * 0.1, // Partial derivates of height with respect to x
+//                                          cos(bestHit.position.x + time * 0.1) * 0.5 * 0.1, // Partial derivates of height with respect to x
+                                          abs(cos(offset) / 2),
                                           1,
-                                          -sin(bestHit.position.z + time * 0.024) * 0.5 * 0.1
-                                          ));
+                                          abs(sin(offset) / 2))
+//                                          -sin(bestHit.position.z + time * 0.024) * 0.5 * 0.1
+                                          );
+        if (bestHit.normal.y < 0) {
+            bestHit.normal *= -1;
+        }
         bestHit.normal.y = abs(bestHit.normal.y);
         bestHit.material = water;
     }
