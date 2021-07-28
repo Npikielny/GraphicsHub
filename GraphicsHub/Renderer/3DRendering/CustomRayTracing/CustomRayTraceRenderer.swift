@@ -56,6 +56,7 @@ class CustomRayTraceRenderer: HighFidelityRayRenderer {
         rayEncoder?.setBytes([SIMD2<Float>(Float.random(in: -0.5...0.5),Float.random(in: -0.5...0.5))], length: MemoryLayout<SIMD2<Float>>.stride, index: 7)
         rayEncoder?.setBytes([skyIntensity], length: MemoryLayout<Float>.stride, index: 8)
         rayEncoder?.setBytes([Int32(intermediateFrame)], length: MemoryLayout<Int32>.stride, index: 9)
+        rayEncoder?.setBytes([Int32(frame)], length: MemoryLayout<Int32>.stride, index: 10)
         rayEncoder?.setTexture(skyTexture, index: 0)
         rayEncoder?.setTexture(images[0], index: 1)
         

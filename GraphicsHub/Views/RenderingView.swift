@@ -249,6 +249,9 @@ extension RenderingView: MTKViewDelegate {
             DispatchQueue.main.async {
                 if !renderer.inputManager.paused {
                     animateLayer(FPS: 1/(commandBuffer.gpuEndTime - commandBuffer.gpuStartTime))
+                    if 1 / (commandBuffer.gpuEndTime - commandBuffer.gpuStartTime) < 1 {
+                        fatalError("Render took to long: \(commandBuffer.gpuEndTime - commandBuffer.gpuStartTime). Aborting to prevent computer stalls. This can be disabled.")
+                    }
                 } else {
                     animateLayer(FPS: 0)
                 }
@@ -275,6 +278,7 @@ extension RenderingView: MTKViewDelegate {
             renderEncoder?.setRenderPipelineState(renderPipelineState)
             renderEncoder?.setFragmentTexture(renderer.outputImage, index: 0)
         }
+        
         renderEncoder?.drawPrimitives(type: .triangle, vertexStart: 0, vertexCount: 6)
         renderEncoder?.endEncoding()
         

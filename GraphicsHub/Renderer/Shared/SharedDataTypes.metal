@@ -85,3 +85,31 @@ float4 orthogonal(float4 base, float4 value) {
 float mod(float value, float cap) {
     return value - cap * float(int(value / cap));
 }
+
+float3 interpolateColors(constant float3 * colors, int colorCount, float percent) {
+    if (percent >= 1) {
+        return colors[colorCount-1];
+    } else if (percent <= 0) {
+        return colors[0];
+    } else {
+        // FIXME: I think this is wrong
+        float value = percent * float(colorCount - 1);
+        int minColor = value;
+        float percentInRange = value - floor(value);
+        return lerp(colors[minColor], colors[minColor + 1], percentInRange);
+    }
+}
+
+float3 interpolateColors(float3 colors[], int colorCount, float percent) {
+    if (percent >= 1) {
+        return colors[colorCount-1];
+    } else if (percent <= 0) {
+        return colors[0];
+    } else {
+        // FIXME: I think this is wrong
+        float value = percent * float(colorCount - 1);
+        int minColor = value;
+        float percentInRange = value - floor(value);
+        return lerp(colors[minColor], colors[minColor + 1], percentInRange);
+    }
+}

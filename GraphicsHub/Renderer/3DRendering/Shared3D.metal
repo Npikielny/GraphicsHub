@@ -8,6 +8,8 @@
 #include <metal_stdlib>
 using namespace metal;
 #include "Shared3D.h"
+#include "../Shared/SharedDataTypes.h"
+#include "../PerlinNoise/Perlin.h"
 
 Material createMaterial(float3 albedo,
                         float3 specular,
@@ -405,42 +407,65 @@ void IntersectWaterPlane(Ray ray, thread RayHit &bestHit, float time) {
     // Calculate distance along the ray where the ground plane is intersected
     float t = -ray.origin.y / ray.direction.y;
     if (t > 0 && t < bestHit.distance) {
-        float size = 3;
-        float3 minPosition = floor((ray.origin + ray.direction * t) / size) * size;
-        minPosition.y = 0;
-        Material material = createMaterial(float3(1) * 0.01,
-                                           float3(1) * 0.99,
-                                           1,
-                                           1,
-                                           float3(0));
-        Object triangle;
-        triangle.material = material;
-        for (int x = 0; x <= 1; x ++) {
-            for (int y = 0; y <= 1; y++) {
-                float3 bottomLeft = minPosition + float3(x, 0, y) * size/2;
-                for (int v = 0; v <= 1; v++) {
-                    if (v == 0) {
-                        triangle.position = bottomLeft;
-                        triangle.size = bottomLeft + float3(0, 0, size/2);
-                        triangle.rotation = bottomLeft + float3(size/2, 0, 0);
-                    } else {
-                        triangle.position = bottomLeft + float3(size/2, 0, size/2);
-                        triangle.size = bottomLeft + float3(0, 0, size/2);
-                        triangle.rotation = bottomLeft + float3(size/2, 0, 0);
-                    }
-                    triangle.position.y = getHeight(triangle.position, size, time).y;
-                    triangle.size.y = getHeight(triangle.size, size, time).y;
-                    triangle.rotation.y = getHeight(triangle.rotation, size, time).y;
-                    IntersectTriangle(ray, bestHit, triangle);
-                    float3 temp = triangle.size;
-                    triangle.size = triangle.position;
-                    triangle.position = temp;
-                    IntersectTriangle(ray, bestHit, triangle);
-                    
-                }
-            }
-        }
+        Material water;
+        water.albedo = float3(0.75, 0.75, 0.99) * 0.05;
+        water.specular = float3(0.75, 0.75, 0.99) * 0.95;
+        water.n = 1;
+        water.transparency = 0;
+
+        bestHit.distance = t;
+        bestHit.position = ray.origin + t * ray.direction;
+        
+        float seed = (hash(hash(uint(bestHit.position.x)) * hash(bestHit.position.z)) - 0.5) * 0.5;
+        
+        float offset = perlin(int2(bestHit.position.x, bestHit.position.z), 5, 4, 38181912, 8483726, int(seed * 93838939082), 1);
+        // x = sin(x + t) * 0.5
+        // z = cos(z + t) * 0.5
+        bestHit.normal = normalize(float3(
+                                          cos(bestHit.position.x + time * 0.1) * 0.5 * 0.1, // Partial derivates of height with respect to x
+                                          1,
+                                          -sin(bestHit.position.z + time * 0.024) * 0.5 * 0.1
+                                          ));
+        bestHit.normal.y = abs(bestHit.normal.y);
+        bestHit.material = water;
     }
+//    if (t > 0 && t < bestHit.distance) {
+//        float size = 3;
+//        float3 minPosition = floor((ray.origin + ray.direction * t) / size) * size;
+//        minPosition.y = 0;
+//        Material material = createMaterial(float3(1) * 0.01,
+//                                           float3(1) * 0.99,
+//                                           1,
+//                                           1,
+//                                           float3(0));
+//        Object triangle;
+//        triangle.material = material;
+//        for (int x = 0; x <= 1; x ++) {
+//            for (int y = 0; y <= 1; y++) {
+//                float3 bottomLeft = minPosition + float3(x, 0, y) * size/2;
+//                for (int v = 0; v <= 1; v++) {
+//                    if (v == 0) {
+//                        triangle.position = bottomLeft;
+//                        triangle.size = bottomLeft + float3(0, 0, size/2);
+//                        triangle.rotation = bottomLeft + float3(size/2, 0, 0);
+//                    } else {
+//                        triangle.position = bottomLeft + float3(size/2, 0, size/2);
+//                        triangle.size = bottomLeft + float3(0, 0, size/2);
+//                        triangle.rotation = bottomLeft + float3(size/2, 0, 0);
+//                    }
+//                    triangle.position.y = getHeight(triangle.position, size, time).y;
+//                    triangle.size.y = getHeight(triangle.size, size, time).y;
+//                    triangle.rotation.y = getHeight(triangle.rotation, size, time).y;
+//                    IntersectTriangle(ray, bestHit, triangle);
+//                    float3 temp = triangle.size;
+//                    triangle.size = triangle.position;
+//                    triangle.position = temp;
+//                    IntersectTriangle(ray, bestHit, triangle);
+//
+//                }
+//            }
+//        }
+//    }
 }
 
 RayHit Intersect(Ray ray, Object object, thread RayHit & bestHit) {

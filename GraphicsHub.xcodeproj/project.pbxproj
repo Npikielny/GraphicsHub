@@ -58,6 +58,9 @@
 		30FCB999263BA82200910FED /* Conway.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30FCB998263BA82200910FED /* Conway.swift */; };
 		30FCB99B263BA94B00910FED /* ConwayRendering.metal in Sources */ = {isa = PBXBuildFile; fileRef = 30FCB99A263BA94B00910FED /* ConwayRendering.metal */; };
 		461200D6266EB4FF00AE750E /* RendererInputManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 461200D5266EB4FF00AE750E /* RendererInputManager.swift */; };
+		464C7AEB26B0F55500C7CDA9 /* WhirlNoiseRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 464C7AEA26B0F55500C7CDA9 /* WhirlNoiseRenderer.swift */; };
+		464C7AED26B0F57900C7CDA9 /* WhirlNoiseRendering.metal in Sources */ = {isa = PBXBuildFile; fileRef = 464C7AEC26B0F57900C7CDA9 /* WhirlNoiseRendering.metal */; };
+		464C7AF026B0F58A00C7CDA9 /* WhirlNoise.metal in Sources */ = {isa = PBXBuildFile; fileRef = 464C7AEF26B0F58A00C7CDA9 /* WhirlNoise.metal */; };
 		4658EDD826866447000828B4 /* AcceleratedRayTraceRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4658EDD726866447000828B4 /* AcceleratedRayTraceRenderer.swift */; };
 		4658EDDD268664EB000828B4 /* HighFidelityRayRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4658EDDC268664EB000828B4 /* HighFidelityRayRenderer.swift */; };
 		465FE21426752BF30038187F /* IncrementInput.swift in Sources */ = {isa = PBXBuildFile; fileRef = 465FE21326752BF30038187F /* IncrementInput.swift */; };
@@ -73,7 +76,11 @@
 		466C8FE326954B8E00B0AC6B /* Fluid Simulation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 466C8FE226954B8E00B0AC6B /* Fluid Simulation.swift */; };
 		466C8FE526954B9900B0AC6B /* Ray Tracing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 466C8FE426954B9900B0AC6B /* Ray Tracing.swift */; };
 		466C8FE726954BA000B0AC6B /* Slime Mold Simulation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 466C8FE626954BA000B0AC6B /* Slime Mold Simulation.swift */; };
+		4679F06526ADE742001257B7 /* PerlinNoiseRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4679F06426ADE742001257B7 /* PerlinNoiseRenderer.swift */; };
+		4679F06726ADE839001257B7 /* PerlinNoiseRendering.metal in Sources */ = {isa = PBXBuildFile; fileRef = 4679F06626ADE839001257B7 /* PerlinNoiseRendering.metal */; };
+		4679F06926ADE8AC001257B7 /* Perlin.metal in Sources */ = {isa = PBXBuildFile; fileRef = 4679F06826ADE8AC001257B7 /* Perlin.metal */; };
 		467E626726967A6E00AA9727 /* KeyFrameButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 467E626626967A6E00AA9727 /* KeyFrameButton.swift */; };
+		467F07C026A90C3300E15903 /* FluidRendering.metal in Sources */ = {isa = PBXBuildFile; fileRef = 467F07BF26A90C3300E15903 /* FluidRendering.metal */; };
 		467F4FA1266D98FD00C5A31A /* GraphView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 467F4FA0266D98FD00C5A31A /* GraphView.swift */; };
 		4695362E266702A400AFAFE7 /* AnimatorManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4695362D266702A400AFAFE7 /* AnimatorManager.swift */; };
 		46953638266703A500AFAFE7 /* AnimatorSetupController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 46953636266703A500AFAFE7 /* AnimatorSetupController.xib */; };
@@ -88,7 +95,7 @@
 		46F663FF26852E8E007F72E3 /* Scene.swift in Sources */ = {isa = PBXBuildFile; fileRef = 46F663FD26852E8E007F72E3 /* Scene.swift */; };
 		46F6640026852E8E007F72E3 /* Transforms.swift in Sources */ = {isa = PBXBuildFile; fileRef = 46F663FE26852E8E007F72E3 /* Transforms.swift */; };
 		46F6640526852F38007F72E3 /* Shaders.metal in Sources */ = {isa = PBXBuildFile; fileRef = 46F6640426852F38007F72E3 /* Shaders.metal */; };
-		46FDE62F2686D1B4003C9F43 /* FlatFluidRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 46FDE62E2686D1B4003C9F43 /* FlatFluidRenderer.swift */; };
+		46FDE62F2686D1B4003C9F43 /* FluidRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 46FDE62E2686D1B4003C9F43 /* FluidRenderer.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -168,6 +175,10 @@
 		30FCB998263BA82200910FED /* Conway.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Conway.swift; sourceTree = "<group>"; };
 		30FCB99A263BA94B00910FED /* ConwayRendering.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = ConwayRendering.metal; sourceTree = "<group>"; };
 		461200D5266EB4FF00AE750E /* RendererInputManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RendererInputManager.swift; sourceTree = "<group>"; };
+		464C7AEA26B0F55500C7CDA9 /* WhirlNoiseRenderer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WhirlNoiseRenderer.swift; sourceTree = "<group>"; };
+		464C7AEC26B0F57900C7CDA9 /* WhirlNoiseRendering.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = WhirlNoiseRendering.metal; sourceTree = "<group>"; };
+		464C7AEE26B0F58200C7CDA9 /* WhirlNoise.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WhirlNoise.h; sourceTree = "<group>"; };
+		464C7AEF26B0F58A00C7CDA9 /* WhirlNoise.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = WhirlNoise.metal; sourceTree = "<group>"; };
 		4658EDD726866447000828B4 /* AcceleratedRayTraceRenderer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AcceleratedRayTraceRenderer.swift; sourceTree = "<group>"; };
 		4658EDDC268664EB000828B4 /* HighFidelityRayRenderer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HighFidelityRayRenderer.swift; sourceTree = "<group>"; };
 		465FE21326752BF30038187F /* IncrementInput.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IncrementInput.swift; sourceTree = "<group>"; };
@@ -183,7 +194,12 @@
 		466C8FE226954B8E00B0AC6B /* Fluid Simulation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Fluid Simulation.swift"; sourceTree = "<group>"; };
 		466C8FE426954B9900B0AC6B /* Ray Tracing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Ray Tracing.swift"; sourceTree = "<group>"; };
 		466C8FE626954BA000B0AC6B /* Slime Mold Simulation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Slime Mold Simulation.swift"; sourceTree = "<group>"; };
+		4679F06426ADE742001257B7 /* PerlinNoiseRenderer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PerlinNoiseRenderer.swift; sourceTree = "<group>"; };
+		4679F06626ADE839001257B7 /* PerlinNoiseRendering.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = PerlinNoiseRendering.metal; sourceTree = "<group>"; };
+		4679F06826ADE8AC001257B7 /* Perlin.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = Perlin.metal; sourceTree = "<group>"; };
+		4679F06A26ADEC7C001257B7 /* Perlin.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Perlin.h; sourceTree = "<group>"; };
 		467E626626967A6E00AA9727 /* KeyFrameButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyFrameButton.swift; sourceTree = "<group>"; };
+		467F07BF26A90C3300E15903 /* FluidRendering.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = FluidRendering.metal; sourceTree = "<group>"; };
 		467F4FA0266D98FD00C5A31A /* GraphView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GraphView.swift; sourceTree = "<group>"; };
 		4695362D266702A400AFAFE7 /* AnimatorManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnimatorManager.swift; sourceTree = "<group>"; };
 		46953636266703A500AFAFE7 /* AnimatorSetupController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = AnimatorSetupController.xib; sourceTree = "<group>"; };
@@ -199,7 +215,7 @@
 		46F663FD26852E8E007F72E3 /* Scene.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Scene.swift; sourceTree = "<group>"; };
 		46F663FE26852E8E007F72E3 /* Transforms.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Transforms.swift; sourceTree = "<group>"; };
 		46F6640426852F38007F72E3 /* Shaders.metal */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.metal; path = Shaders.metal; sourceTree = "<group>"; };
-		46FDE62E2686D1B4003C9F43 /* FlatFluidRenderer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FlatFluidRenderer.swift; sourceTree = "<group>"; };
+		46FDE62E2686D1B4003C9F43 /* FluidRenderer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FluidRenderer.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -388,6 +404,8 @@
 				309B4019263BC40800300BBE /* ComplexRenderer */,
 				30FCB99C263BA95F00910FED /* Conway */,
 				46FDE62D2686D18B003C9F43 /* FluidDynamics */,
+				464C7AE926B0F4F100C7CDA9 /* WhirlNoise */,
+				4679F06326ADE722001257B7 /* PerlinNoise */,
 				466938902677FAC1003616E0 /* 3DRendering */,
 				3012B95726A20231008F0525 /* Boids */,
 				46DF058526713C0500B0110F /* Shared */,
@@ -438,6 +456,17 @@
 				30AEDA3A263A5B5B007ED421 /* RenderingOption.xib */,
 			);
 			path = "Launch Screen";
+			sourceTree = "<group>";
+		};
+		464C7AE926B0F4F100C7CDA9 /* WhirlNoise */ = {
+			isa = PBXGroup;
+			children = (
+				464C7AEA26B0F55500C7CDA9 /* WhirlNoiseRenderer.swift */,
+				464C7AEC26B0F57900C7CDA9 /* WhirlNoiseRendering.metal */,
+				464C7AEE26B0F58200C7CDA9 /* WhirlNoise.h */,
+				464C7AEF26B0F58A00C7CDA9 /* WhirlNoise.metal */,
+			);
+			path = WhirlNoise;
 			sourceTree = "<group>";
 		};
 		4658EDCC268663FA000828B4 /* CustomRayTracing */ = {
@@ -514,6 +543,17 @@
 			path = Descriptions;
 			sourceTree = "<group>";
 		};
+		4679F06326ADE722001257B7 /* PerlinNoise */ = {
+			isa = PBXGroup;
+			children = (
+				4679F06426ADE742001257B7 /* PerlinNoiseRenderer.swift */,
+				4679F06626ADE839001257B7 /* PerlinNoiseRendering.metal */,
+				4679F06A26ADEC7C001257B7 /* Perlin.h */,
+				4679F06826ADE8AC001257B7 /* Perlin.metal */,
+			);
+			path = PerlinNoise;
+			sourceTree = "<group>";
+		};
 		4695362C2667028300AFAFE7 /* InputController */ = {
 			isa = PBXGroup;
 			children = (
@@ -583,7 +623,8 @@
 		46FDE62D2686D18B003C9F43 /* FluidDynamics */ = {
 			isa = PBXGroup;
 			children = (
-				46FDE62E2686D1B4003C9F43 /* FlatFluidRenderer.swift */,
+				46FDE62E2686D1B4003C9F43 /* FluidRenderer.swift */,
+				467F07BF26A90C3300E15903 /* FluidRendering.metal */,
 			);
 			path = FluidDynamics;
 			sourceTree = "<group>";
@@ -752,10 +793,12 @@
 				465FE21A267531EF0038187F /* Helpers.swift in Sources */,
 				466C8FBD269544A000B0AC6B /* RendererCatalog.swift in Sources */,
 				3012B95426A201FD008F0525 /* BoidRenderer.swift in Sources */,
+				4679F06526ADE742001257B7 /* PerlinNoiseRenderer.swift in Sources */,
 				3024E4512655A11900DD195D /* DimensionalInput.swift in Sources */,
 				465FE21426752BF30038187F /* IncrementInput.swift in Sources */,
-				46FDE62F2686D1B4003C9F43 /* FlatFluidRenderer.swift in Sources */,
+				46FDE62F2686D1B4003C9F43 /* FluidRenderer.swift in Sources */,
 				4695362E266702A400AFAFE7 /* AnimatorManager.swift in Sources */,
+				464C7AF026B0F58A00C7CDA9 /* WhirlNoise.metal in Sources */,
 				30D52282263FA08500DA75F6 /* TextureOutput.swift in Sources */,
 				3024E44F2655A0E600DD195D /* ColorInput.swift in Sources */,
 				46E04905268949FF00AC0AC0 /* AcceleratedRayTraceRendering.metal in Sources */,
@@ -772,7 +815,9 @@
 				30302D33269E30040002AE2F /* RayMarchRendering.metal in Sources */,
 				3024E4532655A14200DD195D /* StateInput.swift in Sources */,
 				46C75A262666FA8C007A87E4 /* InputAnimator.swift in Sources */,
+				4679F06726ADE839001257B7 /* PerlinNoiseRendering.metal in Sources */,
 				467F4FA1266D98FD00C5A31A /* GraphView.swift in Sources */,
+				4679F06926ADE8AC001257B7 /* Perlin.metal in Sources */,
 				4661A620267A6E9600BADC8F /* CustomRayTraceRenderer.swift in Sources */,
 				30FCB999263BA82200910FED /* Conway.swift in Sources */,
 				30AEDA29263A248C007ED421 /* TesterBaseRenderer.swift in Sources */,
@@ -782,6 +827,7 @@
 				46E048F7268946BD00AC0AC0 /* PathTraceRendering.metal in Sources */,
 				46F663FF26852E8E007F72E3 /* Scene.swift in Sources */,
 				467E626726967A6E00AA9727 /* KeyFrameButton.swift in Sources */,
+				464C7AED26B0F57900C7CDA9 /* WhirlNoiseRendering.metal in Sources */,
 				30AEDA2B263A261F007ED421 /* TesterRendering.metal in Sources */,
 				309B4021263BDDBE00300BBE /* InputController.swift in Sources */,
 				466C8FE726954BA000B0AC6B /* Slime Mold Simulation.swift in Sources */,
@@ -797,9 +843,11 @@
 				466C8FE126954B8500B0AC6B /* Conway's Game of Life.swift in Sources */,
 				3024E4672655A4BE00DD195D /* SliderInput.swift in Sources */,
 				466938922677FAD4003616E0 /* DataTypes.swift in Sources */,
+				467F07C026A90C3300E15903 /* FluidRendering.metal in Sources */,
 				3024E4552655A15D00DD195D /* ListInput.swift in Sources */,
 				3012B95626A20226008F0525 /* BoidsRendering.metal in Sources */,
 				461200D6266EB4FF00AE750E /* RendererInputManager.swift in Sources */,
+				464C7AEB26B0F55500C7CDA9 /* WhirlNoiseRenderer.swift in Sources */,
 				30AEDA3B263A5B5B007ED421 /* RenderingOption.swift in Sources */,
 				30CC8734263B492C0002B0B8 /* TesterCappedRenderer.swift in Sources */,
 				46F6640026852E8E007F72E3 /* Transforms.swift in Sources */,

@@ -46,4 +46,6 @@ float4 project(float4 base, float4 value);
 float4 orthogonal(float4 base, float4 value);
 
 float mod(float value, float cap);
+float3 interpolateColors(constant float3 * colors, int colorCount, float percent);
+float3 interpolateColors(float3 colors[], int colorCount, float percent);
 #endif /* SharedDataTypes_h */

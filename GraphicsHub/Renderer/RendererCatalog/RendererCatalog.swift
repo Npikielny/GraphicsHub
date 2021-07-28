@@ -10,6 +10,8 @@ import Cocoa
 class RendererCatalog {
     
     static let catalog: [(String, RendererInfo.Type)] = [("Boid Simullation", BoidRenderer.self),
+//                                                         ("Perlin Visualizer", PerlinNoiseRenderer.self),
+                                                         ("Whirl Noise Visualizer", WhirlNoiseRenderer.self),
                                                          ("Slime Mold Simulation", SlimeMoldRenderer.self),
                                                          ("Conway's Game of Life",ConwayRenderer.self),
                                                          ("Complex Image Generator",ComplexRenderer.self),

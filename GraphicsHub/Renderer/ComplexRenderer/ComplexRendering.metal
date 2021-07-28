@@ -8,21 +8,6 @@
 #include <metal_stdlib>
 using namespace metal;
 #include "../Shared/SharedDataTypes.h"
-
-float3 complexColor(constant float3 * colors, int colorCount, float percent) {
-    if (percent >= 1) {
-        return colors[colorCount-1];
-    } else if (percent <= 0) {
-        return colors[0];
-    } else {
-        // FIXME: I think this is wrong
-        float value = percent * float(colorCount - 1);
-        int minColor = value;
-        float percentInRange = value - floor(value);
-        return lerp(colors[minColor], colors[minColor + 1], percentInRange);
-    }
-}
-
 float2 multiplyImaginary(float2 im1, float2 im2) {
     float real = im1.x * im2.x - im1.y * im2.y;
     float imaginary = im1.x * im2.y + im1.y * im2.x;
@@ -50,7 +35,7 @@ kernel void juliaSet(uint2 tid [[thread_position_in_grid]],
             value = i;
         }
     }
-    Image.write(float4(complexColor(colors, colorCount, float(value) / 255 * scalingFactor), 1), tid);
+    Image.write(float4(interpolateColors(colors, colorCount, float(value) / 255 * scalingFactor), 1), tid);
 }
 
 kernel void mandelbrotSet() {}
