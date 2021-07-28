@@ -42,7 +42,8 @@ bool inImage(int2 position, int2 size);
 bool inImage(int2 position, int2 shift, int2 size);
 bool inImage(uint2 position, int2 shift, int2 size);
 
-float4 project(float4 base, float4 value);
+float project(float3 base, float3 value);
+float project(float4 base, float4 value);
 float4 orthogonal(float4 base, float4 value);
 
 float mod(float value, float cap);

@@ -42,7 +42,7 @@ class SlimeMoldRenderer: Renderer {
         var molds = [Node]()
         for _ in 0..<moldCount {
             let species = Int32(Int.random(in: 0...speciesCount-1))
-            let theta = Float.random(in: 0...Float.pi * 2)
+            let theta = Float.random(in: 0...Float.pi * 2 / 3) + Float.pi * 2 / 3 * Float(species)
             let radius = Float.random(in: 0...250)
             molds.append(Node(position: SIMD2<Float>(cos(theta), sin(theta)) * radius,
                               direction: Float.random(in: 0...Float.pi * 2),

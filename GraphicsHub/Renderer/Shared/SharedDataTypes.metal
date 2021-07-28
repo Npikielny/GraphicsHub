@@ -72,9 +72,11 @@ bool inImage(uint2 position, int2 shift, int2 size) {
     return inImage(int2(position), shift, size);
 }
 
+float project(float3 base, float3 value) {
+    return dot(base, value) / dot(base, base);
+}
 
-float4 project(float4 base, float4 value) {
-//    return base.dot(value) / base.dot(base);
+float project(float4 base, float4 value) {
     return dot(base, value) / dot(base, base);
 }
 

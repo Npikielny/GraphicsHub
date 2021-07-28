@@ -11,17 +11,23 @@ using namespace metal;
 
 [[kernel]]
 void whirlNoiseRendering(uint2 tid                                  [[thread_position_in_grid]],
-                         constant int & chunkSize                   [[buffer(0)]],
-                         constant int & seed                        [[buffer(1)]],
+                         constant int   & chunkSize                 [[buffer(0)]],
+                         constant int   & seed                      [[buffer(1)]],
                          constant float & z                         [[buffer(2)]],
-                         constant bool & drawPoints                 [[buffer(3)]],
+                         constant bool  & drawPoints                [[buffer(3)]],
                          constant float & lightingX                 [[buffer(4)]],
                          constant float & lightingY                 [[buffer(5)]],
                          constant float & lightingZ                 [[buffer(6)]],
                          constant float & lightingIntensity         [[buffer(7)]],
+                         constant bool  & normals                   [[buffer(8)]],
+                         constant bool  & smooth                    [[buffer(9)]],
+                         constant float & blendingStrength          [[buffer(10)]],
                          texture2d<float, access::read_write> image [[texture(0)]]) {
+    
     float3 coordinates = float3(float2(tid) - float2(image.get_width(), image.get_height()), z);
-    float noise = whirlNoise(coordinates, float3(chunkSize), seed);
+    float3 noise = smooth ? \
+    (normals ? smoothWhirlNormal(coordinates, float3(chunkSize), seed, blendingStrength) * 0.5 + 0.5 : smoothWhirlNoise(coordinates, float3(chunkSize), seed, blendingStrength))
+    : (normals ? whirlNormal(coordinates, float3(chunkSize), seed) * 0.5 + 0.5 : whirlNoise(coordinates, float3(chunkSize), seed));
     if (drawPoints) {
         float3 point;
         float dist = INFINITY;

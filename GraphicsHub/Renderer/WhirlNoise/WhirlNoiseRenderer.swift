@@ -29,6 +29,9 @@ class WhirlNoiseRenderer: Renderer {
         noiseEncoder?.setBytes([inputManager.lightingY], length: MemoryLayout<Float>.stride, index: 5)
         noiseEncoder?.setBytes([inputManager.lightingZ], length: MemoryLayout<Float>.stride, index: 6)
         noiseEncoder?.setBytes([inputManager.lightingIntensity], length: MemoryLayout<Float>.stride, index: 7)
+        noiseEncoder?.setBytes([inputManager.normals], length: MemoryLayout<Bool>.stride, index: 8)
+        noiseEncoder?.setBytes([inputManager.smooth], length: MemoryLayout<Bool>.stride, index: 9)
+        noiseEncoder?.setBytes([inputManager.blendingStrength], length: MemoryLayout<Float>.stride, index: 10)
         noiseEncoder?.setTexture(outputImage, index: 0)
         noiseEncoder?.dispatchThreadgroups(getImageGroupSize(), threadsPerThreadgroup: MTLSize(width: 8, height: 8, depth: 1))
         noiseEncoder?.endEncoding()
@@ -50,6 +53,11 @@ class WhirlNoiseInputManager: BasicInputManager {
     var lightingZ: Float { Float((getInput(6) as! SliderInput).output) }
     var lightingIntensity: Float { Float((getInput(7) as! SliderInput).output) }
     
+    var normals: Bool { (getInput(8) as! StateInput).output }
+    
+    var smooth: Bool { (getInput(9) as! StateInput).output }
+    var blendingStrength: Float { Float((getInput(10) as! SliderInput).output) }
+    
     override init(renderSpecificInputs: [NSView] = [], imageSize: CGSize?) {
         let chunkSize = SliderInput(name: "ChunkSize", minValue: 3, currentValue: 10, maxValue: 100)
         let seed = SliderInput(name: "Seed", minValue: 0, currentValue: 761579, maxValue: 999999)
@@ -60,6 +68,9 @@ class WhirlNoiseInputManager: BasicInputManager {
         let lightingY = SliderInput(name: "Lighting Y", minValue: -1, currentValue: -0.1, maxValue: 1)
         let lightingZ = SliderInput(name: "Lighting Z", minValue: -1, currentValue: -0.1, maxValue: 1)
         let lightingIntensity = SliderInput(name: "Intensity", minValue: 0, currentValue: 1, maxValue: 1)
-        super.init(renderSpecificInputs: [chunkSize, seed, z, drawPoints, lightingX, lightingY, lightingZ, lightingIntensity] + renderSpecificInputs, imageSize: imageSize)
+        let normals = StateInput(name: "Show Normals")
+        let smooth = StateInput(name: "Smooth")
+        let blendingStrength = SliderInput(name: "Blending", minValue: 0, currentValue: 0.5, maxValue: 1)
+        super.init(renderSpecificInputs: [chunkSize, seed, z, drawPoints, lightingX, lightingY, lightingZ, lightingIntensity, normals, smooth, blendingStrength] + renderSpecificInputs, imageSize: imageSize)
     }
 }
