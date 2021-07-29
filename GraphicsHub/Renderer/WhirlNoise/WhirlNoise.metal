@@ -126,3 +126,23 @@ float whirlNoise(float3 coordinates, float3 chunkSize[], int seed[], float scali
     }
     return value;
 }
+
+float recursiveWhirlNoise(float3 coordinates, float3 chunkSize, float chunkFactor, int seed, float scaling, float scalingFactor, float density, float densityFactor, int iterations) {
+    float value = 0;
+    for (int i = 0; i < iterations; i++) {
+        value += whirlNoise(coordinates, chunkSize, seed, scaling, density) / pow(2.0, float(i + 1));
+        chunkSize *= chunkFactor;
+        seed = int(hash(seed) * 92382093582032);
+        scaling *= scalingFactor;
+        density *= densityFactor;
+    }
+    return value;
+}
+float recursiveSample(float3 origin, float3 direction, float length, int iteration, float chunkFactor, int seed, float scaling, float scalingFactor, float density, float densityFactor, int iterations) {
+    float total = 0;
+    if (length == 0) { return 0; }
+    for (int i = 0; i < iterations; i ++) {
+        total += recursiveWhirlNoise(origin + direction * float(i) / float(iterations) * length, float3(300), 0.5, 2030952038, 0.5, 0.5, 0.5, 1, 3);
+    }
+    return total;
+}

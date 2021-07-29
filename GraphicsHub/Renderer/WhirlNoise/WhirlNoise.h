@@ -14,4 +14,6 @@ float3 whirlNormal(float3 coordinates, float3 chunkSize, int seed);
 float smoothWhirlNoise(float3 coordinates, float3 chunkSize, int seed, float blendingStrength);
 float whirlNoise(float3 coordinates, float3 chunkSize[], int seed[], float scaling[], float density[], int iterations);
 float3 smoothWhirlNormal(float3 coordinates, float3 chunkSize, int seed, float blendingStrength);
+float recursiveWhirlNoise(float3 coordinates, float3 chunkSize, float chunkFactor, int seed, float scaling, float scalingFactor, float density, float densityFactor, int iterations);
+float recursiveSample(float3 origin, float3 direction, float length, int iteration, float chunkFactor, int seed, float scaling, float scalingFactor, float density, float densityFactor, int iterations);
 #endif /* WhirlNoise_h */

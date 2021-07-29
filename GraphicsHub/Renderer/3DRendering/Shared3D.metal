@@ -74,9 +74,9 @@ RayHit CreateRayHit() {
 
 // MARK: Intersection Functions
 uint2 sampleSky (float3 direction, int2 skySize) {
-    float xzAngle = (atan2(direction.z, direction.x)/M_PI_F+1.0)/2.0;
-    float xzLength = distance(float2(0), direction.xz);
-    float yAngle = atan2(direction.y,xzLength)/M_PI_F+0.5;
+    float xzAngle = (atan2(direction.z, direction.x) / M_PI_F + 1.0) / 2.0;
+    float xzLength = distance(0.0, direction.xz);
+    float yAngle = atan2(direction.y,xzLength)/M_PI_F + 0.5;
     return uint2(skySize.x * xzAngle,(1 - yAngle) * skySize.y);
 }
 
@@ -494,6 +494,37 @@ void IntersectWaterPlane(Ray ray, thread RayHit &bestHit, float time) {
 //    }
 }
 
+void IntersectClouds(Ray ray, thread RayHit &bestHit, float time) {
+    // Calculate distance along the ray where the ground plane is intersected
+    float minT = (40 - ray.origin.y) / ray.direction.y;
+    float maxT = (200 - ray.origin.y) / ray.direction.y;
+    float t = INFINITY;
+    float threshold = 0.8;
+    float offset = recursiveSample(ray.origin, ray.direction, maxT - minT, 5, 0.5, 323852093, 0.5, 0.5, 0.5, 1, 3);
+//    for (int i = 0; i < 10; i ++) {
+//        t = lerp(minT, maxT, float(i) / 9.0);
+//        float3 position = ray.direction * t + ray.origin;
+//        float currentOffset = recursiveWhirlNoise(position + float3(time / 3, time / 100, time / 8), float3(500), 0.5, 391017250, -0.5, 0.5, 0.5, 1, 3);
+//        offset += currentOffset;
+//    }
+
+    float transmittance = exp(-offset);
+    
+    if (t > 0 && transmittance < threshold && t < bestHit.distance) {
+        Material groundMaterial;
+//        float factor = clamp(transmittance * 5, 0.0, 1.0);
+        groundMaterial.albedo = float3(1);// * factor;
+        groundMaterial.specular = float3(0);
+        groundMaterial.n = 1;
+        groundMaterial.transparency = 0;
+
+        bestHit.distance = t;
+        bestHit.position = ray.origin + t * ray.direction;
+        bestHit.normal = float3(0.0f, 1.0f, 0.0f);
+        bestHit.material = groundMaterial;
+    }
+}
+
 RayHit Intersect(Ray ray, Object object, thread RayHit & bestHit) {
     if (object.objectType == sphere) {
         IntersectSphere(ray, bestHit, object);
@@ -521,7 +552,9 @@ RayHit Trace(Ray ray, int objectCount, constant Object *objects, bool groundPlan
 
 RayHit Trace(Ray ray, int objectCount, constant Object *objects, float t) {
     thread RayHit && bestHit = CreateRayHit();
-    IntersectWaterPlane(ray, bestHit, t);
+//    IntersectWaterPlane(ray, bestHit, t);
+    IntersectGroundPlane(ray, bestHit);
+    IntersectClouds(ray, bestHit, t);
     for (int i = 0; i < objectCount; i++) {
         if (objects[i].objectType == sphere) {
             IntersectSphere(ray, bestHit, objects[i]);
