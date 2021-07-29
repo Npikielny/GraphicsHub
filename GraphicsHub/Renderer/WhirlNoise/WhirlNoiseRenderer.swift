@@ -32,6 +32,8 @@ class WhirlNoiseRenderer: Renderer {
         noiseEncoder?.setBytes([inputManager.normals], length: MemoryLayout<Bool>.stride, index: 8)
         noiseEncoder?.setBytes([inputManager.smooth], length: MemoryLayout<Bool>.stride, index: 9)
         noiseEncoder?.setBytes([inputManager.blendingStrength], length: MemoryLayout<Float>.stride, index: 10)
+        noiseEncoder?.setBytes([inputManager.scaling], length: MemoryLayout<Float>.stride, index: 11)
+        noiseEncoder?.setBytes([inputManager.density], length: MemoryLayout<Float>.stride, index: 12)
         noiseEncoder?.setTexture(outputImage, index: 0)
         noiseEncoder?.dispatchThreadgroups(getImageGroupSize(), threadsPerThreadgroup: MTLSize(width: 8, height: 8, depth: 1))
         noiseEncoder?.endEncoding()
@@ -58,6 +60,9 @@ class WhirlNoiseInputManager: BasicInputManager {
     var smooth: Bool { (getInput(9) as! StateInput).output }
     var blendingStrength: Float { Float((getInput(10) as! SliderInput).output) }
     
+    var scaling: Float { Float((getInput(11) as! SliderInput).output) }
+    var density: Float { Float((getInput(12) as! SliderInput).output) }
+    
     override init(renderSpecificInputs: [NSView] = [], imageSize: CGSize?) {
         let chunkSize = SliderInput(name: "ChunkSize", minValue: 3, currentValue: 10, maxValue: 100)
         let seed = SliderInput(name: "Seed", minValue: 0, currentValue: 761579, maxValue: 999999)
@@ -71,6 +76,8 @@ class WhirlNoiseInputManager: BasicInputManager {
         let normals = StateInput(name: "Show Normals")
         let smooth = StateInput(name: "Smooth")
         let blendingStrength = SliderInput(name: "Blending", minValue: 0, currentValue: 0.5, maxValue: 1)
-        super.init(renderSpecificInputs: [chunkSize, seed, z, drawPoints, lightingX, lightingY, lightingZ, lightingIntensity, normals, smooth, blendingStrength] + renderSpecificInputs, imageSize: imageSize)
+        let scaling = SliderInput(name: "Scaling", minValue: -1, currentValue: 0, maxValue: 1)
+        let density = SliderInput(name: "Density", minValue: 0.5, currentValue: 1, maxValue: 1)
+        super.init(renderSpecificInputs: [chunkSize, seed, z, drawPoints, lightingX, lightingY, lightingZ, lightingIntensity, normals, smooth, blendingStrength, scaling, density] + renderSpecificInputs, imageSize: imageSize)
     }
 }

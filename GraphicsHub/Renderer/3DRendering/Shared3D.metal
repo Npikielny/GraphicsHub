@@ -406,6 +406,23 @@ float3 getHeight(float3 position, float size, float t) {
 void IntersectWaterPlane(Ray ray, thread RayHit &bestHit, float time) {
     // Calculate distance along the ray where the ground plane is intersected
     float t = -ray.origin.y / ray.direction.y;
+    float offset = whirlNoise(ray.origin + ray.direction * t + float3(0, time, 0) / 10, float3(3), 2032835902, 0, 1);
+//    float3 normal = normalize(float3(abs(cos(offset) / 2),
+//                           1,
+//                           abs(sin(offset) / 2)));
+    float3 originalNormal = whirlNormal(ray.origin + ray.direction * t + float3(0, time, 0) / 10, float3(3), 2032835902);
+    float3 normal = originalNormal;
+//    if (normal.y < 0) {
+//        normal *= -1;
+//    }
+    normal.y += 15;
+//    normal.y *= 2;
+    normal = normalize(normal);
+    if (originalNormal.y < 0) {
+        t += abs(project(ray.direction, normal));
+    } else {
+        t -= abs(project(ray.direction, normal));
+    }
     if (t > 0 && t < bestHit.distance) {
         Material water;
         water.albedo = float3(0.75, 0.75, 0.99) * 0.05;
@@ -413,23 +430,29 @@ void IntersectWaterPlane(Ray ray, thread RayHit &bestHit, float time) {
         water.n = 1;
         water.transparency = 0;
 
-        bestHit.distance = t;
-        bestHit.position = ray.origin + t * ray.direction;
+//        bestHit.distance = t;
+//        bestHit.position = ray.origin + t * ray.direction;
         
-        float offset = whirlNoise(bestHit.position + float3(0, time, 0) / 10, float3(3), 2032835902);
         // x = sin(x + t) * 0.5
         // z = cos(z + t) * 0.5
-        bestHit.normal = normalize(float3(
-//                                          cos(bestHit.position.x + time * 0.1) * 0.5 * 0.1, // Partial derivates of height with respect to x
-                                          abs(cos(offset) / 2),
-                                          1,
-                                          abs(sin(offset) / 2))
-//                                          -sin(bestHit.position.z + time * 0.024) * 0.5 * 0.1
-                                          );
-        if (bestHit.normal.y < 0) {
-            bestHit.normal *= -1;
-        }
-        bestHit.normal.y = abs(bestHit.normal.y);
+//        float offset = whirlNoise(bestHit.position + float3(0, time, 0) / 10, float3(3), 2032835902);
+//        bestHit.normal = normal;
+        
+        
+        IntersectGroundPlane(ray, bestHit);
+        bestHit.normal = normal;
+        
+//        normalize(float3(
+////                                          cos(bestHit.position.x + time * 0.1) * 0.5 * 0.1, // Partial derivates of height with respect to x
+//                                          abs(cos(offset) / 2),
+//                                          1,
+//                                          abs(sin(offset) / 2))
+////                                          -sin(bestHit.position.z + time * 0.024) * 0.5 * 0.1
+//                                          );
+//        if (bestHit.normal.y < 0) {
+//            bestHit.normal *= -1;
+//        }
+//        bestHit.normal.y = abs(bestHit.normal.y);
         bestHit.material = water;
     }
 //    if (t > 0 && t < bestHit.distance) {
