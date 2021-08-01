@@ -77,7 +77,7 @@ float SmoothnessToPhongAlpha(float s) {
 }
 
 
-float3 PathShade(thread Ray &ray, RayHit hit, texture2d<float> sky, int2 skyDimensions, int sphereCount, constant Object * objects, float4 lightDirection, float skyIntensity, float2 r, float roulette) {
+float3 PathShade(thread Ray &ray, RayHit hit, texture2d<float> sky, int2 skyDimensions, int sphereCount, constant Object * objects, float4 lightDirection, float skyIntensity, float2 r, float roulette, float time) {
     
    if (hit.distance < INFINITY) {
        // Calculate chances of diffuse and specular reflection
@@ -135,9 +135,17 @@ float3 PathShade(thread Ray &ray, RayHit hit, texture2d<float> sky, int2 skyDime
 //       }
 //       return 0;
    }else {
-       // Sample the skybox and write it
        ray.energy = float3(0);
-       return sky.read(sampleSky(ray.direction, skyDimensions)).xyz * skyIntensity;
+       float cloud = IntersectClouds(ray, time);
+       cloud = 2 * (cloud > 0.7 ? (cloud - 0.7) / 0.3 : 0);
+       float3 color = skyColor(ray.direction, lightDirection) * 0.005;
+       float3 edgeColor = sunColor(lightDirection);
+       return lightDirection.w * (float3(1) * 0.75 + edgeColor * 0.25) * cloud + (1 - cloud) * color;
+//       if (cloud > 0.1 && cloud < 0.2) {
+//           return lightDirection.w * mix(float3(1), edgeColor, (cloud - 0.1) / 0.1) * cloud + (1 - cloud) * color;
+//       } else {
+//            return lightDirection.w * float3(1) * cloud + (1 - cloud) * color;
+//       }
    }
 }
 
@@ -172,14 +180,14 @@ kernel void pathTrace (uint2 tid [[thread_position_in_grid]],
         float3 result = float3(0, 0, 0);
         
         for (int bounce = 0; bounce < 8; bounce++) {
-            RayHit hit = Trace(ray, objectCount, objects, true);
+            RayHit hit = Trace(ray, objectCount, objects, float(frame));
 //            RayHit hit = Trace(ray, objectCount, objects, float(frame) / 10);
             float2 r = float2(hash((tid.x + tid.y * int(imageSize.x)) * uint((randomDirection.x + 0.5) * 10 + uint((bounce + passed) * (imageSize.x + imageSize.y)))),
                               hash((tid.x + tid.y * int(imageSize.x)) * uint((randomDirection.y + 0.5) * 10 + uint((bounce + passed + 8) * (imageSize.x + imageSize.y)))));
             
             
             
-            result += ray.energy * PathShade(ray, hit, sky, skySize, objectCount, objects, lightingDirection, skyIntensity, r, hash(tid.x + tid.y * int(imageSize.x) + uint((randomDirection.x + 0.5) * 10 + uint((bounce + passed + 8 + 1) * (imageSize.x + imageSize.y)))));
+            result += ray.energy * PathShade(ray, hit, sky, skySize, objectCount, objects, lightingDirection, skyIntensity, r, hash(tid.x + tid.y * int(imageSize.x) + uint((randomDirection.x + 0.5) * 10 + uint((bounce + passed + 8 + 1) * (imageSize.x + imageSize.y)))), float(frame));
             if (length(ray.energy) == 0) {
                 break;
             }

@@ -406,123 +406,151 @@ float3 getHeight(float3 position, float size, float t) {
 void IntersectWaterPlane(Ray ray, thread RayHit &bestHit, float time) {
     // Calculate distance along the ray where the ground plane is intersected
     float t = -ray.origin.y / ray.direction.y;
-    float offset = whirlNoise(ray.origin + ray.direction * t + float3(0, time, 0) / 10, float3(3), 2032835902, 0, 1);
+    if (t <= 0) { return; }
+//    float offset = whirlNoise(ray.origin + ray.direction * t + float3(0, time, 0) / 10, float3(3), 2032835902, 0, 1);
+//    float offset = whirlNoise(abs(ray.origin + ray.direction * t + float3(0, time, 0) / 10), float3(3), 2032835902, 0, 1);
+//    float offset = (cos((ray.origin + ray.direction * t + float3(0, time, 0) / 10).x) + sin((ray.origin + ray.direction * t + float3(0, time, 0) / 10).y)) * 0.5 + 0.5;
+//    float3 intersectionPoint = ray.origin + ray.direction * t;
+//    float offset = (cos(intersectionPoint.x + time) + sin(intersectionPoint.z + time)) * 0.5 + 0.5;
 //    float3 normal = normalize(float3(abs(cos(offset) / 2),
-//                           1,
+//                           2,
 //                           abs(sin(offset) / 2)));
-    float3 originalNormal = whirlNormal(ray.origin + ray.direction * t + float3(0, time, 0) / 10, float3(3), 2032835902);
-    float3 normal = originalNormal;
-//    if (normal.y < 0) {
-//        normal *= -1;
-//    }
-    normal.y += 15;
-//    normal.y *= 2;
-    normal = normalize(normal);
-    if (originalNormal.y < 0) {
-        t += abs(project(ray.direction, normal));
-    } else {
-        t -= abs(project(ray.direction, normal));
+    float3 coordinates = ray.origin + ray.direction * t + float3(0, time, 0) / 10;
+    float3 normal = smoothWhirlNormal(coordinates, float3(3), 2032835902, 0.14, 0.00001);
+    if (project(ray.direction, normal) < project(ray.direction, -normal)) {
+        normal *= -1;
     }
+    normal *= -1;
+    normal = normalize(normal / 4 + float3(0, 1, 0));
+    
     if (t > 0 && t < bestHit.distance) {
         Material water;
         water.albedo = float3(0.75, 0.75, 0.99) * 0.05;
         water.specular = float3(0.75, 0.75, 0.99) * 0.95;
         water.n = 1;
         water.transparency = 0;
-
-//        bestHit.distance = t;
-//        bestHit.position = ray.origin + t * ray.direction;
-        
-        // x = sin(x + t) * 0.5
-        // z = cos(z + t) * 0.5
-//        float offset = whirlNoise(bestHit.position + float3(0, time, 0) / 10, float3(3), 2032835902);
-//        bestHit.normal = normal;
-        
-        
-        IntersectGroundPlane(ray, bestHit);
+        float overlap = max(project(ray.direction, normal), project(ray.direction, -normal));
+        bestHit.position = ray.direction * (t - overlap) + ray.origin;
         bestHit.normal = normal;
-        
-//        normalize(float3(
-////                                          cos(bestHit.position.x + time * 0.1) * 0.5 * 0.1, // Partial derivates of height with respect to x
-//                                          abs(cos(offset) / 2),
-//                                          1,
-//                                          abs(sin(offset) / 2))
-////                                          -sin(bestHit.position.z + time * 0.024) * 0.5 * 0.1
-//                                          );
-//        if (bestHit.normal.y < 0) {
-//            bestHit.normal *= -1;
-//        }
-//        bestHit.normal.y = abs(bestHit.normal.y);
+        bestHit.distance = t - overlap;
         bestHit.material = water;
     }
-//    if (t > 0 && t < bestHit.distance) {
-//        float size = 3;
-//        float3 minPosition = floor((ray.origin + ray.direction * t) / size) * size;
-//        minPosition.y = 0;
-//        Material material = createMaterial(float3(1) * 0.01,
-//                                           float3(1) * 0.99,
-//                                           1,
-//                                           1,
-//                                           float3(0));
-//        Object triangle;
-//        triangle.material = material;
-//        for (int x = 0; x <= 1; x ++) {
-//            for (int y = 0; y <= 1; y++) {
-//                float3 bottomLeft = minPosition + float3(x, 0, y) * size/2;
-//                for (int v = 0; v <= 1; v++) {
-//                    if (v == 0) {
-//                        triangle.position = bottomLeft;
-//                        triangle.size = bottomLeft + float3(0, 0, size/2);
-//                        triangle.rotation = bottomLeft + float3(size/2, 0, 0);
-//                    } else {
-//                        triangle.position = bottomLeft + float3(size/2, 0, size/2);
-//                        triangle.size = bottomLeft + float3(0, 0, size/2);
-//                        triangle.rotation = bottomLeft + float3(size/2, 0, 0);
-//                    }
-//                    triangle.position.y = getHeight(triangle.position, size, time).y;
-//                    triangle.size.y = getHeight(triangle.size, size, time).y;
-//                    triangle.rotation.y = getHeight(triangle.rotation, size, time).y;
-//                    IntersectTriangle(ray, bestHit, triangle);
-//                    float3 temp = triangle.size;
-//                    triangle.size = triangle.position;
-//                    triangle.position = temp;
-//                    IntersectTriangle(ray, bestHit, triangle);
-//
-//                }
-//            }
-//        }
-//    }
 }
 
-void IntersectClouds(Ray ray, thread RayHit &bestHit, float time) {
+//void IntersectWaterPlane(Ray ray, thread RayHit &bestHit, float time) {
+//    // Calculate distance along the ray where the ground plane is intersected
+//    float t = -ray.origin.y / ray.direction.y;
+//    float offset = whirlNoise(ray.origin + ray.direction * t + float3(0, time, 0) / 10, float3(3), 2032835902, 0, 1);
+////    float3 normal = normalize(float3(abs(cos(offset) / 2),
+////                           1,
+////                           abs(sin(offset) / 2)));
+////    float3 originalNormal = whirlNormal(ray.origin + ray.direction * t + float3(0, time, 0) / 10, float3(3), 2032835902);
+//    float3 normal = originalNormal;
+////    if (normal.y < 0) {
+////        normal *= -1;
+////    }
+//    normal.y += 15;
+////    normal.y *= 2;
+//    normal = normalize(normal);
+//    if (originalNormal.y < 0) {
+//        t += abs(project(ray.direction, normal));
+//    } else {
+//        t -= abs(project(ray.direction, normal));
+//    }
+//    if (t > 0 && t < bestHit.distance) {
+//        Material water;
+//        water.albedo = float3(0.75, 0.75, 0.99) * 0.05;
+//        water.specular = float3(0.75, 0.75, 0.99) * 0.95;
+//        water.n = 1;
+//        water.transparency = 0;
+//
+////        bestHit.distance = t;
+////        bestHit.position = ray.origin + t * ray.direction;
+//
+//        // x = sin(x + t) * 0.5
+//        // z = cos(z + t) * 0.5
+////        float offset = whirlNoise(bestHit.position + float3(0, time, 0) / 10, float3(3), 2032835902);
+////        bestHit.normal = normal;
+//
+//
+//        IntersectGroundPlane(ray, bestHit);
+//        bestHit.normal = normal;
+//
+////        normalize(float3(
+//////                                          cos(bestHit.position.x + time * 0.1) * 0.5 * 0.1, // Partial derivates of height with respect to x
+////                                          abs(cos(offset) / 2),
+////                                          1,
+////                                          abs(sin(offset) / 2))
+//////                                          -sin(bestHit.position.z + time * 0.024) * 0.5 * 0.1
+////                                          );
+////        if (bestHit.normal.y < 0) {
+////            bestHit.normal *= -1;
+////        }
+////        bestHit.normal.y = abs(bestHit.normal.y);
+//        bestHit.material = water;
+//    }
+////    if (t > 0 && t < bestHit.distance) {
+////        float size = 3;
+////        float3 minPosition = floor((ray.origin + ray.direction * t) / size) * size;
+////        minPosition.y = 0;
+////        Material material = createMaterial(float3(1) * 0.01,
+////                                           float3(1) * 0.99,
+////                                           1,
+////                                           1,
+////                                           float3(0));
+////        Object triangle;
+////        triangle.material = material;
+////        for (int x = 0; x <= 1; x ++) {
+////            for (int y = 0; y <= 1; y++) {
+////                float3 bottomLeft = minPosition + float3(x, 0, y) * size/2;
+////                for (int v = 0; v <= 1; v++) {
+////                    if (v == 0) {
+////                        triangle.position = bottomLeft;
+////                        triangle.size = bottomLeft + float3(0, 0, size/2);
+////                        triangle.rotation = bottomLeft + float3(size/2, 0, 0);
+////                    } else {
+////                        triangle.position = bottomLeft + float3(size/2, 0, size/2);
+////                        triangle.size = bottomLeft + float3(0, 0, size/2);
+////                        triangle.rotation = bottomLeft + float3(size/2, 0, 0);
+////                    }
+////                    triangle.position.y = getHeight(triangle.position, size, time).y;
+////                    triangle.size.y = getHeight(triangle.size, size, time).y;
+////                    triangle.rotation.y = getHeight(triangle.rotation, size, time).y;
+////                    IntersectTriangle(ray, bestHit, triangle);
+////                    float3 temp = triangle.size;
+////                    triangle.size = triangle.position;
+////                    triangle.position = temp;
+////                    IntersectTriangle(ray, bestHit, triangle);
+////
+////                }
+////            }
+////        }
+////    }
+//}
+
+float IntersectClouds(Ray ray, float time) {
     // Calculate distance along the ray where the ground plane is intersected
     float minT = (40 - ray.origin.y) / ray.direction.y;
-    float maxT = (200 - ray.origin.y) / ray.direction.y;
+    float maxT = (10000 - ray.origin.y) / ray.direction.y;
+    if (minT < 0) {
+        minT = 0;
+    }
+    if (maxT < 0) {
+        maxT = 0;
+    }
+    if (minT == 0 && maxT == 0) { return 0; }
     float t = INFINITY;
-    float threshold = 0.8;
-    float offset = recursiveSample(ray.origin, ray.direction, maxT - minT, 5, 0.5, 323852093, 0.5, 0.5, 0.5, 1, 3);
-//    for (int i = 0; i < 10; i ++) {
-//        t = lerp(minT, maxT, float(i) / 9.0);
-//        float3 position = ray.direction * t + ray.origin;
-//        float currentOffset = recursiveWhirlNoise(position + float3(time / 3, time / 100, time / 8), float3(500), 0.5, 391017250, -0.5, 0.5, 0.5, 1, 3);
-//        offset += currentOffset;
-//    }
+    float offset = 0;//recursiveSample(ray.origin, ray.direction, maxT - minT, 5, 0.5, 323852093, 0.5, 0.5, 0.5, 1, 3);
+    for (int i = 0; i < 5; i ++) {
+        t = lerp(minT, maxT, float(i) / 4.0);
+        float3 position = ray.direction * t + ray.origin;
+        float currentOffset = recursiveWhirlNoise(position + 3000 * float3(time / 3, 0, time / 8), float3(10000), 0.5, 391017250, -0.5, 0.5, 0.5, 1, 3);
+        offset += currentOffset;
+    }
+    offset /= 5.0;
 
     float transmittance = exp(-offset);
-    
-    if (t > 0 && transmittance < threshold && t < bestHit.distance) {
-        Material groundMaterial;
-//        float factor = clamp(transmittance * 5, 0.0, 1.0);
-        groundMaterial.albedo = float3(1);// * factor;
-        groundMaterial.specular = float3(0);
-        groundMaterial.n = 1;
-        groundMaterial.transparency = 0;
-
-        bestHit.distance = t;
-        bestHit.position = ray.origin + t * ray.direction;
-        bestHit.normal = float3(0.0f, 1.0f, 0.0f);
-        bestHit.material = groundMaterial;
-    }
+    return transmittance;
 }
 
 RayHit Intersect(Ray ray, Object object, thread RayHit & bestHit) {
@@ -552,9 +580,9 @@ RayHit Trace(Ray ray, int objectCount, constant Object *objects, bool groundPlan
 
 RayHit Trace(Ray ray, int objectCount, constant Object *objects, float t) {
     thread RayHit && bestHit = CreateRayHit();
-//    IntersectWaterPlane(ray, bestHit, t);
-    IntersectGroundPlane(ray, bestHit);
-    IntersectClouds(ray, bestHit, t);
+    IntersectWaterPlane(ray, bestHit, t);
+//    IntersectGroundPlane(ray, bestHit);
+//    IntersectClouds(ray, bestHit, t);
     for (int i = 0; i < objectCount; i++) {
         if (objects[i].objectType == sphere) {
             IntersectSphere(ray, bestHit, objects[i]);
@@ -589,6 +617,59 @@ float3 Shade(thread Ray &ray, RayHit hit, texture2d<float> sky, int2 skyDimensio
        return sky.read(sampleSky(ray.direction, skyDimensions)).xyz * skyIntensity;
    }
 }
+
+//float3 skyColor(float3 direction, float4 lightDirection) {
+//    float transition = pow(smoothstep(0.02, .5, direction.y), 0.4);
+//    float3 sky = 2e2 * mix(float3(0.52, 0.77, 1),
+//                           float3(0.12, 0.43, 1),
+//                           transition);
+//    float3 sun = 1e3 * lightDirection.w * pow(abs(dot(direction, normalize(lightDirection.xyz))), 5000.);
+//    return sky + sun;
+//}
+float3 sunColor(float4 lightDirection) {
+    float sunHorizon = clamp((1 - abs(normalize(lightDirection.xyz).y) * 2), 0.0, 1.0);
+    float3 sun = mix(float3(1), float3(1, 0.5, 0), sunHorizon);
+    return sun;
+}
+
+float3 skyColor(float3 direction, float4 lightDirection) {
+    float transition = pow(smoothstep(0.02, .5, direction.y), 0.4);
+    float timeOfDay = (normalize(lightDirection.xyz).y + 1) / 2;
+    float sunHorizon = clamp((1 - abs(normalize(lightDirection.xyz).y) * 2), 0.0, 1.0);
+    float3 sky = 2e2 * mix(mix(mix(float3(0.52, 0.77, 1), float3(0.52, 0.77, 1) * 0.01, timeOfDay), float3(1, 0.55, 0.1) * 0.56, sunHorizon), // horizon
+                           mix(mix(float3(0.12, 0.43, 1), float3(0.12, 0.43, 1) * 0.01, timeOfDay), float3(0.6, 0.3, 0.7) * 0.1, sunHorizon), // top
+                           transition);
+    float sunIntensity = 1e3 * lightDirection.w * pow(abs(dot(direction, normalize(lightDirection.xyz))), 5000.);
+    float3 sun = sunColor(lightDirection) * sunIntensity;
+    return sky + sun;
+}
+
+
+
+float3 Shade(thread Ray &ray, RayHit hit, int objectCount, constant Object * objects, float4 lightDirection, float time) {
+    
+   if (hit.distance < INFINITY) {
+       // Return the normal
+       ray.origin = hit.position + hit.normal * 0.001f;
+       ray.direction = reflect(ray.direction, hit.normal);
+       ray.energy *= hit.material.specular;
+       
+       Ray shadowRay = CreateRay(hit.position + hit.normal * 0.001f, -1 * lightDirection.xyz);
+       RayHit shadowHit = Trace(shadowRay, objectCount, objects, true);
+       if (shadowHit.distance != INFINITY) {
+           return float3(0.0f, 0.0f, 0.0f);
+       }
+       return saturate(dot(hit.normal, lightDirection.xyz) * -1) * lightDirection.w * hit.material.albedo;
+   }else {
+       // Sample the skybox and write it
+       ray.energy = float3(0);
+       float cloud = IntersectClouds(ray, time);
+       cloud = cloud > 0.7 ? (cloud - 0.7) / 0.3: 0;
+       float3 color = skyColor(ray.direction, lightDirection) * 0.005;
+       return lightDirection.w * (float3(1) * 0.95 + color * 0.05) * cloud + (1 - cloud) * color;
+   }
+}
+
 
 float3 Shade(thread Ray &ray, RayHit hit, texture2d<float> sky, int2 skyDimensions, float4 lightDirection, float skyIntensity) {
     

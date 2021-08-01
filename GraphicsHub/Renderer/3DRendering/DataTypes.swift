@@ -60,6 +60,7 @@ struct Camera {
     }
 
 }
+
 struct Material {
     var albedo: SIMD3<Float>
     var specular: SIMD3<Float>

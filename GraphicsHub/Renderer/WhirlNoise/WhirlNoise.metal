@@ -73,27 +73,6 @@ float3 smin(float3 a, float3 b, float k) {
   float3 h = clamp(0.5 + 0.5 * (a - b) / k, 0.0, 1.0);
   return mix(a, b, h) - k * h * (1.0 - h);
 }
-
-float3 smoothWhirlNormal(float3 coordinates, float3 chunkSize, int seed, float blendingStrength) {
-    float3 normal = float3(0, 0, 0);
-    for (int x = -1; x <= 1; x ++) {
-        for (int y = -1; y <= 1; y ++) {
-            for (int z = -1; z <= 1; z ++) {
-                float3 point = chunkPoint(coordinates, int3(x, y, z), chunkSize, seed, 1);
-                float currentDistance = clamp(distance(coordinates,
-                                                 point) / length(chunkSize), 0.0, 1.0);
-                if (length(normal) == 0) {
-                    normal = -coordinates + point;
-                } else {
-                    normal = smin(normal, -coordinates + point, blendingStrength);
-                }
-            }
-        }
-    }
-    
-    return normalize(-normal);
-}
-
 // Polynomial smooth minimum by iq
 float smin(float a, float b, float k) {
   float h = clamp(0.5 + 0.5 * (a - b) / k, 0.0, 1.0);
@@ -107,7 +86,6 @@ float smoothWhirlNoise(float3 coordinates, float3 chunkSize, int seed, float ble
             for (int z = -1; z <= 1; z ++) {
                 float currentDistance = clamp(distance(coordinates,
                                                  chunkPoint(coordinates, int3(x, y, z), chunkSize, seed, 1)) / length(chunkSize), 0.0, 1.0);
-//                dist = min(dist, currentDistance);
                 if (dist == INFINITY) {
                     dist = currentDistance;
                 } else {
@@ -119,6 +97,16 @@ float smoothWhirlNoise(float3 coordinates, float3 chunkSize, int seed, float ble
     return (1 - dist);
 }
 
+float3 smoothWhirlNormal(float3 coordinates, float3 chunkSize, int seed, float blendingStrength, float precision) {
+    return normalize(float3(
+                            smoothWhirlNoise(coordinates + float3(precision, 0, 0), chunkSize, seed, blendingStrength) - smoothWhirlNoise(coordinates - float3(precision, 0, 0), chunkSize, seed, blendingStrength),
+                            smoothWhirlNoise(coordinates + float3(0, precision, 0), chunkSize, seed, blendingStrength) - smoothWhirlNoise(coordinates - float3(0, precision, 0), chunkSize, seed, blendingStrength),
+                            smoothWhirlNoise(coordinates + float3(0, 0, precision), chunkSize, seed, blendingStrength) - smoothWhirlNoise(coordinates - float3(0, 0, precision), chunkSize, seed, blendingStrength)
+                            )
+                     );
+}
+
+    
 float whirlNoise(float3 coordinates, float3 chunkSize[], int seed[], float scaling[], float density[], int iterations) {
     float value = 0;
     for (int i = 0; i < iterations; i++) {

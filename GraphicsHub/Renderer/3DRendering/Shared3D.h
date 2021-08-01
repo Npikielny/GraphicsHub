@@ -74,10 +74,14 @@ float IntersectSphere(float3 origin, float3 direction, Object object);
 void IntersectSphere(Ray ray, thread RayHit &bestHit, Object object);
 void IntersectCube(Ray ray, thread RayHit &bestHit, Object box);
 float IntersectCube(float3 origin, float3 direction, Object box);
+float IntersectClouds(Ray ray, float time);
 
 RayHit Intersect(Ray ray, Object object, thread RayHit & bestHit);
 RayHit Trace(Ray ray, int objectCount, constant Object *objects, bool groundPlane);
 RayHit Trace(Ray ray, int objectCount, constant Object *objects, float t);
+float3 sunColor(float4 lightDirection);
+float3 skyColor(float3 direction, float4 lightDirection);
+float3 Shade(thread Ray &ray, RayHit hit, int objectCount, constant Object * objects, float4 lightDirection, float time);
 float3 Shade(thread Ray &ray, RayHit hit, texture2d<float> sky, int2 skyDimensions, int objectCount, constant Object * objects, float4 lightDirection, float skyIntensity);
 float3 Shade(thread Ray &ray, RayHit hit, texture2d<float> sky, int2 skyDimensions, float4 lightDirection, float skyIntensity);
 

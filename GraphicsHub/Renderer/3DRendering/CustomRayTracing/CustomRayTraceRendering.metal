@@ -37,7 +37,8 @@ kernel void rayTrace (uint2 tid [[thread_position_in_grid]],
         float3 result = float3(0, 0, 0);
         for (int i = 0; i < 8; i++) {
             RayHit hit = Trace(ray, objectCount, objects, float(frame));
-            result += ray.energy * Shade(ray, hit, sky, skySize, objectCount, objects, lightingDirection, skyIntensity);
+//            result += ray.energy * Shade(ray, hit, sky, skySize, objectCount, objects, lightingDirection, skyIntensity);
+            result += ray.energy * Shade(ray, hit, objectCount, objects, lightingDirection, float(frame));
 //            result = hit.normal * 0.5 + 0.5; break;
             if (length(ray.energy) == 0) {
                 break;

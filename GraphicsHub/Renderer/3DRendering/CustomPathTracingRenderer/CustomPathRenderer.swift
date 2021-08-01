@@ -17,14 +17,14 @@ class CustomPathRenderer: HighFidelityRayRenderer {
     required init(device: MTLDevice, size: CGSize) {
         super.init(device: device,
                    size: size,
-                   objects: SceneManager.generate(objectCount: 1000,
+                   objects: SceneManager.generate(objectCount: 100,
                                                   objectTypes: [.Box, .Sphere, .Triangle],
                                                   generationType: .procedural,
                                                   positionType: .radial,
                                                   collisionType: [.grounded, .distinct],
                                                   objectSizeRange: (SIMD3<Float>(repeating: 0.1), SIMD3<Float>(repeating: 2)),
                                                   objectPositionRange: (SIMD3<Float>(0, 0, 0), SIMD3<Float>(15, Float.pi * 2, 0)),
-                                                  materialType: .random),
+                                                  materialType: .solid),
                    inputManager: HighFidelityRayInputManager(size: size),
                    imageCount: 2)
         name = "Vanilla Path Trace Renderer"
