@@ -15,8 +15,8 @@ class PerlinNoiseRenderer: Renderer {
     
     required init(device: MTLDevice, size: CGSize) {
         super.init(device: device, size: size, inputManager: PerlinInputManager(imageSize: size), name: "Perlin Noise Renderer")
-        let functions = createFunctions(names: "perlinRenderer")
-        perlinPipeline = try! device.makeComputePipelineState(function: functions[0]!)
+        let function = createFunctions("perlinRenderer")
+        perlinPipeline = try! device.makeComputePipelineState(function: function!)
     }
     
     override func draw(commandBuffer: MTLCommandBuffer, view: MTKView) {
@@ -56,7 +56,7 @@ class PerlinInputManager: BasicInputManager {
         Float((getInput(9) as! SliderInput).output)
     ) } }
     override init(renderSpecificInputs: [NSView] = [], imageSize: CGSize?) {
-        let octaves = SliderInput(name: "octaves", minValue: 0, currentValue: 0, maxValue: 12, tickMarks: 10)
+        let octaves = SliderInput(name: "octaves", minValue: 0, currentValue: 0, maxValue: 12, tickMarks: 13)
         let noise = SizeInput(name: "Noise Offset", prefix: nil, size: CGSize(width: 1619, height: 31337), maxSize: CGSize(width: 40000, height: 40000))
         let noiseSeed = SliderInput(name: "noiseSeed", minValue: 0, currentValue: 1013, maxValue: 10000)
         let seed = SliderInput(name: "seed", minValue: 0, currentValue: 1, maxValue: 10000)

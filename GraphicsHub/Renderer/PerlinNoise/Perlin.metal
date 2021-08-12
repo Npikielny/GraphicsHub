@@ -96,125 +96,56 @@ float perlin (int2 position,
     int x = position.x;
     int y = position.y;
     float netValue = 0;
+    
+    int power = int(pow(2.0, float(1))); // Smaller -> Wider and larger, gradual changes... Larger -> Thinner and smaller, sharp changes
+    int chunkSize = sideLength / power;
+    int2 minChunk = int2(x / chunkSize, y / chunkSize) * (chunkSize); // Min coordinate of the chunk
+    int2 maxChunk = minChunk + chunkSize; // Max coordinate of the chunk
+    float point1 = findPoint(minChunk, noiseX, noiseZ, noiseSeed, 1).y;
+    float point2 = findPoint(int2(maxChunk.x, minChunk.y), noiseX, noiseZ, noiseSeed, 1).y;
+    float point3 = findPoint(int2(minChunk.x, maxChunk.y), noiseX, noiseZ, noiseSeed, 1).y;
+    float point4 = findPoint(int2(maxChunk.x, maxChunk.y), noiseX, noiseZ, noiseSeed, 1).y;
+    
+    // If point is in bottom right -> { assign bottom right triangle to verts } otherwise { assign top left triangle to verts }
+    float xPct = float(x - minChunk.x) / float(chunkSize);
+        float value = lerp(
+                           lerp(point1, point2, xPct),
+                           lerp(point3, point4, xPct),
+                           float(y - minChunk.y) / float(chunkSize));
+//    float value = lerp(point1, point2, xPct);
+//    netValue += value * 1 / float(power);
+    netValue = value;
+    
+    
+    
+    
     // FIXME: Everything XD
-    for (int octave = 0; octave <= octaves; octave ++) {
-        int power = int(pow(2.0, float(octave))); // Smaller -> Wider and larger, gradual changes... Larger -> Thinner and smaller, sharp changes
-        int chunkSize = sideLength / power;
-        int2 minChunk = int2(x / chunkSize, y / chunkSize) * (chunkSize); // Min coordinate of the chunk
-        int2 maxChunk = minChunk + chunkSize; // Max coordinate of the chunk
-        
-        float3 point1; // Vertex of Triangle
-        float3 point2 = findPoint(minChunk, noiseX, noiseZ, noiseSeed, 1);
-        float3 point3;
-        
-        // If point is in bottom right -> { assign bottom right triangle to verts } otherwise { assign top left triangle to verts }
-        if (y - minChunk.y < ((maxChunk.y - minChunk.y) / (maxChunk.x - minChunk.x) * (x - minChunk.x))) {
-            // below midpoint
-            point1 = findPoint(int2(maxChunk.x, minChunk.y), noiseX, noiseZ, noiseSeed, 1);
-            point3 = findPoint(int2(maxChunk.x, maxChunk.y), noiseX, noiseZ, noiseSeed, 1);
-        }else {
-            // above || on midpoint
-            point1 = findPoint(int2(maxChunk.x, maxChunk.y), noiseX, noiseZ, noiseSeed, 1);
-            point3 = findPoint(int2(minChunk.x, maxChunk.y), noiseX, noiseZ, noiseSeed, 1);
-        }
-//        float3 vector1 = point1 - point2;
-//        float3 vector2 = point3 - point2;
-//
-//        float3 product = cross(vector1, vector2);
-            
-            
-            
-        float3x3 colorMatrix = createMatrix(int2(point1.xz),
-                                            int2(point2.xz - point2.xz),
-                                            int2(point3.xz), noiseX, noiseZ, noiseSeed, 1, sideLength, sideLength);
-        float3 vector1 = float3(colorMatrix[1][0] - colorMatrix[0][0], colorMatrix[1][1] - colorMatrix[0][1], colorMatrix[1][2] - colorMatrix[0][2]);
-        float3 vector2 = float3(colorMatrix[2][0] - colorMatrix[0][0], colorMatrix[2][1] - colorMatrix[0][1], colorMatrix[2][2] - colorMatrix[0][2]);
-//
-        float3 coefficients = cross(vector1, vector2);
-        float D = float(coefficients.x * colorMatrix[0][0] + coefficients.y * colorMatrix[0][1] + coefficients.z * colorMatrix[0][2]);
-        float4 planarCoefficients = float4(coefficients.x, coefficients.y, coefficients.z, D);
-
-//         Y coordinate of the plane at some (x, z)
-        float value = (D - (planarCoefficients.x * float(x - point2.x) + planarCoefficients.z * float(y - point2.z)))/planarCoefficients.y + point2.y;
-        
-//        float3 coefficients = cross(vector1, vector2);
-//        float D = float(coefficients.x * point2.x + coefficients.y * point2.y + coefficients.z * point2.z);
-//        float4 planarCoefficients = float4(coefficients.x, coefficients.y, coefficients.z, D);
-//        float value = (D - (planarCoefficients.x * float(x - point2.x) + planarCoefficients.z * float(y - point2.z)))/planarCoefficients.y + point2.y;
-//
+//    for (int octave = 0; octave <= octaves; octave ++) {
 //        int power = int(pow(2.0, float(octave))); // Smaller -> Wider and larger, gradual changes... Larger -> Thinner and smaller, sharp changes
 //        int chunkSize = sideLength / power;
 //        int2 minChunk = int2(x / chunkSize, y / chunkSize) * (chunkSize); // Min coordinate of the chunk
-//        int2 maxChunk = minChunk + chunkSize; // Max coordinate of the chunk
-//
-//        float3 point1; // Vertex of Triangle
-//        float3 point2 = findPoint(minChunk, noiseX, noiseZ, noiseSeed, 1);
-//        float3 point3;
+//        int2 maxChunk = minChunk + chunkSize + int2(1, 0); // Max coordinate of the chunk
+//        minChunk.y = 0;
+//        maxChunk.y = 0;
+//        float point1 = findPoint(minChunk, noiseX, noiseZ, noiseSeed, 1).y;
+//        float point2 = findPoint(int2(maxChunk.x, minChunk.y), noiseX, noiseZ, noiseSeed, 1).y;
+//        float point3 = findPoint(int2(minChunk.x, maxChunk.y), noiseX, noiseZ, noiseSeed, 1).y;
+//        float point4 = findPoint(int2(maxChunk.x, maxChunk.y), noiseX, noiseZ, noiseSeed, 1).y;
 //
 //        // If point is in bottom right -> { assign bottom right triangle to verts } otherwise { assign top left triangle to verts }
-////        float value = 0;
-//        if (y - minChunk.y < ((maxChunk.y - minChunk.y) / (maxChunk.x - minChunk.x) * (x - minChunk.x))) {
-//            // below midpoint
-//            point1 = findPoint(int2(maxChunk.x, minChunk.y), noiseX, noiseZ, noiseSeed, 1);
-//            point3 = findPoint(int2(maxChunk.x, maxChunk.y), noiseX, noiseZ, noiseSeed, 1);
-////            value = 1;
-//        }else {
-//            // above || on midpoint
-////            value = 0;
-//            point1 = findPoint(int2(maxChunk.x, maxChunk.y), noiseX, noiseZ, noiseSeed, 1);
-//            point3 = findPoint(int2(minChunk.x, maxChunk.y), noiseX, noiseZ, noiseSeed, 1);
-//        }
-////        if (y < (((maxChunk.y - minChunk.y) / (maxChunk.x - minChunk.x)) * (x - midChunk.x) + midChunk.y)) {
-////            point1 = findPoint(int2(maxChunk.x, minChunk.y), noiseX, noiseZ, noiseSeed, 1);
-////            point3 = findPoint(int2(maxChunk.x, maxChunk.y), noiseX, noiseZ, noiseSeed, 1);
-////        }else {
-////            point1 = findPoint(int2(maxChunk.x, maxChunk.y), noiseX, noiseZ, noiseSeed, 1);
-////            point3 = findPoint(int2(minChunk.x, maxChunk.y), noiseX, noiseZ, noiseSeed, 1);
-////        }
+//        float xPct = float(x - minChunk.x) / float(chunkSize);
+////        float value = lerp(
+////                           lerp(point1, point2, xPct),
+////                           lerp(point3, point4, xPct),
+////                           float(y - minChunk.y) / float(chunkSize));
+//        float value = lerp(point1, point2, xPct);
+//        netValue += value * 1 / float(power);
 //
-//        float3 vector1 = point1 - point2;
-//        float3 vector2 = point3 - point2;
-//
-//        float2 pos = (float2(x,y) - point2.xz) / float2(vector1.x, vector2.z);
-//        float value = (vector2 * pos.x + vector1 * pos.y).y;
-        
-//        float3 n = cross(v1, v2);
-//        float k = dot(n, point2);
-//        float value = (k - n.x * float(x) - n.z * float(y)) / n.z; // float(y) is actually the z-coordinate
-        
-        // Create plane, which contains the triangle
-//        float3 vector0 = findPoint(point2, noiseX, noiseZ, noiseSeed, 1);
-//        float3 vector1 = findPoint(point1, noiseX, noiseZ, noiseSeed, 1) - vector0;
-//        float3 vector2 = findPoint(point3, noiseX, noiseZ, noiseSeed, 1) - vector0;
-//
-////        float3 product = cross(vector1, vector2);
-////
-////        float value = (-product.x * )
-//        float2 pos = (float2(x, y) - float2(point2)) / float2(chunkSize);
-//        float value = (pos.x * vector1 + pos.y * vector2).y + vector0.y;
-        
-        
-        
-        
-//        float3x3 colorMatrix = createMatrix(int2(point1.xz),
-//                                            int2(point2.xz - point2.xz),
-//                                            int2(point3.xz), noiseX, noiseZ, noiseSeed, 1, sideLength, sideLength);
-////        float3 vector1 = float3(colorMatrix[1][0] - colorMatrix[0][0], colorMatrix[1][1] - colorMatrix[0][1], colorMatrix[1][2] - colorMatrix[0][2]);
-////        float3 vector2 = float3(colorMatrix[2][0] - colorMatrix[0][0], colorMatrix[2][1] - colorMatrix[0][1], colorMatrix[2][2] - colorMatrix[0][2]);
-////
-//        float3 coefficients = cross(vector1, vector2);
-//        float D = float(coefficients.x * colorMatrix[0][0] + coefficients.y * colorMatrix[0][1] + coefficients.z * colorMatrix[0][2]);
-//        float4 planarCoefficients = float4(coefficients.x, coefficients.y, coefficients.z, D);
-//
-////         Y coordinate of the plane at some (x, z)
-//        float value = (D - (planarCoefficients.x * float(x - point2.x) + planarCoefficients.z * float(y - point2.z)))/planarCoefficients.y + point2.y;
-        netValue += value * 1 / float(power);
-//        netValue += hash(uint(point2.x * point2.y * point2.z * 83192512389572));
-        
-    }
+//    }
     
 //    return clamp(netValue / (2 * (1 - pow(0.5, float(octaves) + 1.0))), 0.0, 1.0); // Scale values from 0 to 1
-    return netValue / (2 * (1 - pow(0.5, float(octaves) + 1.0))); // Scale values from 0 to 1
+//    return netValue / (2 * (1 - pow(0.5, float(octaves) + 1.0))); // Scale values from 0 to 1
+    return netValue;
 }
 
 
