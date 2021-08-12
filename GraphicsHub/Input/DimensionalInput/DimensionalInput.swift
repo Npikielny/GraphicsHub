@@ -248,6 +248,7 @@ class ScreenSizeInput: SizeInput {
         CGSize(width: 1280, height: 1024),
         CGSize(width: 1600, height: 1200),
         CGSize(width: 1680, height: 1050),
+        CGSize(width: 1900, height: 1080),
         CGSize(width: 1900, height: 1200),
         CGSize(width: 3840, height: 2160),
         CGSize(width: 3840 * 2, height: 2160 * 2),
