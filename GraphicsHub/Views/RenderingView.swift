@@ -303,15 +303,15 @@ extension RenderingView {
         renderer?.inputManager.mouseDragged(event: event)
     }
     override func rightMouseDragged(with event: NSEvent) {
-        renderer?.inputManager.rightMouseDragged(event: event)
+        renderer?.rightMouseDragged(event: event, view: self)
     }
     override func mouseMoved(with event: NSEvent) {
-        renderer?.inputManager.mouseMoved(event: event)
+        renderer?.mouseMoved(event: event, view: self)
     }
     override func keyDown(with event: NSEvent) {
-        renderer?.inputManager.keyDown(event: event)
+        renderer?.keyDown(event: event, view: self)
     }
     override func scrollWheel(with event: NSEvent) {
-        renderer?.inputManager.scrollWheel(event: event)
+        renderer?.scrollWheel(event: event, view: self)
     }
 }

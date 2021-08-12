@@ -80,20 +80,18 @@ uint2 sampleSky (float3 direction, int2 skySize) {
     return uint2(skySize.x * xzAngle,(1 - yAngle) * skySize.y);
 }
 
+constant Material PurpleGround = createMaterial(float3(0.4, 0.2, 0.6) * 0.95,
+                                       float3(0.4, 0.2, 0.6) * 0.05,
+                                       1,
+                                       0,
+                                       0);
+
 // MARK: RayTracing
 void IntersectGroundPlane(Ray ray, thread RayHit &bestHit) {
     // Calculate distance along the ray where the ground plane is intersected
     float t = -ray.origin.y / ray.direction.y;
     if (t > 0 && t < bestHit.distance) {
-        Material groundMaterial;
-        groundMaterial.albedo = float3(0.4, 0.2, 0.6) * 0.95;
-        groundMaterial.specular = float3(0.4, 0.2, 0.6) * 0.05;
-//        groundMaterial.albedo = float3(1) * 0.01;
-//        groundMaterial.specular = float3(1) * 0.99;
-//        groundMaterial.albedo = float3(0.1) * 0.5;
-//        groundMaterial.specular = float3(0.1) * 0.5;
-        groundMaterial.n = 1;
-        groundMaterial.transparency = 0;
+        Material groundMaterial = PurpleGround;
         
         bestHit.distance = t;
         bestHit.position = ray.origin + t * ray.direction;
@@ -403,6 +401,12 @@ float3 getHeight(float3 position, float size, float t) {
     return sin(position.x + position.z + t / 10);
 }
 
+constant Material WaterMaterial = createMaterial(float3(0.2, 0.5, 0.8) * 0.05,
+                                                 float3(0.2, 0.5, 0.8) * 0.95,
+                                                 1.33,
+                                                 0.8,
+                                                 0);
+
 void IntersectWaterPlane(Ray ray, thread RayHit &bestHit, float time) {
     // Calculate distance along the ray where the ground plane is intersected
     float t = -ray.origin.y / ray.direction.y;
@@ -415,8 +419,10 @@ void IntersectWaterPlane(Ray ray, thread RayHit &bestHit, float time) {
 //    float3 normal = normalize(float3(abs(cos(offset) / 2),
 //                           2,
 //                           abs(sin(offset) / 2)));
-    float3 coordinates = ray.origin + ray.direction * t + float3(0, time, 0) / 10;
-    float3 normal = smoothWhirlNormal(coordinates, float3(3), 2032835902, 0.14, 0.00001);
+    float3 coordinates = ray.origin + ray.direction * t;
+    float3 normal = smoothWhirlNormal(coordinates + float3(0, time, 0) / 10, float3(3), 2032835902, 0.14, 0.00001);
+    float3 positionHeight = smoothWhirlNormal(coordinates, float3(1), 887239528, 0.14, 0.00001);
+    normal = normal * 0.75 + positionHeight * 0.25;
     if (project(ray.direction, normal) < project(ray.direction, -normal)) {
         normal *= -1;
     }
@@ -424,11 +430,12 @@ void IntersectWaterPlane(Ray ray, thread RayHit &bestHit, float time) {
     normal = normalize(normal / 4 + float3(0, 1, 0));
     
     if (t > 0 && t < bestHit.distance) {
-        Material water;
-        water.albedo = float3(0.75, 0.75, 0.99) * 0.05;
-        water.specular = float3(0.75, 0.75, 0.99) * 0.95;
-        water.n = 1;
-        water.transparency = 0;
+        Material water = WaterMaterial;
+//        water.albedo = float3(0.75, 0.75, 0.99) * 0.05;
+//        water.specular = float3(0.75, 0.75, 0.99) * 0.95;
+//        water.n = 1;
+//        water.transparency = 0;
+//        water.emission = float3(0);
         float overlap = max(project(ray.direction, normal), project(ray.direction, -normal));
         bestHit.position = ray.direction * (t - overlap) + ray.origin;
         bestHit.normal = normal;

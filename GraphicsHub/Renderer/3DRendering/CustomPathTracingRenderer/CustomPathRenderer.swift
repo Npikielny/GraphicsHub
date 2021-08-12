@@ -24,12 +24,12 @@ class CustomPathRenderer: HighFidelityRayRenderer {
                                                   collisionType: [.grounded, .distinct],
                                                   objectSizeRange: (SIMD3<Float>(repeating: 0.1), SIMD3<Float>(repeating: 2)),
                                                   objectPositionRange: (SIMD3<Float>(0, 0, 0), SIMD3<Float>(15, Float.pi * 2, 0)),
-                                                  materialType: .solid),
+                                                  materialType: .randomLit),
                    inputManager: HighFidelityRayInputManager(size: size),
                    imageCount: 2)
         name = "Vanilla Path Trace Renderer"
-        let functions = createFunctions(names: "pathTrace")
-        if let rayFunction = functions[0] {
+        let function = createFunctions("pathTrace")
+        if let rayFunction = function {
             do {
                 rayPipeline = try device.makeComputePipelineState(function: rayFunction)
                 skyTexture = try loadTexture(name: "rural_landscape_4k")
