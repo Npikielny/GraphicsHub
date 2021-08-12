@@ -33,8 +33,8 @@ class BoidRenderer: RayMarchingRenderer {
                    inputManager: BoidInputManager(renderSpecificInputs: [], imageSize: size))
         name = "Boids Renderer"
         
-        let functions = createFunctions(names: "boid")
-        if let boidFunction = functions[0] {
+        let function = createFunctions("boid")
+        if let boidFunction = function {
             do {
                 boidComputePipeline = try device.makeComputePipelineState(function: boidFunction)
             } catch {

@@ -19,7 +19,7 @@ class ConwayRenderer: Renderer {
     
     required init(device: MTLDevice, size: CGSize) {
         super.init(device: device, size: size, inputManager: ConwayInputManager(imageSize: size), name: "Conway's Game of Life")
-        let functions = createFunctions(names: "conwayCalculate", "conwayDraw", "conwayCopy")
+        let functions = createFunctions("conwayCalculate", "conwayDraw", "conwayCopy")
         do {
             cellPipeline = try device.makeComputePipelineState(function: functions[0]!)
             drawPipeline = try device.makeComputePipelineState(function: functions[1]!)

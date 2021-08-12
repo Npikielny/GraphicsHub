@@ -140,7 +140,17 @@ class Renderer: NSObject, RendererInfo {
             return dataPath
         }
     }
+    
+    func flagsChanged(event: NSEvent, view: NSView) { inputManager.flagsChanged(event: event) }
+    func mouseDown(event: NSEvent, view: NSView) { inputManager.mouseDown(event: event) }
+    func rightMouseDown(event: NSEvent, view: NSView) { inputManager.rightMouseDown(event: event) }
+    func mouseDragged(event: NSEvent, view: NSView) { inputManager.mouseDragged(event: event) }
+    func rightMouseDragged(event: NSEvent, view: NSView) { inputManager.rightMouseDragged(event: event) }
+    func mouseMoved(event: NSEvent, view: NSView) { inputManager.mouseMoved(event: event) }
+    func keyDown(event: NSEvent, view: NSView) { inputManager.keyDown(event: event) }
+    func scrollWheel(event: NSEvent, view: NSView) { inputManager.scrollWheel(event: event) }
 }
+
 
 extension Renderer {
     
@@ -169,13 +179,13 @@ extension Renderer {
         }
     }
     
-    func createTexture(size: CGSize) -> MTLTexture? {
+    func createTexture(size: CGSize, editable: Bool = false) -> MTLTexture? {
         let renderTargetDescriptor = MTLTextureDescriptor()
         renderTargetDescriptor.pixelFormat = MTLPixelFormat.rgba32Float
         renderTargetDescriptor.textureType = MTLTextureType.type2D
         renderTargetDescriptor.width = Int(size.width)
         renderTargetDescriptor.height = Int(size.height)
-        renderTargetDescriptor.storageMode = .private
+        renderTargetDescriptor.storageMode = editable ? .managed : .private
         renderTargetDescriptor.usage = [.shaderRead, .shaderWrite]
         return device.makeTexture(descriptor: renderTargetDescriptor)
     }
@@ -205,7 +215,11 @@ extension Renderer {
         }
     }
     
-    func createFunctions(names: String...) -> [MTLFunction?] {
+    func createFunctions(_ name: String) -> MTLFunction? {
+        let library = device.makeDefaultLibrary()
+        return library?.makeFunction(name: name)
+    }
+    func createFunctions(_ names: String...) -> [MTLFunction?] {
         var functions = [MTLFunction?]()
         let library = device.makeDefaultLibrary()
         for i in names {

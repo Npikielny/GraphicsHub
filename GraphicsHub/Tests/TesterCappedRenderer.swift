@@ -15,7 +15,7 @@ class TesterCappedRenderer: SinglyCappedRenderer {
     
     required init(device: MTLDevice, size: CGSize) {
         super.init(device: device, size: size, inputManager: nil, name: "Tester Capped Renderer")
-        if let tidFunction = createFunctions(names: "testerSinglyCapped")[0] {
+        if let tidFunction = createFunctions("testerSinglyCapped") {
             do {
                 tidComputePipeline = try device.makeComputePipelineState(function: tidFunction)
             } catch {

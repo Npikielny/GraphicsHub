@@ -13,8 +13,8 @@ class WhirlNoiseRenderer: Renderer {
     
     required init(device: MTLDevice, size: CGSize) {
         super.init(device: device, size: size, inputManager: WhirlNoiseInputManager(imageSize: size), name: "Whirl Noise")
-        let functions = createFunctions(names: "whirlNoiseRendering")
-        whirlNoise = try! device.makeComputePipelineState(function: functions[0]!)
+        let functions = createFunctions("whirlNoiseRendering")
+        whirlNoise = try! device.makeComputePipelineState(function: functions!)
     }
     
     override func draw(commandBuffer: MTLCommandBuffer, view: MTKView) {

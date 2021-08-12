@@ -34,8 +34,8 @@ class CappedRayMarchingRenderer: HighFidelityRayRenderer {
                    inputManager: inputManager ?? FidelityRayMarchingInputManager(renderSpecificInputs: [], imageSize: size),
                    imageCount: 2)
         name = "Fidelity Ray Marching Renderer"
-        let functions = createFunctions(names: "rayMarch")
-        if let rayFunction = functions[0] {
+        let function = createFunctions("rayMarch")
+        if let rayFunction = function {
             do {
                 rayPipeline = try device.makeComputePipelineState(function: rayFunction)
                 skyTexture = try loadTexture(name: "christmas_photo_studio_04_4k")
@@ -140,8 +140,8 @@ class RayMarchingRenderer: RealTimeRayRenderer {
     
     init(device: MTLDevice, size: CGSize, objects: [Object], inputManager: RealTimeRayMarchingInputManager? = nil) {
         super.init(device: device, size: size, camera: nil, objects: objects, inputManager: inputManager ?? RealTimeRayMarchingInputManager(size: size), name: "Ray Marching Renderer")
-        let functions = createFunctions(names: "rayMarch")
-        if let rayFunction = functions[0] {
+        let function = createFunctions("rayMarch")
+        if let rayFunction = function {
             do {
                 rayPipeline = try device.makeComputePipelineState(function: rayFunction)
                 skyTexture = try loadTexture(name: "christmas_photo_studio_04_4k")

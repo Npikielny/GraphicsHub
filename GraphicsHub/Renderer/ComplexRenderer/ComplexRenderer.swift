@@ -19,7 +19,7 @@ class ComplexRenderer: SinglyCappedRenderer {
     
     required init(device: MTLDevice, size: CGSize) {
         super.init(device: device, size: size, inputManager: ComplexInputManager(size: size))
-        let functions = createFunctions(names: "juliaSet", "mandelbrotSet")
+        let functions = createFunctions("juliaSet", "mandelbrotSet")
         if let juliaFunction = functions[0], let mandelbrotFunction = functions[1] {
             do {
                 juliaPipeline = try device.makeComputePipelineState(function: juliaFunction)

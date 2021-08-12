@@ -28,8 +28,8 @@ class CustomRayTraceRenderer: HighFidelityRayRenderer {
                    inputManager: HighFidelityRayInputManager(size: size),
                    imageCount: 2)
         name = "Vanilla Ray Trace Renderer"
-        let functions = createFunctions(names: "rayTrace")
-        if let rayFunction = functions[0] {
+        let function = createFunctions("rayTrace")
+        if let rayFunction = function {
             do {
                 rayPipeline = try device.makeComputePipelineState(function: rayFunction)
                 skyTexture = try loadTexture(name: "cape_hill_4k")

@@ -127,8 +127,8 @@ class AntialiasingRenderer: SinglyCappedRenderer {
         self.imageCount = imageCount
         super.init(device: device, size: size, inputManager: inputManager)
         name = "Antialiasing Renderer"
-        let functions = createFunctions(names: "averageImages")
-        if let averageFunction = functions[0] {
+        let function = createFunctions("averageImages")
+        if let averageFunction = function {
             do {
                 averagePipeline = try device.makeComputePipelineState(function: averageFunction)
             } catch {

@@ -49,7 +49,7 @@ struct RGBA32 {
 
 extension Renderer {
     func copyToBuffer(commandBuffer: MTLCommandBuffer?, buffer: MTLBuffer?) -> NSImage? {
-        let copyFunction = createFunctions(names: "toRGB32")[0]!
+        let copyFunction = createFunctions("toRGB32")[0]!
         let copyPipeline = try! device.makeComputePipelineState(function: copyFunction)
         
         let copyEncoder = commandBuffer?.makeComputeCommandEncoder()

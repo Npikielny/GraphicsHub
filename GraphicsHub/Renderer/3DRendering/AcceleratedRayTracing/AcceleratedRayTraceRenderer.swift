@@ -56,7 +56,7 @@ class AcceleratedRayTraceRenderer: HighFidelityRayRenderer {
 //        let computeDescriptor = MTLComputePipelineDescriptor()
 //        computeDescriptor.threadGroupSizeIsMultipleOfThreadExecutionWidth = true
         
-        let functions = createFunctions(names: "acceleratedRays", "sphereIntersectionFunction")
+        let functions = createFunctions("acceleratedRays", "sphereIntersectionFunction")
         do {
             let linkedFunctions = MTLLinkedFunctions()
             linkedFunctions.functions = [functions[1]!]

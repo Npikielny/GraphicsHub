@@ -26,7 +26,7 @@ class SlimeMoldRenderer: Renderer {
     required init(device: MTLDevice, size: CGSize) {
         super.init(device: device, size: size, inputManager: SlimeMoldInputManager(imageSize: size), name: "Slime Mold Simulation")
         do {
-            let functions = createFunctions(names: "slimeMoldCalculate", "slimeMoldAverage", "drawSlime")
+            let functions = createFunctions("slimeMoldCalculate", "slimeMoldAverage", "drawSlime")
             calculatePipeline = try device.makeComputePipelineState(function: functions[0]!)
             averagePipeline = try device.makeComputePipelineState(function: functions[1]!)
             drawPipeline = try device.makeComputePipelineState(function: functions[2]!)

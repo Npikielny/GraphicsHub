@@ -291,16 +291,16 @@ extension RenderingView: MTKViewDelegate {
 
 extension RenderingView {
     override func flagsChanged(with event: NSEvent) {
-        renderer?.inputManager.flagsChanged(event: event)
+        renderer?.flagsChanged(event: event, view: self)
     }
     override func mouseDown(with event: NSEvent) {
-        renderer?.inputManager.mouseDown(event: event)
+        renderer?.mouseDown(event: event, view: self)
     }
     override func rightMouseDown(with event: NSEvent) {
-        renderer?.inputManager.rightMouseDown(event: event)
+        renderer?.rightMouseDown(event: event, view: self)
     }
     override func mouseDragged(with event: NSEvent) {
-        renderer?.inputManager.mouseDragged(event: event)
+        renderer?.mouseDragged(event: event, view: self)
     }
     override func rightMouseDragged(with event: NSEvent) {
         renderer?.rightMouseDragged(event: event, view: self)

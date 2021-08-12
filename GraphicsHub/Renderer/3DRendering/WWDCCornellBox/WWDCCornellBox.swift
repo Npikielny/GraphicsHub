@@ -56,7 +56,7 @@ class CornellBox: AntialiasingRenderer {
         let computeDescriptor = MTLComputePipelineDescriptor()
         computeDescriptor.threadGroupSizeIsMultipleOfThreadExecutionWidth = true
         
-        let functions = createFunctions(names: "rayKernel", "shadeKernel", "shadowKernel")
+        let functions = createFunctions("rayKernel", "shadeKernel", "shadowKernel")
         do {
             computeDescriptor.computeFunction = functions[0]
             rayPipeline = try device.makeComputePipelineState(descriptor: computeDescriptor,
