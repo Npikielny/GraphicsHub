@@ -75,9 +75,12 @@ struct Material {
         case random
         case randomNormal
         case randomLit
+        case solidLit
     }
     static func createMaterial(materialType: Material.MaterialType) -> Material {
         switch materialType {
+            case .solidLit:
+                return createMaterial(materialType: [.solid, .light].randomElement()!)
             case .randomLit:
                 return createMaterial(materialType: [.solid, .metallic, .light].randomElement()!)
             case .random:
@@ -104,8 +107,7 @@ struct Material {
                                 emission: SIMD3<Float>(repeating: 0))
             case .light:
                 let color = SIMD3<Float>(Float.random(in: 0...1), Float.random(in: 0...1), Float.random(in: 0...1))
-                return Material(albedo: color, specular: color, n: 0, transparency: 0, emission: color * Float.random(in: 0.1...0.25))
-            
+                return Material(albedo: color, specular: color, n: 0, transparency: 0, emission: color * Float.random(in: 0.1...0.85))
             default:
                 return Material(albedo: SIMD3<Float>(1,1,1), specular: SIMD3<Float>(1,1,1), n: 1, transparency: 0, emission: SIMD3<Float>(repeating: 0))
         }

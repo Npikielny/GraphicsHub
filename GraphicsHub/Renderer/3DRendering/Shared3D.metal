@@ -141,11 +141,9 @@ float3x3 rotationMatrix(float3 rotation) {
 
 float checkFace (float3 origin, float3 direction, Object box, int tSide, int signSide) {
     float3 faceCenter = box.position;
-    signSide = signSide * 2 - 1;
     faceCenter += box.size * signSide;
     
-    
-    float3x3 backwardsRotation = rotationMatrix(box.rotation);
+    float3x3 backwardsRotation = rotationMatrix(-box.rotation);
     origin = (origin - box.position) * backwardsRotation + box.position;
     direction = direction * backwardsRotation;
     
@@ -180,7 +178,7 @@ void IntersectCube(Ray ray, thread RayHit &bestHit, Object box) {
     for (int i = 0; i < 6; i ++) {
         int tSide = i / 2;
         int signSide = (i % 2) * 2 - 1;
-        float t = checkFace(ray.origin, ray.direction, box, i / 2, i % 2);
+        float t = checkFace(ray.origin, ray.direction, box, tSide, signSide);
         
         float3x3 rotation = rotationMatrix(box.rotation);
         
@@ -188,11 +186,11 @@ void IntersectCube(Ray ray, thread RayHit &bestHit, Object box) {
             bestHit.distance = t;
             bestHit.position = ray.origin + t * ray.direction;
             if (tSide == 0) { //Z
-                bestHit.normal = normalize(float3(0, 0, signSide)) * rotation;
+                bestHit.normal = float3(0, 0, signSide) * rotation;
             }else if (tSide == 1) {// Y
-                bestHit.normal = normalize(float3(0, signSide, 0)) * rotation;
+                bestHit.normal = float3(0, signSide, 0) * rotation;
             }else {//X
-                bestHit.normal = normalize(float3(signSide, 0, 0)) * rotation;
+                bestHit.normal = float3(signSide, 0, 0) * rotation;
             }
     
             bestHit.material = box.material;
@@ -201,14 +199,15 @@ void IntersectCube(Ray ray, thread RayHit &bestHit, Object box) {
 }
 
 float IntersectCube(float3 origin, float3 direction, Object box) {
+    // FIXME: Needs to be corrected for rotation
     float minDistance = INFINITY;
     for (int i = 0; i < 6; i ++) {
-        minDistance = min(checkFace(origin, direction, box,i / 2, i % 2), minDistance);
+        minDistance = min(checkFace(origin, direction, box, i / 2, (i % 2) * 2 - 1), minDistance);
     }
     return minDistance;
 }
 
-constant float EPSILON = 1e-8;
+//constant float EPSILON = 1e-8;
 //bool IntersectTriangle_MT97(Ray ray, float3 vert0, float3 vert1, float3 vert2,
 //    thread float t, thread float u, thread float v)
 //{
@@ -401,8 +400,8 @@ float3 getHeight(float3 position, float size, float t) {
     return sin(position.x + position.z + t / 10);
 }
 
-constant Material WaterMaterial = createMaterial(float3(0.2, 0.5, 0.8) * 0.05,
-                                                 float3(0.2, 0.5, 0.8) * 0.95,
+constant Material WaterMaterial = createMaterial(float3(0.2, 0.5, 0.8) * 0.08,
+                                                 float3(0.7, 0.8, 0.96) * 0.95,
                                                  1.33,
                                                  0.8,
                                                  0);
@@ -411,14 +410,6 @@ void IntersectWaterPlane(Ray ray, thread RayHit &bestHit, float time) {
     // Calculate distance along the ray where the ground plane is intersected
     float t = -ray.origin.y / ray.direction.y;
     if (t <= 0) { return; }
-//    float offset = whirlNoise(ray.origin + ray.direction * t + float3(0, time, 0) / 10, float3(3), 2032835902, 0, 1);
-//    float offset = whirlNoise(abs(ray.origin + ray.direction * t + float3(0, time, 0) / 10), float3(3), 2032835902, 0, 1);
-//    float offset = (cos((ray.origin + ray.direction * t + float3(0, time, 0) / 10).x) + sin((ray.origin + ray.direction * t + float3(0, time, 0) / 10).y)) * 0.5 + 0.5;
-//    float3 intersectionPoint = ray.origin + ray.direction * t;
-//    float offset = (cos(intersectionPoint.x + time) + sin(intersectionPoint.z + time)) * 0.5 + 0.5;
-//    float3 normal = normalize(float3(abs(cos(offset) / 2),
-//                           2,
-//                           abs(sin(offset) / 2)));
     float3 coordinates = ray.origin + ray.direction * t;
     float3 normal = smoothWhirlNormal(coordinates + float3(0, time, 0) / 10, float3(3), 2032835902, 0.14, 0.00001);
     float3 positionHeight = smoothWhirlNormal(coordinates, float3(1), 887239528, 0.14, 0.00001);
@@ -427,7 +418,7 @@ void IntersectWaterPlane(Ray ray, thread RayHit &bestHit, float time) {
         normal *= -1;
     }
     normal *= -1;
-    normal = normalize(normal / 4 + float3(0, 1, 0));
+    normal = normalize(normal / 6 + float3(0, 2, 0));
     
     if (t > 0 && t < bestHit.distance) {
         Material water = WaterMaterial;

@@ -69,7 +69,7 @@ float3 SampleHemisphere(float3 normal, float2 r, float alpha)
     float phi = 2 * M_PI_F * r.y;
     float3 tangentSpaceDir = float3(cos(phi) * sinTheta, sin(phi) * sinTheta, cosTheta);
     // Transform direction to world space
-    return tangentSpaceDir;// * GetTangentSpace(normal);
+    return alignHemisphereWithNormal(tangentSpaceDir, normal);// * GetTangentSpace(normal);
 }
 
 float SmoothnessToPhongAlpha(float s) {
@@ -87,8 +87,7 @@ float3 PathShade(thread Ray &ray, RayHit hit, texture2d<float> sky, int2 skyDime
        specChance /= sum;
        diffChance /= sum;
        // Roulette-select the ray's path
-       if (roulette < specChance)
-       {
+       if (roulette < specChance) {
 //           // Specular reflection
 //           ray.origin = hit.position + hit.normal * 0.001f;
 //           ray.direction = reflect(ray.direction, hit.normal);
@@ -96,6 +95,7 @@ float3 PathShade(thread Ray &ray, RayHit hit, texture2d<float> sky, int2 skyDime
            // Specular reflection
            float alpha = 15.0f;
            ray.origin = hit.position + hit.normal * 0.001f;
+//           ray.direction = SampleHemisphere(reflect(ray.direction, hit.normal), r, alpha);
            ray.direction = SampleHemisphere(reflect(ray.direction, hit.normal), r, alpha);
            float f = (alpha + 2) / (alpha + 1);
            ray.energy *= (1.0f / specChance) * hit.material.specular * sdot(hit.normal, ray.direction, f);
@@ -103,12 +103,7 @@ float3 PathShade(thread Ray &ray, RayHit hit, texture2d<float> sky, int2 skyDime
        else
        {
 //           // Diffuse reflection
-//           ray.origin = hit.position + hit.normal * 0.001f;
-//           ray.direction = ray.direction = alignHemisphereWithNormal(sampleCosineWeightedHemisphere(r), hit.normal);
-////           float alpha = 15.;
-////           ray.direction = ray.direction = alignHemisphereWithNormal(SampleHemisphere(hit.normal, alpha, r), hit.normal);
-//           ray.energy *= (1.0f / diffChance) * 2 * hit.material.albedo * sdot(hit.normal, ray.direction);
-           // Diffuse reflection
+
            ray.origin = hit.position + hit.normal * 0.001f;
            ray.direction = SampleHemisphere(hit.normal, r, 1.0f);
            ray.energy *= (1.0f / diffChance) * hit.material.albedo;
@@ -190,8 +185,8 @@ kernel void pathTrace (uint2 tid [[thread_position_in_grid]],
         float3 result = float3(0, 0, 0);
         
         for (int bounce = 0; bounce < 8; bounce++) {
-//            RayHit hit = Trace(ray, objectCount, objects, float(frame));
-            RayHit hit = Trace(ray, objectCount, objects, true);
+            RayHit hit = Trace(ray, objectCount, objects, float(frame));
+//            RayHit hit = Trace(ray, objectCount, objects, true);
 //            RayHit hit = Trace(ray, objectCount, objects, float(frame) / 10);
             float2 r = float2(hash((tid.x + tid.y * int(imageSize.x)) * uint((randomDirection.x + 0.5) * 10 + uint((bounce + passed) * (imageSize.x + imageSize.y)))),
                               hash((tid.x + tid.y * int(imageSize.x)) * uint((randomDirection.y + 0.5) * 10 + uint((bounce + passed + 8) * (imageSize.x + imageSize.y)))));

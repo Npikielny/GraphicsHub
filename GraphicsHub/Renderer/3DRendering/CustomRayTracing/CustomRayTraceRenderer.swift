@@ -17,7 +17,7 @@ class CustomRayTraceRenderer: HighFidelityRayRenderer {
     required init(device: MTLDevice, size: CGSize) {
         super.init(device: device,
                    size: size,
-                   objects: SceneManager.generate(objectCount: 30,
+                   objects: SceneManager.generate(objectCount: 100,
                                                   objectTypes: [.Box, .Sphere, .Triangle],
                                                   generationType: .procedural,
                                                   positionType: .radial,
