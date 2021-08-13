@@ -31,19 +31,30 @@ inline T lerp(T a, T b, float p) {
     return (b - a) * p + a;
 }
 
-template<typename T>
-T advect(uint2 tid,
-         int2 imageSize,
-         float dt,
-         constant float2 * velocity,
-         constant T * quantity) {
-    float2 position = clamp(float2(tid) - velocity[index(tid, imageSize)] * dt, 0., float2(imageSize)); // position of source–clamp is just in case, but probably redundant
-    float2 chunkMin = floor(position);
+float4 bilinearInterpolation(float2 uv, // does not work for coordinates in max row or max column
+                             texture2d<float, access::read_write> image) {
+    float2 coord = uv * float2(imageSize(image));
+    uint2 minCoord = uint2(coord);
+    return lerp(lerp(image.read(minCoord), image.read(minCoord + uint2(1, 0)), fract(coord.x)),
+                lerp(image.read(minCoord + uint2(0, 1)), image.read(minCoord + uint2(1, 1)), fract(coord.x)),
+                fract(coord.y));
     
-    return lerp(lerp(quantity[index(int2(chunkMin), imageSize)], quantity[index(int2(chunkMin) + int2(1, 0), imageSize)], fract((position.x))),
-                lerp(quantity[index(int2(chunkMin) + int2(0, 1), imageSize)], quantity[index(int2(chunkMin) + int2(1, 1), imageSize)], fract((position.x))),
-                fract(position.y));
+    
 }
+
+float4 advect(uint2 tid,
+              float dt,
+              float gridScale,
+              texture2d<float, access::read_write> velocity,
+              texture2d<float, access::read_write> advectingQuantity) {
+    float2 coords = float2(tid) / float2(imageSize(velocity)); // converts from tid to UV
+    // velocity field in previous state
+    float2 pos = float2(coords) - dt / gridScale * velocity.read(tid).xy;
+
+    return bilinearInterpolation(pos, advectingQuantity);
+}
+
+float4 jacobi() {}
 
 void boundary(int2 location, device float2 * velocity, int2 imageSize) {
     bool isHorizontalEdge = (location.x == 0 || location.x == imageSize.x - 1);
