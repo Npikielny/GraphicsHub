@@ -54,7 +54,59 @@ float4 advect(uint2 tid,
     return bilinearInterpolation(pos, advectingQuantity);
 }
 
-float4 jacobi() {}
+float4 jacobi(uint2 tid, // location
+              float alpha, // looks like center bias (δx)^2/νδt
+              float rBeta, // reciprocal beta  1/(4 + (δx)^2/νδt)
+              texture2d<float, access::read_write>x, // Ax = b
+              texture2d<float, access::read_write>b) { // x and b are velocity textures (20 - 50 iterations)
+    // adjacent values
+    float4 left = x.read(tid - uint2(1, 0));
+    float4 right = x.read(tid + uint2(1, 0));
+    float4 below = x.read(tid - uint2(0, 1));
+    float4 above = x.read(tid + uint2(0, 1));
+    
+    // center
+    float4 center = x.read(tid);
+    
+    // jacobi output
+    return (left + right + below + above + alpha * center) * rBeta;
+}
+
+float4 divergence(uint2 tid, // location,
+                float halfrdx, // 0.5 / gridScale,
+                texture2d<float, access::read_write> w // some vector field
+                ) {
+    // adjacent values
+    float4 left = w.read(tid - uint2(1, 0));
+    float4 right = w.read(tid + uint2(1, 0));
+    float4 below = w.read(tid - uint2(0, 1));
+    float4 above = w.read(tid + uint2(0, 1));
+    return halfrdx * ((right.x - left.x) + (above.y - below.y));
+}
+
+float4 gradient(uint2 tid, // location
+                float halfrdx, // 0.5 / gridscale
+                texture2d<float, access::read_write> pressure,
+                texture2d<float, access::read_write> velocity
+                ) {
+    // adjacent values
+    float left = pressure.read(tid - uint2(1, 0)).x;
+    float right = pressure.read(tid + uint2(1, 0)).x;
+    float below = pressure.read(tid - uint2(0, 1)).x;
+    float above = pressure.read(tid + uint2(0, 1)).x;
+    
+    float4 output = velocity.read(tid);
+    output.xy -= halfrdx * float2(right - left, above - below);
+    return output;
+}
+
+float4 boundary(uint2 tid,
+                int2 offset,
+                float scale,
+                texture2d<float, access::read_write> state // state field
+                ) {
+    return scale * state.read(uint2(int2(tid) + offset));
+}
 
 void boundary(int2 location, device float2 * velocity, int2 imageSize) {
     bool isHorizontalEdge = (location.x == 0 || location.x == imageSize.x - 1);
