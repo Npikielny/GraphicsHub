@@ -22,6 +22,12 @@ struct CopyVertexOut {
     float2 uv;
 };
 
+int2 imageSize(metal::texture2d<float, metal::access::read_write> image);
+int2 imageSize(metal::texture2d<float, metal::access::read> image);
+int2 imageSize(metal::texture2d<float, metal::access::write> image);
+int2 imageSize(metal::texture2d<float> image);
+
+
 int computeCount(int2 imageSize, int2 computeSize);
 
 uint2 shiftedTid(uint2 tid,

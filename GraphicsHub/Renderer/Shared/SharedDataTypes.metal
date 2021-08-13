@@ -11,6 +11,19 @@ using namespace metal;
 
 // TODO: Add spiral shiftedTid
 // TODO: Add rotation
+int2 imageSize(texture2d<float, access::read_write> image) {
+    return int2(image.get_width(), image.get_height());
+}
+int2 imageSize(texture2d<float, access::read> image) {
+    return int2(image.get_width(), image.get_height());
+}
+int2 imageSize(texture2d<float, access::write> image) {
+    return int2(image.get_width(), image.get_height());
+}
+int2 imageSize(texture2d<float> image) {
+    return int2(image.get_width(), image.get_height());
+}
+
 int computeCount(int2 imageSize, int2 computeSize) {
     int2 shift = int2(ceil(float2(imageSize)/float2(computeSize)));
     return shift.x * shift.y;
