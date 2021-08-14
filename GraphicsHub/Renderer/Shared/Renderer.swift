@@ -266,21 +266,36 @@ extension Renderer {
                        height: (Int(size.y) + ThreadSize.height-1)/ThreadSize.height,
                        depth: 1)
     }
+//    func dispatchComputeEncoder(commandBuffer: MTLCommandBuffer,
+//                                computePipeline: MTLComputePipelineState,
+//                                buffers: [MTLBuffer],
+//                                bytes: [(Any, Int)],
+//                                textures: [MTLTexture],
+//                                threadGroups: MTLSize,
+//                                threadGroupSize: MTLSize
+//                                ) {
+//        let computeEncoder = commandBuffer.makeComputeCommandEncoder()
+//        computeEncoder?.setComputePipelineState(computePipeline)
+//        computeEncoder?.setBuffers(buffers, offsets: Array(repeating: 0, count: buffers.count), range: 0..<buffers.count)
+//        for (index, byte) in bytes.enumerated() {
+//            computeEncoder?.setBytes(byte.0 as! UnsafeRawPointer, length: byte.1, index: index + buffers.count)
+//        }
+//        computeEncoder?.setTextures(textures, range: 0..<textures.count)
+//        computeEncoder?.dispatchThreadgroups(threadGroups, threadsPerThreadgroup: threadGroupSize)
+//        computeEncoder?.endEncoding()
+//    }
     func dispatchComputeEncoder(commandBuffer: MTLCommandBuffer,
-                                computePipelineState: MTLComputePipelineState,
+                                computePipeline: MTLComputePipelineState,
                                 buffers: [MTLBuffer],
-                                bytes: [(UnsafeRawPointer, Int)],
+                                bytes: @escaping (MTLComputeCommandEncoder?, Int) -> (),
                                 textures: [MTLTexture],
                                 threadGroups: MTLSize,
-                                threadGroupSize: MTLSize) {
+                                threadGroupSize: MTLSize
+                                ) {
         let computeEncoder = commandBuffer.makeComputeCommandEncoder()
-        computeEncoder?.setComputePipelineState(computePipelineState)
-        for (index, buffer) in buffers.enumerated() {
-            computeEncoder?.setBuffer(buffer, offset: 0, index: index)
-        }
-        for (index, bytes) in bytes.enumerated() {
-            computeEncoder?.setBytes(bytes.0, length: bytes.1, index: index + buffers.count)
-        }
+        computeEncoder?.setComputePipelineState(computePipeline)
+        computeEncoder?.setBuffers(buffers, offsets: Array(repeating: 0, count: buffers.count), range: 0..<buffers.count)
+        bytes(computeEncoder, buffers.count)
         computeEncoder?.setTextures(textures, range: 0..<textures.count)
         computeEncoder?.dispatchThreadgroups(threadGroups, threadsPerThreadgroup: threadGroupSize)
         computeEncoder?.endEncoding()

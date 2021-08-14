@@ -250,7 +250,7 @@ extension RenderingView: MTKViewDelegate {
                 if !renderer.inputManager.paused {
                     animateLayer(FPS: 1/(commandBuffer.gpuEndTime - commandBuffer.gpuStartTime))
                     if 1 / (commandBuffer.gpuEndTime - commandBuffer.gpuStartTime) < 1 {
-                        fatalError("Render took to long: \(commandBuffer.gpuEndTime - commandBuffer.gpuStartTime). Aborting to prevent computer stalls. This can be disabled.")
+                        fatalError("Render took to long: \(commandBuffer.gpuEndTime - commandBuffer.gpuStartTime). Aborting to prevent computer stalls.")
                     }
                 } else {
                     animateLayer(FPS: 0)

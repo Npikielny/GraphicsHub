@@ -10,15 +10,8 @@ using namespace metal;
 #include "../Shared/SharedDataTypes.h"
 
 //Source: https://developer.download.nvidia.com/books/HTML/gpugems/gpugems_ch38.html
-
-//void advect(uint2 tid,
-//            float2 fluidSize,
-//            int2 imageSize,
-//            thread float2 & position,
-//            texture2d<float, access::read_write> velocity,
-//            texture2d<float, access::read_write> advecting) {
-//    position = advecting.read(uint2(float2(tid) * fluidSize / float2(imageSize) / 2.0 * velocity.read(tid).xy)).xy;
-//}
+// http://download.nvidia.com/developer/SDK/Individual_Samples/DEMOS/OpenGL/src/gpgpu_fluid/Docs/GPU_Gems_Fluids_Chapter.pdf
+// https://github.com/keijiro/StableFluids.git
 int index(uint2 tid, int2 imageSize) {
     return tid.x + tid.y * imageSize.x;
 }
@@ -42,16 +35,44 @@ float4 bilinearInterpolation(float2 uv, // does not work for coordinates in max 
     
 }
 
-float4 advect(uint2 tid,
-              float dt,
-              float gridScale,
-              texture2d<float, access::read_write> velocity,
-              texture2d<float, access::read_write> advectingQuantity) {
-    float2 coords = float2(tid) / float2(imageSize(velocity)); // converts from tid to UV
-    // velocity field in previous state
-    float2 pos = float2(coords) - dt / gridScale * velocity.read(tid).xy;
+//void advect(uint2 tid,
+//              float dt,
+//              texture2d<float> velocityIn,
+//              texture2d<float, access::read_write> velocityOut) {
+//    constexpr sampler sam(min_filter::nearest, mag_filter::nearest, mip_filter::none);
+////    float2 coords = float2(tid) / float2(imageSize(velocity)); // converts from tid to UV
+////    // velocity field in previous state
+////    float2 pos = float2(coords) - dt / gridScale * velocity.read(tid).xy;
+////
+////    return bilinearInterpolation(pos, advectingQuantity);
+//
+//    float2 uv = (float2(tid) + 0.5) / float2(imageSize(velocityIn));
+//
+//    float2 velocityChange = velocityIn.read(tid).xy * float2(float(velocityIn.get_height()) / float(velocityIn.get_width()), 1) * dt; // travel distance of previous fluid iteration in UV
+//    velocityOut.write(velocityIn.sample(sam, uv - velocityChange), tid);
+//}
 
-    return bilinearInterpolation(pos, advectingQuantity);
+kernel void initialize(uint2 tid [[ thread_position_in_grid ]],
+                       texture2d<float, access::write> velocityIn,
+                       texture2d<float, access::write> pressure,
+                       texture2d<float, access::write> dye) {
+    velocityIn.write(float4(0, 0, 0, 1), tid);
+    pressure.write(float4(0, 0, 0, 1), tid);
+    dye.write(float4(float2(tid)/float2(imageSize(dye)), 0, 1), tid);
+//    dye.write(float4(hash(tid.x * tid.y + tid.y), hash(tid.x * tid.y + tid.x), 0, 1), tid);
+    
+}
+
+kernel void advect(uint2 tid                                              [[ thread_position_in_grid ]],
+                   constant float & dt                                    [[ buffer (0) ]],
+                   texture2d<float> velocityIn                            [[ texture (0) ]],
+                   texture2d<float, access::read_write> velocityOut       [[ texture (1) ]]
+                   ) {
+    constexpr sampler sam(min_filter::nearest, mag_filter::nearest, mip_filter::none);
+    float2 uv = (float2(tid) + 0.5) / float2(imageSize(velocityIn));
+    
+    float2 velocityChange = velocityIn.read(tid).xy * float2(float(velocityIn.get_height()) / float(velocityIn.get_width()), 1) * dt; // travel distance of previous fluid iteration in UV
+    velocityOut.write(velocityIn.sample(sam, uv - velocityChange), tid);
 }
 
 float4 jacobi(uint2 tid, // location
@@ -70,6 +91,97 @@ float4 jacobi(uint2 tid, // location
     
     // jacobi output
     return (left + right + below + above + alpha * center) * rBeta;
+}
+
+kernel void jacobi(uint2 tid                           [[ thread_position_in_grid ]],
+                   constant float & alpha              [[ buffer (0) ]],
+                   constant float & beta               [[ buffer (1) ]],
+                   texture2d<float> in                 [[ texture (0) ]],
+                   texture2d<float, access::write> out [[ texture (1) ]],
+                   texture2d<float> b                  [[ texture (2) ]]) {
+    out.write(
+              (in.read(tid - uint2(1, 0)) + in.read(tid + uint2(1, 0)) + // dx
+              in.read(tid - uint2(0, 1)) + in.read(tid + uint2(0, 1)) + // dy
+               alpha * b.read(tid)) / beta, // center
+              tid);
+}
+
+kernel void force(uint2 tid                                     [[thread_position_in_grid ]],
+                  constant float2 * inputs                      [[buffer (0) ]],
+                  constant int & count                          [[buffer (1) ]],
+                  texture2d<float, access::read_write> velocityOut [[texture (0) ]],
+                  texture2d<float, access::write> velocityIn [[texture (1) ]],
+                  texture2d<float, access::read_write> pressure [[ texture(2) ]]) {
+    
+    float2 amp = 0;
+    float forceExponent = 200;
+    for (int i = 0; i < count; i ++) {
+//        amp += exp(-forceExponent * distance(float2(tid), inputs[i])) * normalize(inputs[i] - float2(tid));
+        amp += normalize(inputs[i] - float2(tid)) / pow(distance(inputs[i], float2(tid)), 2);
+    }
+    velocityOut.write(velocityOut.read(tid) + float4(amp, 0, 0), tid);
+    velocityIn.write(velocityOut.read(tid), tid);
+    pressure.write(float4(pressure.read(tid).xyz + float3(length(amp) * 5, 0, 0), 1), tid);
+}
+
+kernel void projectionSetup(uint2 tid [[thread_position_in_grid]],
+                            texture2d<float> velocity,
+                            texture2d<float, access::write> pressure,
+                            texture2d<float, access::write> notSure) { // FIXME: Not sure
+    notSure.write((velocity.read(tid + uint2(1, 0)).x - velocity.read(tid - uint2(1, 0)).x +
+                  velocity.read(tid + uint2(0, 1)).y - velocity.read(tid - uint2(0, 1)).y) * float(velocity.get_height()) / 2,
+                  tid);
+    pressure.write(float4(0), tid);
+}
+
+kernel void projectionFinish(uint2 tid [[ thread_position_in_grid ]],
+                             texture2d<float> velocityIn,
+                             texture2d<float> pressure,
+                             texture2d<float, access::read_write> velocityOut) {
+    uint2 dimensions = uint2(imageSize(velocityIn));
+    if (tid.x == 0 || tid.y == 0 || tid.x == dimensions.x - 1 || tid.y == dimensions.y - 1) { return; }
+    
+    float p1 = pressure.read(max(tid - uint2(1, 0), 1)).x;
+    float p2 = pressure.read(min(tid + uint2(1, 0), dimensions - 2)).x;
+    float p3 = pressure.read(max(tid - uint2(1, 0), 1)).x;
+    float p4 = pressure.read(max(tid - uint2(1, 0), dimensions - 2)).x;
+    
+    float2 velocity = velocityIn.read(tid).xy - float2(p2 - p1, p4 - p3) * float(dimensions.y) / 2;
+    
+    velocityOut.write(float4(velocity, 0, 1), tid);
+    
+    if (tid.x == 1) { velocityOut.write(float4(-velocity, 0, 1), uint2(0, tid.y)); }
+    if (tid.x == dimensions.x - 2) { velocityOut.write(float4(-velocity, 0, 1), uint2(dimensions.x - 1, tid.y)); }
+    if (tid.y == 1) { velocityOut.write(float4(-velocity, 0, 1), uint2(0, tid.y)); }
+    if (tid.y == dimensions.y - 2) { velocityOut.write(float4(-velocity, 0, 1), uint2(dimensions.x - 1, tid.y)); }
+}
+
+float3 trilerp(float3 a, float3 b, float3 c, float p) {
+    if (p < 0) {
+        return lerp(a, b, 1 - p);
+    } else {
+        return lerp(b, a, p);
+    }
+}
+
+float3 velocityColor(float2 velocity) {
+    float3 xColor = trilerp(float3(1, 0, 0), 1., float3(0, 0, 1), velocity.x);
+    float3 yColor = trilerp(float3(0, 1, 0), 1., float3(1, 1, 1), velocity.y);
+    return xColor * abs(velocity.x) + yColor * float(velocity.y);
+}
+
+kernel void moveDye(uint2 tid [[ thread_position_in_grid ]],
+                      texture2d<float> velocity,
+                      texture2d<float> previousDye,
+                      texture2d<float, access::write> dye) {
+//    dye.write(previousDye.read(uint2(float2(tid) - velocity.read(tid).xy)), tid);
+    float2 v = velocity.read(tid).xy;
+    float mag = length(v);
+    v = normalize(v);
+    v = v * 0.5 + 0.5;
+    float3 color = (velocityColor(v) * pow(mag, 0.5));
+
+    dye.write(float4(color, 1), tid);
 }
 
 float4 divergence(uint2 tid, // location,
@@ -218,64 +330,86 @@ void project(device float2 * velocity, constant float * p, int2 imageSize, int2 
 //    bv = scale * stateField.read(uint2(coords + offset));
 //}
 
-int index(int2 coords, int width) { return coords.x + coords.y * width; }
+//int index(int2 coords, int width) { return coords.x + coords.y * width; }
 
-kernel void populateVelocities(uint2 tid    [[thread_position_in_grid]],
-                               constant int2 & imageSize  [[buffer(0)]],
-                               device float2 * velocities [[buffer(1)]]) {
-    if (tid.x < 1 || tid.y < 1 || tid.x == uint(imageSize.x - 1) || tid.y == uint(imageSize.y - 1)) {
-        velocities[index(tid, imageSize)] = float2(0);
-    } else {
-        velocities[index(tid, imageSize)] = float2(
-                                                   hash(tid.x + tid.y * imageSize.x),
-                                                   hash(tid.x + tid.y * imageSize.x + imageSize.x * imageSize.y)
-                                                   ) - 0.5;
-    }
-}
-
-kernel void fluidSimulation(uint2 tid                                     [[ thread_position_in_grid ]],
-                            constant int2 & imageSize                                [[ buffer(0) ]],
-                            device float2 * velocities                               [[ buffer(1) ]],
-                            texture2d<float, access::read_write> image    [[ texture(0) ]],
-                            texture2d<float, access::read_write> density [[texture(1)]] // Ink
-                            ) {
-    
-    if (tid.x > uint(imageSize.x) || tid.y > uint(imageSize.y)) { return; }
-    if (tid.x < 1 || tid.y < 1 || tid.x == uint(imageSize.x - 1) || tid.y == uint(imageSize.y - 1)) {
-        // edge case
-    } else {
-
-    }
-    int2 pos = clamp(int2(float2(tid) - velocities[index(tid, imageSize)] * 10), int2(0), imageSize - 1);
-////    int2 pos = int2(tid);
-    float3 color = density.read(uint2(pos)).xyz;
-//    if (length(color) < 0.1) {
-//        color = float3(0);
+//kernel void populateVelocities(uint2 tid    [[thread_position_in_grid]],
+//                               constant int2 & imageSize  [[buffer(0)]],
+//                               device float2 * velocities [[buffer(1)]]) {
+//    if (tid.x < 1 || tid.y < 1 || tid.x == uint(imageSize.x - 1) || tid.y == uint(imageSize.y - 1)) {
+//        velocities[index(tid, imageSize)] = float2(0);
+//    } else {
+//        velocities[index(tid, imageSize)] = float2(
+//                                                   hash(tid.x + tid.y * imageSize.x),
+//                                                   hash(tid.x + tid.y * imageSize.x + imageSize.x * imageSize.y)
+//                                                   ) - 0.5;
 //    }
-//    image.write(float4(color, 1), tid);
-    
-    image.write(float4(color, 1), tid);
-    
-    
-//    // Apply the first 3 operators in Equation 12.
-//    velocity = advect(velocity);
-//    velocity = diffuse(velocity);
-//    velocity = addForces(velocity);
-//    // Now apply the projection operator to the result.
-//    pressure = computePressure(velocity);
-//    velocity = subtractPressureGradient(velocity, pressure);
-//    float2 position = float2(tid) * fluidSize / float2(imageSize) / 2.0 * velocity.read(tid).xy;
-    
-    
-    
-    // MARK: Mike Ash
-    // diffuse velocities
-    // project velocities
-    // advect velocities
-    // project velocities
-    
-    // diffuse density
-    // advect densities
-    
-//    image.write(float4(1, 0, 0, 1), tid);
-}
+//}
+
+//kernel void fluidSimulation(uint2 tid                                       [[ thread_position_in_grid ]],
+//                            constant float & dt                             [[ buffer(0) ]],
+//                            texture2d<float, access::read_write> image      [[ texture(0) ]],
+//                            texture2d<float, access::read_write> density    [[ texture(1) ]],
+//                            texture2d<float, access::read_write> velocities [[ texture(2) ]]
+//                            ) {
+//
+//    velocities.write(
+//                     advect(
+//                            tid,
+//                            dt,
+//                            <#float gridScale#>,
+//                            velocities,
+//                            velocities),
+//                     tid);
+//    velocities.write(<#vec<float, 4> color#>, <#ushort2 coord#>)
+//
+//    advect(<#uint2 tid#>, <#float dt#>, <#float gridScale#>, <#texture2d<float, access::read_write> velocity#>, <#texture2d<float, access::read_write> advectingQuantity#>)
+////    // Apply the first 3 operators in Equation 12.
+////    u = advect(u);
+////    u = diffuse(u);
+////    u = addForces(u);
+////    // Now apply the projection operator to the result. p = computePressure(u);
+////    u = subtractPressureGradient(u, p);
+//
+//
+//
+//
+//
+////    if (tid.x > uint(imageSize.x) || tid.y > uint(imageSize.y)) { return; }
+////    if (tid.x < 1 || tid.y < 1 || tid.x == uint(imageSize.x - 1) || tid.y == uint(imageSize.y - 1)) {
+////        // edge case
+////    } else {
+////
+////    }
+////    int2 pos = clamp(int2(float2(tid) - velocities[index(tid, imageSize)] * 10), int2(0), imageSize - 1);
+////////    int2 pos = int2(tid);
+////    float3 color = density.read(uint2(pos)).xyz;
+//////    if (length(color) < 0.1) {
+//////        color = float3(0);
+//////    }
+//////    image.write(float4(color, 1), tid);
+////
+////    image.write(float4(color, 1), tid);
+////
+////
+//////    // Apply the first 3 operators in Equation 12.
+//////    velocity = advect(velocity);
+//////    velocity = diffuse(velocity);
+//////    velocity = addForces(velocity);
+//////    // Now apply the projection operator to the result.
+//////    pressure = computePressure(velocity);
+//////    velocity = subtractPressureGradient(velocity, pressure);
+//////    float2 position = float2(tid) * fluidSize / float2(imageSize) / 2.0 * velocity.read(tid).xy;
+////
+////
+////
+////    // MARK: Mike Ash
+////    // diffuse velocities
+////    // project velocities
+////    // advect velocities
+////    // project velocities
+////
+////    // diffuse density
+////    // advect densities
+////
+//////    image.write(float4(1, 0, 0, 1), tid);
+//}
