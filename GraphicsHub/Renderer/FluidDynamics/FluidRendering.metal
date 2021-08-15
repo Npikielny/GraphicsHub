@@ -71,15 +71,27 @@ kernel void initialize(uint2 tid [[ thread_position_in_grid ]],
 
 kernel void advect(uint2 tid                                              [[ thread_position_in_grid ]],
                    constant float & dt                                    [[ buffer (0) ]],
-                   texture2d<float> velocityIn                            [[ texture (0) ]],
-                   texture2d<float, access::read_write> velocityOut       [[ texture (1) ]]
+                   texture2d<float> U_in                            [[ texture (0) ]],
+                   texture2d<float, access::read_write> W_out       [[ texture (1) ]]
                    ) {
-    constexpr sampler sam(min_filter::nearest, mag_filter::nearest, mip_filter::none);
-    float2 uv = (float2(tid) + 0.5) / float2(imageSize(velocityIn));
+    constexpr sampler sam(min_filter::linear, mag_filter::linear, mip_filter::none);
+    float2 uv = (float2(tid) + 0.5) / float2(imageSize(U_in));
     
     
-    float2 velocityChange = velocityIn.read(tid).xy * float2((float)velocityIn.get_height() / velocityIn.get_width(), 1) * dt; // travel distance of previous fluid iteration in UV
-    velocityOut.write(velocityIn.sample(sam, uv - velocityChange), tid);
+    float2 velocityChange = U_in.read(tid).xy * float2((float)U_in.get_height() / U_in.get_width(), 1) * dt; // travel distance of previous fluid iteration in UV
+    W_out.write(U_in.sample(sam, uv - velocityChange), tid);
+    
+    
+//    float2 uv = (float2(tid) + 0.5) / float2(imageSize(U_in));
+//    float2 duv = U_in.read(tid).xy * float2((float)U_in.get_height() / U_in.get_width(), 1) * dt; // travel distance of previous fluid iteration in UV
+//    float2 location = (uv - duv) * float2(imageSize(U_in));
+//    float2 minLocation = floor(location - 0.5);
+//    float2 percents = fract(location);
+//
+//    W_out.write(lerp(lerp(U_in.read(uint2(minLocation)), U_in.read(uint2(minLocation + float2(1, 0))), percents.x),
+//                     lerp(U_in.read(uint2(minLocation + float2(0, 1))), U_in.read(uint2(minLocation + float2(1, 1))), percents.x),
+//                     percents.y),
+//                tid);
 }
 
 float4 jacobi(uint2 tid, // location
@@ -103,62 +115,80 @@ float4 jacobi(uint2 tid, // location
 kernel void jacobi(uint2 tid                           [[ thread_position_in_grid ]],
                    constant float & alpha              [[ buffer (0) ]],
                    constant float & beta               [[ buffer (1) ]],
-                   texture2d<float> in                 [[ texture (0) ]],
-                   texture2d<float, access::write> out [[ texture (1) ]],
-                   texture2d<float> b                  [[ texture (2) ]]) {
-    out.write(
-              (in.read(tid - uint2(1, 0)) + in.read(tid + uint2(1, 0)) + // dx
-              in.read(tid - uint2(0, 1)) + in.read(tid + uint2(0, 1)) + // dy
-               alpha * b.read(tid)) / beta, // center
+                   texture2d<float> X1_in                 [[ texture (0) ]],
+                   texture2d<float, access::write> X1_out [[ texture (1) ]],
+                   texture2d<float> B1_in                  [[ texture (2) ]]) {
+    X1_out.write(
+              (X1_in.read(tid - uint2(1, 0)) + X1_in.read(tid + uint2(1, 0)) +
+              X1_in.read(tid - uint2(0, 1)) + X1_in.read(tid + uint2(0, 1)) +
+               alpha * B1_in.read(tid)) / beta,
               tid);
 }
 
 kernel void force(uint2 tid                                     [[ thread_position_in_grid ]],
                   constant float2 & forceVector                 [[ buffer (0) ]],
                   constant float2 & forceOrigin                 [[ buffer (1) ]],
+                  constant float & forceExponent                [[ buffer (2) ]],
                   texture2d<float, access::read> velocityIn     [[ texture (0) ]],
                   texture2d<float, access::write> velocityOut   [[ texture (1) ]]) {
     int2 dimensions = imageSize(velocityIn);
     
-//    float2 pos = (float2(tid) + 0.5 - float2(dimensions) * 0.5) / dimensions.y;
     float2 pos = float2(tid) / float2(dimensions) - 0.5;
-    float amp = exp(-300 * distance(forceOrigin, float2(pos)));
-    
-    velocityOut.write(velocityIn.read(tid) + float4(forceVector/float2(dimensions) * amp, 0, 0), tid);
+    float amp = exp(-forceExponent * distance(forceOrigin, float2(pos)));
+
+//    velocityOut.write(velocityIn.read(tid) + float4(float2(forceVector) * amp, 0, 0), tid);
+    velocityOut.write(velocityIn.read(tid) + float4(forceVector * amp, 0, 0), tid);
     
 }
 
 kernel void projectionSetup(uint2 tid [[thread_position_in_grid]],
-                            texture2d<float> velocityIn,
-                            texture2d<float, access::write> velocityOut,
-                            texture2d<float, access::write> pressure) {
-    velocityOut.write(float4(float2(
-                      (velocityIn.read(tid + uint2(1, 0)).x - velocityIn.read(tid - uint2(1, 0)).x +
-                       velocityIn.read(tid + uint2(0, 1)).y - velocityIn.read(tid - uint2(0, 1)).y) * float(velocityIn.get_height()) / 2), 0, 1),
-                  tid);
-    pressure.write(float4(float3(0), 1), tid);
+                            texture2d<float> W_in [[ texture (0) ]],
+                            texture2d<float, access::write> DivW_out [[ texture (1) ]],
+                            texture2d<float, access::write> P_out [[ texture (2) ]]) {
+//    DivW_out.write(float4(
+//                          float2(
+//                                 (W_in.read(tid + uint2(1, 0)).x - W_in.read(tid - uint2(1, 0)).x +
+//                                  W_in.read(tid + uint2(0, 1)).y - W_in.read(tid - uint2(0, 1)).y) * float(W_in.get_height()) / 2
+//                                 ),
+//                          0,
+//                          1),
+//                  tid);
+    DivW_out.write(float4(
+                          float2(
+                                 W_in.read(tid + uint2(1, 0)).x - W_in.read(tid - uint2(1, 0)).x +
+                                 W_in.read(tid + uint2(0, 1)).y - W_in.read(tid - uint2(0, 1)).y
+                                 ),// * float(W_in.get_height()) / 2,
+//                          float2(
+//                                 W_in.read(tid + uint2(1, 0)).x - W_in.read(tid - uint2(1, 0)).x +
+//                                 W_in.read(tid + uint2(0, 1)).y - W_in.read(tid - uint2(0, 1)).y
+//                                 ),
+                          0,
+                          1),
+                   tid);
+    P_out.write(float4(float3(0), 1), tid);
 }
 
 kernel void projectionFinish(uint2 tid [[ thread_position_in_grid ]],
-                             texture2d<float> velocityIn,
-                             texture2d<float> pressure,
-                             texture2d<float, access::read_write> velocityOut) {
-    uint2 dimensions = uint2(imageSize(velocityIn));
+                             texture2d<float> W_in [[ texture (0) ]],
+                             texture2d<float> P_in [[ texture (1) ]],
+                             texture2d<float, access::read_write> U_out [[ texture (2) ]]) {
+    uint2 dimensions = uint2(imageSize(W_in));
     if (any(tid == 0) || any(tid == dimensions - 1)) { return; }
     
-    float p1 = pressure.read(max(tid - uint2(1, 0), 1)).x;
-    float p2 = pressure.read(min(tid + uint2(1, 0), dimensions - 2)).x;
-    float p3 = pressure.read(max(tid - uint2(1, 0), 1)).x;
-    float p4 = pressure.read(max(tid - uint2(1, 0), dimensions - 2)).x;
+    float p1 = P_in.read(max(tid - uint2(1, 0), 1)).x;
+    float p2 = P_in.read(min(tid + uint2(1, 0), dimensions - 2)).x;
+    float p3 = P_in.read(max(tid - uint2(1, 0), 1)).x;
+    float p4 = P_in.read(max(tid - uint2(1, 0), dimensions - 2)).x;
     
-    float2 velocity = velocityIn.read(tid).xy - float2(p2 - p1, p4 - p3) * float(dimensions.y) / 2;
+    float2 velocity = W_in.read(tid).xy - float2(p2 - p1, p4 - p3) * float2(imageSize(W_in)) / 2;
+//    float2 velocity = W_in.read(tid).xy;
     
-    velocityOut.write(float4(velocity, 0, 1), tid);
-    
-    if (tid.x == 1) { velocityOut.write(float4(-velocity, 0, 1), uint2(0, tid.y)); }
-    if (tid.y == 1) { velocityOut.write(float4(-velocity, 0, 1), uint2(tid.x, 0)); }
-    if (tid.x == dimensions.x - 2) { velocityOut.write(float4(-velocity, 0, 1), uint2(dimensions.x - 1, tid.y)); }
-    if (tid.y == dimensions.y - 2) { velocityOut.write(float4(-velocity, 0, 1), uint2(tid.x, dimensions.y - 1)); }
+    U_out.write(float4(velocity, 0, 1), tid);
+
+    if (tid.x == 1) { U_out.write(float4(-velocity, 0, 1), uint2(0, tid.y)); }
+    if (tid.y == 1) { U_out.write(float4(-velocity, 0, 1), uint2(tid.x, 0)); }
+    if (tid.x == dimensions.x - 2) { U_out.write(float4(-velocity, 0, 1), uint2(dimensions.x - 1, tid.y)); }
+    if (tid.y == dimensions.y - 2) { U_out.write(float4(-velocity, 0, 1), uint2(tid.x, dimensions.y - 1)); }
 }
 
 float3 trilerp(float3 a, float3 b, float3 c, float p) {
@@ -188,6 +218,7 @@ kernel void moveDye(uint2 tid [[ thread_position_in_grid ]],
 //
 //    dye.write(float4(color, 1), tid);
     dye.write(abs(velocity.read(tid)), tid);
+//    dye.write(abs(velocity.read(tid)), tid);
 }
 
 float4 divergence(uint2 tid, // location,

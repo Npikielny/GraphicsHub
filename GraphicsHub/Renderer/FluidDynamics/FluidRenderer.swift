@@ -17,9 +17,8 @@ class FluidRenderer: Renderer {
         projectionFinishPipeline,
         dyePipeline: MTLComputePipelineState!
     
-    var dt: Float = 0.1
+    var dt: Float = 1 / 60
     var diffusionRate: Float = 1
-    var viscosity: Float = 1
     
     var p1: MTLTexture!
     var p2: MTLTexture!
@@ -30,12 +29,15 @@ class FluidRenderer: Renderer {
     var previousDye: MTLTexture!
     var dye: MTLTexture { outputImage }
     // image is ink texture
-//    var previousVelocitty: MTLTexture!
-    var additions = [SIMD2<Float>]()
     
     var lastLocation: SIMD2<Float> = SIMD2(0, 0)
     var currentLocation: SIMD2<Float> = SIMD2(0, 0)
     var mouseDown = false
+    
+    var dx: Float { 1 / Float(resolutionY) }
+    var viscosity: Float { 1e-6 }
+    var alpha: Float { dx * dx / (Float(viscosity) * dt); }
+    var beta: Float { 4 + alpha }
     
     required init(device: MTLDevice, size: CGSize) {
         super.init(device: device, size: size, inputManager: BasicInputManager(imageSize: size), name: "Fluid Renderer")
@@ -83,127 +85,148 @@ class FluidRenderer: Renderer {
     
     override func draw(commandBuffer: MTLCommandBuffer, view: MTKView) {
         // advect
-        dispatchComputeEncoder(commandBuffer: commandBuffer,
-                               computePipeline: advectPipeline,
-                               buffers: [],
-                               bytes: { [self] encoder, offset in
-                                encoder?.setBytes([dt], length: MemoryLayout<Float>.stride, index: 0 + offset)
-                               },
-                               textures: [v1, v2],
-                               threadGroups: getImageGroupSize(),
-                               threadGroupSize: MTLSize(width: 8, height: 8, depth: 1))
-
-        var blitEncoder = commandBuffer.makeBlitCommandEncoder()
-        blitEncoder?.copy(from: v2, to: v1)
-        blitEncoder?.endEncoding()
-
-        let dx = 1 / Float(resolutionY)
-
-        let viscosity = 1e-6
-        let alpha = dx * dx / (Float(viscosity) * dt);
-        let beta = 4 + alpha
-        for _ in 0..<20 {
-            //jacobi
-            dispatchComputeEncoder(commandBuffer: commandBuffer,
-                                   computePipeline: jacobiPipeline,
-                                   buffers: [],
-                                   bytes: { encoder, offset in
-                                    encoder?.setBytes([alpha], length: MemoryLayout<Float>.stride, index: offset + 0)
-                                    encoder?.setBytes([beta], length: MemoryLayout<Float>.stride, index: offset + 1)
-                                   },
-                                   textures: [v2, v3, v1],
-                                   threadGroups: getImageGroupSize(),
-                                   threadGroupSize: MTLSize(width: 8, height: 8, depth: 1))
-            //swap jacobi
-            dispatchComputeEncoder(commandBuffer: commandBuffer,
-                                   computePipeline: jacobiPipeline,
-                                   buffers: [],
-                                   bytes: { encoder, offset in
-                                    encoder?.setBytes([alpha], length: MemoryLayout<Float>.stride, index: offset + 0)
-                                    encoder?.setBytes([beta], length: MemoryLayout<Float>.stride, index: offset + 1)
-                                   },
-                                   textures: [v3, v2, v1],
-                                   threadGroups: getImageGroupSize(),
-                                   threadGroupSize: MTLSize(width: 8, height: 8, depth: 1))
-        }
-        // No need for a blit encoder because jacobi pipeline will do the same
-        // set force
-        let multiplier: Float = mouseDown ? 300 : 0
-//        let multiplier: Float = 300
-        print(multiplier)
-        let forceVector = (currentLocation - lastLocation) * multiplier
-        dispatchComputeEncoder(commandBuffer: commandBuffer,
-                               computePipeline: forcePipeline,
-                               buffers: [],
-                               bytes: { [self] encoder, offset in
-                                encoder?.setBytes([forceVector], length: MemoryLayout<SIMD2<Float>>.stride, index: offset)
-                                encoder?.setBytes([currentLocation], length: MemoryLayout<SIMD2<Float>>.stride, index: offset + 1)
-                               },
-                               textures: [v2, v3], // FIXME: Change v1 to v3
-                               threadGroups: getImageGroupSize(),
-                               threadGroupSize: MTLSize(width: 8, height: 8, depth: 1))
-        additions = []
+        advect(commandBuffer: commandBuffer)
         
-
+        jacobi2(commandBuffer: commandBuffer)
+        // set force
+        force(commandBuffer: commandBuffer)
         // project setup
-        dispatchComputeEncoder(commandBuffer: commandBuffer,
-                               computePipeline: projectionSetupPipeline,
-                               buffers: [],
-                               bytes: { _,_ in },
-                               textures: [v3, v2, p1],
-                               threadGroups: getImageGroupSize(),
-                               threadGroupSize: MTLSize(width: 8, height: 8, depth: 1))
-////
-////        blitEncoder = commandBuffer.makeBlitCommandEncoder()
-////        blitEncoder?.copy(from: p1, to: template)
-////        blitEncoder?.endEncoding()
-////
-        for _ in 0..<20 {
-            //jacobi
-            dispatchComputeEncoder(commandBuffer: commandBuffer,
-                                   computePipeline: jacobiPipeline,
-                                   buffers: [],
-                                   bytes: { encoder, offset in
-                                    encoder?.setBytes([-dx * dx], length: MemoryLayout<Float>.stride, index: offset + 0)
-                                    encoder?.setBytes([Float(4)], length: MemoryLayout<Float>.stride, index: offset + 1)
-                                   },
-                                   textures: [p1, p2, v2],
-                                   threadGroups: getImageGroupSize(),
-                                   threadGroupSize: MTLSize(width: 8, height: 8, depth: 1))
-            //swap jacobi
-            dispatchComputeEncoder(commandBuffer: commandBuffer,
-                                   computePipeline: jacobiPipeline,
-                                   buffers: [],
-                                   bytes: { encoder, offset in
-                                    encoder?.setBytes([-dx * dx], length: MemoryLayout<Float>.stride, index: offset + 0)
-                                    encoder?.setBytes([Float(4)], length: MemoryLayout<Float>.stride, index: offset + 1)
-                                   },
-                                   textures: [p2, p1, v2],
-                                   threadGroups: getImageGroupSize(),
-                                   threadGroupSize: MTLSize(width: 8, height: 8, depth: 1))
-        }
+        projectSetup(commandBuffer: commandBuffer)
+        // jacobi 2
+        jacobi1(commandBuffer: commandBuffer)
         // project finish
-        dispatchComputeEncoder(commandBuffer: commandBuffer,
-                               computePipeline: projectionFinishPipeline,
-                               buffers: [],
-                               bytes: { _, _ in },
-                               textures: [v3, p1, v1],
-                               threadGroups: getImageGroupSize(),
-                               threadGroupSize: MTLSize(width: 8, height: 8, depth: 1))
-        // dye?
-        dispatchComputeEncoder(commandBuffer: commandBuffer,
-                               computePipeline: dyePipeline,
-                               buffers: [],
-                               bytes: { _, _ in },
-                               textures: [v1, previousDye, dye],
-                               threadGroups: getImageGroupSize(),
-                               threadGroupSize: MTLSize(width: 8, height: 8, depth: 1))
-        // synchronize?
+        projectFinish(commandBuffer: commandBuffer)
+//        // dye?
+        blit(commandBuffer: commandBuffer, drawingTexture: v1)
+//        dye(commandBuffer: commandBuffer)
+        
+//        // synchronize?
 //        blitEncoder = commandBuffer.makeBlitCommandEncoder()
 //        blitEncoder?.copy(from: dye, to: previousDye)
 //        blitEncoder?.endEncoding()
         lastLocation = currentLocation
         super.draw(commandBuffer: commandBuffer, view: view)
+    }
+    
+    func advect(commandBuffer: MTLCommandBuffer) {
+        let advectEncoder = commandBuffer.makeComputeCommandEncoder()
+        advectEncoder?.setComputePipelineState(advectPipeline)
+        advectEncoder?.setBytes([dt], length: MemoryLayout<Float>.stride, index: 0)
+        advectEncoder?.setTextures([v1, v2], range: 0..<2)
+        advectEncoder?.dispatchThreadgroups(getImageGroupSize(), threadsPerThreadgroup: MTLSize(width: 8, height: 8, depth: 1))
+        advectEncoder?.endEncoding()
+        
+        let blitEncoder = commandBuffer.makeBlitCommandEncoder()
+        blitEncoder?.copy(from: v2, to: v1)
+        blitEncoder?.endEncoding()
+    }
+    
+    func jacobi2(commandBuffer: MTLCommandBuffer) {
+        for _ in 0..<20 {
+            // jacobi
+            var jacobiEncoder = commandBuffer.makeComputeCommandEncoder()
+            jacobiEncoder?.setComputePipelineState(jacobiPipeline)
+            jacobiEncoder?.setBytes([alpha], length: MemoryLayout<Float>.stride, index: 0)
+            jacobiEncoder?.setBytes([beta], length: MemoryLayout<Float>.stride, index: 1)
+            jacobiEncoder?.setTextures([v2, v3, v1], range: 0..<3)
+            jacobiEncoder?.dispatchThreadgroups(getImageGroupSize(), threadsPerThreadgroup: MTLSize(width: 8, height: 8, depth: 1))
+            jacobiEncoder?.endEncoding()
+            
+            jacobiEncoder = commandBuffer.makeComputeCommandEncoder()
+            jacobiEncoder?.setComputePipelineState(jacobiPipeline)
+            jacobiEncoder?.setBytes([alpha], length: MemoryLayout<Float>.stride, index: 0)
+            jacobiEncoder?.setBytes([beta], length: MemoryLayout<Float>.stride, index: 1)
+            jacobiEncoder?.setTextures([v3, v2, v1], range: 0..<3)
+            jacobiEncoder?.dispatchThreadgroups(getImageGroupSize(), threadsPerThreadgroup: MTLSize(width: 8, height: 8, depth: 1))
+            jacobiEncoder?.endEncoding()
+            
+//            //jacobi
+//            dispatchComputeEncoder(commandBuffer: commandBuffer,
+//                                   computePipeline: jacobiPipeline,
+//                                   buffers: [],
+//                                   bytes: { encoder, offset in
+//                                    encoder?.setBytes([self.alpha], length: MemoryLayout<Float>.stride, index: offset + 0)
+//                                    encoder?.setBytes([self.beta], length: MemoryLayout<Float>.stride, index: offset + 1)
+//                                   },
+//                                   textures: [v2, v3, v1],
+//                                   threadGroups: getImageGroupSize(),
+//                                   threadGroupSize: MTLSize(width: 8, height: 8, depth: 1))
+//            //swap jacobi
+//            dispatchComputeEncoder(commandBuffer: commandBuffer,
+//                                   computePipeline: jacobiPipeline,
+//                                   buffers: [],
+//                                   bytes: { encoder, offset in
+//                                    encoder?.setBytes([self.alpha], length: MemoryLayout<Float>.stride, index: offset + 0)
+//                                    encoder?.setBytes([self.beta], length: MemoryLayout<Float>.stride, index: offset + 1)
+//                                   },
+//                                   textures: [v3, v2, v1],
+//                                   threadGroups: getImageGroupSize(),
+//                                   threadGroupSize: MTLSize(width: 8, height: 8, depth: 1))
+        }
+        // No need for a blit encoder because jacobi pipeline will do the same
+    }
+    
+    func force(commandBuffer: MTLCommandBuffer) {
+        let forceVector = (currentLocation - lastLocation) * (mouseDown ? 1 : 0)
+        let forceEncoder = commandBuffer.makeComputeCommandEncoder()
+        forceEncoder?.setComputePipelineState(forcePipeline)
+        forceEncoder?.setBytes([forceVector], length: MemoryLayout<SIMD2<Float>>.stride, index: 0)
+        forceEncoder?.setBytes([currentLocation], length: MemoryLayout<SIMD2<Float>>.stride, index: 1)
+        forceEncoder?.setBytes([300], length: MemoryLayout<Float>.stride, index: 2)
+        forceEncoder?.setTextures([v2, v3], range: 0..<2)
+        forceEncoder?.dispatchThreadgroups(getImageGroupSize(), threadsPerThreadgroup: MTLSize(width: 8, height: 8, depth: 1))
+        forceEncoder?.endEncoding()
+    }
+    
+    func projectSetup(commandBuffer: MTLCommandBuffer) {
+        let projectionSetupEncoder = commandBuffer.makeComputeCommandEncoder()
+        projectionSetupEncoder?.setComputePipelineState(projectionSetupPipeline)
+        projectionSetupEncoder?.setTextures([v3, v2, p1], range: 0..<3)
+        projectionSetupEncoder?.dispatchThreadgroups(getImageGroupSize(), threadsPerThreadgroup: MTLSize(width: 8, height: 8, depth: 1))
+        projectionSetupEncoder?.endEncoding()
+    }
+    
+    func jacobi1(commandBuffer: MTLCommandBuffer) {
+        for _ in 0..<20 {
+            var jacobiEncoder = commandBuffer.makeComputeCommandEncoder()
+            jacobiEncoder?.setComputePipelineState(jacobiPipeline)
+            jacobiEncoder?.setBytes([-dx * dx], length: MemoryLayout<Float>.stride, index: 0)
+            jacobiEncoder?.setBytes([Float(4)], length: MemoryLayout<Float>.stride, index: 1)
+            jacobiEncoder?.setTextures([p1, p2, v2], range: 0..<3)
+            jacobiEncoder?.dispatchThreadgroups(getImageGroupSize(), threadsPerThreadgroup: MTLSize(width: 8, height: 8, depth: 1))
+            jacobiEncoder?.endEncoding()
+
+            jacobiEncoder = commandBuffer.makeComputeCommandEncoder()
+            jacobiEncoder?.setComputePipelineState(jacobiPipeline)
+            jacobiEncoder?.setBytes([-dx * dx], length: MemoryLayout<Float>.stride, index: 0)
+            jacobiEncoder?.setBytes([Float(4)], length: MemoryLayout<Float>.stride, index: 1)
+            jacobiEncoder?.setTextures([p2, p1, v2], range: 0..<3)
+            jacobiEncoder?.dispatchThreadgroups(getImageGroupSize(), threadsPerThreadgroup: MTLSize(width: 8, height: 8, depth: 1))
+            jacobiEncoder?.endEncoding()
+        }
+    }
+    
+    func projectFinish(commandBuffer: MTLCommandBuffer) {
+        let projectFinishEncoder = commandBuffer.makeComputeCommandEncoder()
+        projectFinishEncoder?.setComputePipelineState(projectionFinishPipeline)
+        projectFinishEncoder?.setTextures([v3, p1, v1], range: 0..<3)
+        projectFinishEncoder?.dispatchThreadgroups(getImageGroupSize(), threadsPerThreadgroup: MTLSize(width: 8, height: 8, depth: 1))
+        projectFinishEncoder?.endEncoding()
+    }
+    
+    func dye(commandBuffer: MTLCommandBuffer) {
+        dispatchComputeEncoder(commandBuffer: commandBuffer,
+                               computePipeline: dyePipeline,
+                               buffers: [],
+                               bytes: { _, _ in },
+                               textures: [v2, previousDye, dye],
+                               threadGroups: getImageGroupSize(),
+                               threadGroupSize: MTLSize(width: 8, height: 8, depth: 1))
+    }
+    func blit(commandBuffer: MTLCommandBuffer, drawingTexture: MTLTexture) {
+        let blitEncoder = commandBuffer.makeBlitCommandEncoder()
+        blitEncoder?.copy(from: drawingTexture, to: dye)
+        blitEncoder?.endEncoding()
     }
     
     func getLocation(event: NSEvent, view: NSView) -> SIMD2<Float>? {
@@ -214,18 +237,23 @@ class FluidRenderer: Renderer {
     
     override func mouseDown(event: NSEvent, view: NSView) {
         super.mouseDown(event: event, view: view)
-//        guard let location = getLocation(event: event, view: view) else { return }
-//        if !mouseDown {
-//            lastLocation = location
-//        }
-//        currentLocation = location
-//        mouseDown = true
-        mouseDown.toggle()
+        guard let location = getLocation(event: event, view: view) else { return }
+        if !mouseDown {
+            lastLocation = location
+        }
+        currentLocation = location
+        mouseDown = true
     }
     
     override func mouseUp(event: NSEvent, view: NSView) {
         super.mouseUp(event: event, view: view)
-//        mouseDown = false
+        mouseDown = false
+    }
+    
+    override func mouseDragged(event: NSEvent, view: NSView) {
+        super.mouseDragged(event: event, view: view)
+        guard let location = getLocation(event: event, view: view) else { return }
+        currentLocation = location
     }
     
     override func mouseMoved(event: NSEvent, view: NSView) {
