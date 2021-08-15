@@ -143,6 +143,7 @@ class Renderer: NSObject, RendererInfo {
     
     func flagsChanged(event: NSEvent, view: NSView) { inputManager.flagsChanged(event: event) }
     func mouseDown(event: NSEvent, view: NSView) { inputManager.mouseDown(event: event) }
+    func mouseUp(event: NSEvent, view: NSView) { inputManager.mouseUp(event: event) }
     func rightMouseDown(event: NSEvent, view: NSView) { inputManager.rightMouseDown(event: event) }
     func mouseDragged(event: NSEvent, view: NSView) { inputManager.mouseDragged(event: event) }
     func rightMouseDragged(event: NSEvent, view: NSView) { inputManager.rightMouseDragged(event: event) }

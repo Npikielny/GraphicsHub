@@ -23,6 +23,8 @@ class RenderingView: MTKView {
     var savingPath: URL?
     var frameIndex: Int = 0
     
+    var trackingArea: NSTrackingArea!
+    
     init(size: CGSize) {
         guard let device = MTLCreateSystemDefaultDevice() else {
             fatalError("Failed to find metal device")
@@ -59,8 +61,19 @@ class RenderingView: MTKView {
                 self.timeElapsed = 0
             }
         })
-        
+        addTrackingArea()
     }
+    
+    override func updateTrackingAreas() {
+        guard let _ = trackingArea else { addTrackingArea(); return }
+        removeTrackingArea(trackingArea)
+        addTrackingArea()
+    }
+    func addTrackingArea() {
+        let trackingArea = NSTrackingArea(rect: self.bounds, options: [.activeAlways, .mouseEnteredAndExited, .mouseMoved], owner: self, userInfo: nil)
+        addTrackingArea(trackingArea)
+    }
+    
     var timeElapsed: Double = 0
     var timer: Timer!
     
@@ -295,6 +308,9 @@ extension RenderingView {
     }
     override func mouseDown(with event: NSEvent) {
         renderer?.mouseDown(event: event, view: self)
+    }
+    override func mouseUp(with event: NSEvent) {
+        renderer?.mouseUp(event: event, view: self)
     }
     override func rightMouseDown(with event: NSEvent) {
         renderer?.rightMouseDown(event: event, view: self)

@@ -33,6 +33,7 @@ protocol RendererInputManager: FrameInterface {
     func flagsChanged(event: NSEvent)
     func keyDown(event: NSEvent)
     func mouseDown(event: NSEvent)
+    func mouseUp(event: NSEvent)
     func rightMouseDown(event: NSEvent)
     func mouseDragged(event: NSEvent)
     func rightMouseDragged(event: NSEvent)
@@ -108,6 +109,7 @@ class BasicInputManager: RendererInputManager {
     func flagsChanged(event: NSEvent) {}
     func keyDown(event: NSEvent) {}
     func mouseDown(event: NSEvent) {}
+    func mouseUp(event: NSEvent) {}
     func rightMouseDown(event: NSEvent) {}
     func mouseDragged(event: NSEvent) {}
     func rightMouseDragged(event: NSEvent) {}
@@ -188,6 +190,7 @@ class CappedInputManager: RendererInputManager {
     func flagsChanged(event: NSEvent) {}
     func keyDown(event: NSEvent) {}
     func mouseDown(event: NSEvent) {}
+    func mouseUp(event: NSEvent) {}
     func rightMouseDown(event: NSEvent) {}
     func mouseDragged(event: NSEvent) {}
     func rightMouseDragged(event: NSEvent) {}
