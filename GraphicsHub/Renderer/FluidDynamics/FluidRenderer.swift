@@ -11,13 +11,17 @@ class FluidRenderer: Renderer {
     
     var initializePipeline,
         advectPipeline,
-        jacobiPipeline,
+        vectorJacobiPipeline,
+        scalarJacobiPipeline,
         forcePipeline,
         projectionSetupPipeline,
         projectionFinishPipeline,
         dyePipeline: MTLComputePipelineState!
     
-    var dt: Float = 1 / 60
+    var dt: Float {
+        let inputManager = inputManager as! FluidInputManager
+        return inputManager.dt
+    }
     var diffusionRate: Float = 1
     
     var p1: MTLTexture!
@@ -25,7 +29,6 @@ class FluidRenderer: Renderer {
     var v1: MTLTexture!
     var v2: MTLTexture!
     var v3: MTLTexture!
-    var template: MTLTexture!
     var previousDye: MTLTexture!
     var dye: MTLTexture { outputImage }
     // image is ink texture
@@ -39,27 +42,41 @@ class FluidRenderer: Renderer {
     var alpha: Float { dx * dx / (Float(viscosity) * dt); }
     var beta: Float { 4 + alpha }
     
+    override func synchronizeInputs() {
+        let inputManager = inputManager as! FluidInputManager
+        if (inputManager.getInput(0) as! InputShell).didChange {
+            createTextures()
+        }
+        super.synchronizeInputs()
+    }
+    
     required init(device: MTLDevice, size: CGSize) {
-        super.init(device: device, size: size, inputManager: BasicInputManager(imageSize: size), name: "Fluid Renderer")
-        let functions = createFunctions("advect", "jacobi", "force", "projectionSetup", "projectionFinish", "initialize", "moveDye")
-        advectPipeline = try! device.makeComputePipelineState(function: functions[0]!)
-        jacobiPipeline = try! device.makeComputePipelineState(function: functions[1]!)
-        forcePipeline = try! device.makeComputePipelineState(function: functions[2]!)
-        projectionSetupPipeline = try! device.makeComputePipelineState(function: functions[3]!)
-        projectionFinishPipeline = try! device.makeComputePipelineState(function: functions[4]!)
-        initializePipeline = try! device.makeComputePipelineState(function: functions[5]!)
-        dyePipeline = try! device.makeComputePipelineState(function: functions[6]!)
+        super.init(device: device, size: size, inputManager: FluidInputManager(imageSize: size), name: "Fluid Renderer")
+        let functions = createFunctions("initialize", "advect", "jacobiVector", "jacobiScalar", "force", "projectionSetup", "projectionFinish", "moveDye")
+        initializePipeline = try! device.makeComputePipelineState(function: functions[0]!)
+        advectPipeline = try! device.makeComputePipelineState(function: functions[1]!)
+        vectorJacobiPipeline = try! device.makeComputePipelineState(function: functions[2]!)
+        scalarJacobiPipeline = try! device.makeComputePipelineState(function: functions[3]!)
+        forcePipeline = try! device.makeComputePipelineState(function: functions[4]!)
+        projectionSetupPipeline = try! device.makeComputePipelineState(function: functions[5]!)
+        projectionFinishPipeline = try! device.makeComputePipelineState(function: functions[6]!)
+        dyePipeline = try! device.makeComputePipelineState(function: functions[7]!)
     }
     
     override func drawableSizeDidChange(size: CGSize) {
         super.drawableSizeDidChange(size: size)
+        previousDye = createTexture(size: size)
+        createTextures()
+    }
+    
+    func createTextures() {
+        let inputManager = inputManager as! FluidInputManager
+//        let size = CGSize(width: inputManager.computeSize, height: inputManager.computeSize * Int(1 + size.height / size.width))
         p1 = createTexture(size: size)
         p2 = createTexture(size: size)
         v1 = createTexture(size: size)
         v2 = createTexture(size: size)
         v3 = createTexture(size: size)
-        template = createTexture(size: size)
-        previousDye = createTexture(size: size)
         initialized = false
     }
     
@@ -86,19 +103,19 @@ class FluidRenderer: Renderer {
     override func draw(commandBuffer: MTLCommandBuffer, view: MTKView) {
         // advect
         advect(commandBuffer: commandBuffer)
-        
+         // jacobi 2
         jacobi2(commandBuffer: commandBuffer)
         // set force
         force(commandBuffer: commandBuffer)
         // project setup
         projectSetup(commandBuffer: commandBuffer)
-        // jacobi 2
+        // jacobi 1
         jacobi1(commandBuffer: commandBuffer)
         // project finish
         projectFinish(commandBuffer: commandBuffer)
 //        // dye?
-        blit(commandBuffer: commandBuffer, drawingTexture: v1)
-//        dye(commandBuffer: commandBuffer)
+////        blit(commandBuffer: commandBuffer, drawingTexture: v2)
+        dye(commandBuffer: commandBuffer, drawingTexture: v1)
         
 //        // synchronize?
 //        blitEncoder = commandBuffer.makeBlitCommandEncoder()
@@ -125,7 +142,7 @@ class FluidRenderer: Renderer {
         for _ in 0..<20 {
             // jacobi
             var jacobiEncoder = commandBuffer.makeComputeCommandEncoder()
-            jacobiEncoder?.setComputePipelineState(jacobiPipeline)
+            jacobiEncoder?.setComputePipelineState(vectorJacobiPipeline)
             jacobiEncoder?.setBytes([alpha], length: MemoryLayout<Float>.stride, index: 0)
             jacobiEncoder?.setBytes([beta], length: MemoryLayout<Float>.stride, index: 1)
             jacobiEncoder?.setTextures([v2, v3, v1], range: 0..<3)
@@ -133,7 +150,7 @@ class FluidRenderer: Renderer {
             jacobiEncoder?.endEncoding()
             
             jacobiEncoder = commandBuffer.makeComputeCommandEncoder()
-            jacobiEncoder?.setComputePipelineState(jacobiPipeline)
+            jacobiEncoder?.setComputePipelineState(vectorJacobiPipeline)
             jacobiEncoder?.setBytes([alpha], length: MemoryLayout<Float>.stride, index: 0)
             jacobiEncoder?.setBytes([beta], length: MemoryLayout<Float>.stride, index: 1)
             jacobiEncoder?.setTextures([v3, v2, v1], range: 0..<3)
@@ -167,12 +184,12 @@ class FluidRenderer: Renderer {
     }
     
     func force(commandBuffer: MTLCommandBuffer) {
-        let forceVector = (currentLocation - lastLocation) * (mouseDown ? 1 : 0)
+        let forceVector = (currentLocation - lastLocation) * (mouseDown ? 300 : 0)
         let forceEncoder = commandBuffer.makeComputeCommandEncoder()
         forceEncoder?.setComputePipelineState(forcePipeline)
         forceEncoder?.setBytes([forceVector], length: MemoryLayout<SIMD2<Float>>.stride, index: 0)
         forceEncoder?.setBytes([currentLocation], length: MemoryLayout<SIMD2<Float>>.stride, index: 1)
-        forceEncoder?.setBytes([300], length: MemoryLayout<Float>.stride, index: 2)
+        forceEncoder?.setBytes([Float(200)], length: MemoryLayout<Float>.stride, index: 2)
         forceEncoder?.setTextures([v2, v3], range: 0..<2)
         forceEncoder?.dispatchThreadgroups(getImageGroupSize(), threadsPerThreadgroup: MTLSize(width: 8, height: 8, depth: 1))
         forceEncoder?.endEncoding()
@@ -187,19 +204,22 @@ class FluidRenderer: Renderer {
     }
     
     func jacobi1(commandBuffer: MTLCommandBuffer) {
+        let alpha = -dx * dx
+        let beta: Float = 4
+        print(dx)
         for _ in 0..<20 {
             var jacobiEncoder = commandBuffer.makeComputeCommandEncoder()
-            jacobiEncoder?.setComputePipelineState(jacobiPipeline)
-            jacobiEncoder?.setBytes([-dx * dx], length: MemoryLayout<Float>.stride, index: 0)
-            jacobiEncoder?.setBytes([Float(4)], length: MemoryLayout<Float>.stride, index: 1)
+            jacobiEncoder?.setComputePipelineState(scalarJacobiPipeline)
+            jacobiEncoder?.setBytes([alpha], length: MemoryLayout<Float>.stride, index: 0)
+            jacobiEncoder?.setBytes([beta], length: MemoryLayout<Float>.stride, index: 1)
             jacobiEncoder?.setTextures([p1, p2, v2], range: 0..<3)
             jacobiEncoder?.dispatchThreadgroups(getImageGroupSize(), threadsPerThreadgroup: MTLSize(width: 8, height: 8, depth: 1))
             jacobiEncoder?.endEncoding()
 
             jacobiEncoder = commandBuffer.makeComputeCommandEncoder()
-            jacobiEncoder?.setComputePipelineState(jacobiPipeline)
-            jacobiEncoder?.setBytes([-dx * dx], length: MemoryLayout<Float>.stride, index: 0)
-            jacobiEncoder?.setBytes([Float(4)], length: MemoryLayout<Float>.stride, index: 1)
+            jacobiEncoder?.setComputePipelineState(scalarJacobiPipeline)
+            jacobiEncoder?.setBytes([alpha], length: MemoryLayout<Float>.stride, index: 0)
+            jacobiEncoder?.setBytes([beta], length: MemoryLayout<Float>.stride, index: 1)
             jacobiEncoder?.setTextures([p2, p1, v2], range: 0..<3)
             jacobiEncoder?.dispatchThreadgroups(getImageGroupSize(), threadsPerThreadgroup: MTLSize(width: 8, height: 8, depth: 1))
             jacobiEncoder?.endEncoding()
@@ -214,12 +234,12 @@ class FluidRenderer: Renderer {
         projectFinishEncoder?.endEncoding()
     }
     
-    func dye(commandBuffer: MTLCommandBuffer) {
+    func dye(commandBuffer: MTLCommandBuffer, drawingTexture: MTLTexture) {
         dispatchComputeEncoder(commandBuffer: commandBuffer,
                                computePipeline: dyePipeline,
                                buffers: [],
                                bytes: { _, _ in },
-                               textures: [v2, previousDye, dye],
+                               textures: [drawingTexture, previousDye, dye],
                                threadGroups: getImageGroupSize(),
                                threadGroupSize: MTLSize(width: 8, height: 8, depth: 1))
     }
@@ -261,4 +281,22 @@ class FluidRenderer: Renderer {
         guard let location = getLocation(event: event, view: view) else { return }
         currentLocation = location
     }
+}
+
+class FluidInputManager: BasicInputManager {
+    var computeSize: Int {
+        Int((getInput(0) as! SliderInput).output)
+    }
+    
+    var dt: Float {
+        Float((getInput(1) as! SliderInput).output)
+    }
+    
+    override init(renderSpecificInputs: [NSView] = [], imageSize: CGSize?) {
+        let computeSize = SliderInput(name: "Compute Size", minValue: 128, currentValue: 512, maxValue: 1024, tickMarks: 8)
+        let dt = SliderInput(name: "Increment", minValue: 0.0001, currentValue: 0.001, maxValue: 1)
+        super.init(renderSpecificInputs: [computeSize, dt] + renderSpecificInputs, imageSize: imageSize)
+    }
+    
+    
 }

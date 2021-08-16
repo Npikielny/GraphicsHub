@@ -24,6 +24,13 @@ inline T lerp(T a, T b, float p) {
     return (b - a) * p + a;
 }
 
+float2 flip(float2 in) {
+    return float2(in.y, in.x);
+}
+float2 flip(int2 in) {
+    return float2(in.y, in.x);
+}
+
 float4 bilinearInterpolation(float2 uv, // does not work for coordinates in max row or max column
                              texture2d<float, access::read_write> image) {
     float2 coord = uv * float2(imageSize(image));
@@ -112,16 +119,18 @@ float4 jacobi(uint2 tid, // location
     return (left + right + below + above + alpha * center) * rBeta;
 }
 
-kernel void jacobi(uint2 tid                           [[ thread_position_in_grid ]],
+kernel void jacobiVector(uint2 tid                           [[ thread_position_in_grid ]],
                    constant float & alpha              [[ buffer (0) ]],
                    constant float & beta               [[ buffer (1) ]],
                    texture2d<float> X1_in                 [[ texture (0) ]],
                    texture2d<float, access::write> X1_out [[ texture (1) ]],
                    texture2d<float> B1_in                  [[ texture (2) ]]) {
-    X1_out.write(
-              (X1_in.read(tid - uint2(1, 0)) + X1_in.read(tid + uint2(1, 0)) +
-              X1_in.read(tid - uint2(0, 1)) + X1_in.read(tid + uint2(0, 1)) +
-               alpha * B1_in.read(tid)) / beta,
+    X1_out.write(float4(
+              (X1_in.read(tid - uint2(1, 0)).xy + X1_in.read(tid + uint2(1, 0)).xy +
+              X1_in.read(tid - uint2(0, 1)).xy + X1_in.read(tid + uint2(0, 1)).xy +
+               alpha * B1_in.read(tid).xy) / beta,
+                 0,
+                 1),
               tid);
 }
 
@@ -136,7 +145,6 @@ kernel void force(uint2 tid                                     [[ thread_positi
     float2 pos = float2(tid) / float2(dimensions) - 0.5;
     float amp = exp(-forceExponent * distance(forceOrigin, float2(pos)));
 
-//    velocityOut.write(velocityIn.read(tid) + float4(float2(forceVector) * amp, 0, 0), tid);
     velocityOut.write(velocityIn.read(tid) + float4(forceVector * amp, 0, 0), tid);
     
 }
@@ -157,7 +165,7 @@ kernel void projectionSetup(uint2 tid [[thread_position_in_grid]],
                           float2(
                                  W_in.read(tid + uint2(1, 0)).x - W_in.read(tid - uint2(1, 0)).x +
                                  W_in.read(tid + uint2(0, 1)).y - W_in.read(tid - uint2(0, 1)).y
-                                 ),// * float(W_in.get_height()) / 2,
+                                 ) * W_in.get_height() / 2,
 //                          float2(
 //                                 W_in.read(tid + uint2(1, 0)).x - W_in.read(tid - uint2(1, 0)).x +
 //                                 W_in.read(tid + uint2(0, 1)).y - W_in.read(tid - uint2(0, 1)).y
@@ -166,6 +174,19 @@ kernel void projectionSetup(uint2 tid [[thread_position_in_grid]],
                           1),
                    tid);
     P_out.write(float4(float3(0), 1), tid);
+}
+
+kernel void jacobiScalar(uint2 tid                           [[ thread_position_in_grid ]],
+                   constant float & alpha              [[ buffer (0) ]],
+                   constant float & beta               [[ buffer (1) ]],
+                   texture2d<float> X1_in                 [[ texture (0) ]],
+                   texture2d<float, access::write> X1_out [[ texture (1) ]],
+                   texture2d<float> B1_in                  [[ texture (2) ]]) {
+    X1_out.write(
+              (X1_in.read(tid - uint2(1, 0)).x + X1_in.read(tid + uint2(1, 0)).x +
+              X1_in.read(tid - uint2(0, 1)).x + X1_in.read(tid + uint2(0, 1)).x +
+               alpha * B1_in.read(tid).x) / beta,
+              tid);
 }
 
 kernel void projectionFinish(uint2 tid [[ thread_position_in_grid ]],
@@ -178,10 +199,9 @@ kernel void projectionFinish(uint2 tid [[ thread_position_in_grid ]],
     float p1 = P_in.read(max(tid - uint2(1, 0), 1)).x;
     float p2 = P_in.read(min(tid + uint2(1, 0), dimensions - 2)).x;
     float p3 = P_in.read(max(tid - uint2(1, 0), 1)).x;
-    float p4 = P_in.read(max(tid - uint2(1, 0), dimensions - 2)).x;
+    float p4 = P_in.read(min(tid - uint2(1, 0), dimensions - 2)).x;
     
-    float2 velocity = W_in.read(tid).xy - float2(p2 - p1, p4 - p3) * float2(imageSize(W_in)) / 2;
-//    float2 velocity = W_in.read(tid).xy;
+    float2 velocity = W_in.read(tid).xy - float2(p2 - p1, p4 - p3) * W_in.get_height() / 2;
     
     U_out.write(float4(velocity, 0, 1), tid);
 
@@ -209,6 +229,8 @@ kernel void moveDye(uint2 tid [[ thread_position_in_grid ]],
                       texture2d<float> velocity,
                       texture2d<float> previousDye,
                       texture2d<float, access::write> dye) {
+//    constexpr sampler sam(min_filter::nearest, mag_filter::nearest, mip_filter::none);
+//    dye.write(abs(velocity.sample(sam, (float2(tid) + 0.5)/float2(imageSize(dye)))), tid);
 //    dye.write(previousDye.read(uint2(float2(tid) - velocity.read(tid).xy)), tid);
 //    float2 v = velocity.read(tid).xy;
 //    float mag = length(v);
