@@ -51,6 +51,7 @@ struct Ray {
     float3 origin;
     float3 direction;
     float3 energy;
+    float n;
     float3 result;
 };
 
@@ -75,6 +76,8 @@ void IntersectSphere(Ray ray, thread RayHit &bestHit, Object object);
 void IntersectCube(Ray ray, thread RayHit &bestHit, Object box);
 float IntersectCube(float3 origin, float3 direction, Object box);
 float IntersectClouds(Ray ray, float time);
+
+float waterHeight(float3 coordinates, float time);
 
 RayHit Intersect(Ray ray, Object object, thread RayHit & bestHit);
 RayHit Trace(Ray ray, int objectCount, constant Object *objects, bool groundPlane);

@@ -41,10 +41,9 @@ uint2 shiftedTid(uint2 tid,
 }
 
 float3 randomColor(int seed) {
-    float value = float(seed * 1282923947237 % 1352624);
-    return abs(float3(cos(value),
-                  sin(value),
-                  cos(value) * sin(value)));
+    return clamp(((float3(hash(seed),
+                  hash(seed * 23597203592),
+                  hash(seed * 937230527)) - 0.5) * 2) + 0.5, 0., 1.);
 }
 
 float lerp(float a, float b, float p) {

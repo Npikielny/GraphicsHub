@@ -8,6 +8,7 @@
 #include <metal_stdlib>
 using namespace metal;
 #include "../Shared/SharedDataTypes.h"
+#include "../ComplexRenderer/ComplexRendering.h"
 
 //Source: https://developer.download.nvidia.com/books/HTML/gpugems/gpugems_ch38.html
 // http://download.nvidia.com/developer/SDK/Individual_Samples/DEMOS/OpenGL/src/gpgpu_fluid/Docs/GPU_Gems_Fluids_Chapter.pdf
@@ -66,12 +67,14 @@ kernel void initialize(uint2 tid [[ thread_position_in_grid ]],
                        texture2d<float, access::write> p1,
                        texture2d<float, access::write> p2,
                        texture2d<float, access::write> dye) {
-    v1.write(float4(float3(0), 1), tid);
-    v2.write(float4(float3(0), 1), tid);
-    v3.write(float4(float3(0), 1), tid);
-    p1.write(float4(float3(0), 1), tid);
-    p2.write(float4(float3(0), 1), tid);
-    dye.write(float4(float2(tid)/float2(imageSize(dye)), 0, 1), tid);
+    dye.write(float4(0, 0, 0, 1), tid);
+    v1.write(float4(0, 0, 0, 1), tid);
+    v2.write(float4(0, 0, 0, 1), tid);
+    v3.write(float4(0, 0, 0, 1), tid);
+    p1.write(float4(0, 0, 0, 1), tid);
+    p2.write(float4(0, 0, 0, 1), tid);
+    
+//    dye.write(float4(0, 0, 0, 1), tid);
 //    dye.write(float4(hash(tid.x * tid.y + tid.y), hash(tid.x * tid.y + tid.x), 0, 1), tid);
     
 }
@@ -143,10 +146,32 @@ kernel void force(uint2 tid                                     [[ thread_positi
     int2 dimensions = imageSize(velocityIn);
     
     float2 pos = float2(tid) / float2(dimensions) - 0.5;
-    float amp = exp(-forceExponent * distance(forceOrigin, float2(pos)));
-
+    float amp = exp(-forceExponent * distance(forceOrigin, pos));
+    
     velocityOut.write(velocityIn.read(tid) + float4(forceVector * amp, 0, 0), tid);
     
+}
+
+kernel void addColor(uint2 tid [[thread_position_in_grid]],
+                     constant float2 & forceOrigin,
+                     constant float2 & forceVector,
+                     constant float & forceExponent,
+                     constant int & frame,
+                     constant int & seed,
+                     texture2d<float, access::read_write> dye) {
+    float2 pos = float2(tid) / float2(imageSize(dye)) - 0.5;
+    float amp = exp(-forceExponent * distance(forceOrigin, pos));
+    float time = float(frame + seed) / 50;
+    float3 minColor = randomColor(uint(floor(time)));
+    float3 nextColor = randomColor(uint(floor(time) + 1));
+    float3 color = mix(minColor, nextColor, fract(time));
+    dye.write(clamp(float4(
+                     dye.read(tid).xyz + color / max(distance(forceOrigin, pos), 1.) * amp * length(forceVector),
+                     1
+                     ),
+                    0.,
+                    1.),
+              tid);
 }
 
 kernel void projectionSetup(uint2 tid [[thread_position_in_grid]],
@@ -165,7 +190,7 @@ kernel void projectionSetup(uint2 tid [[thread_position_in_grid]],
                           float2(
                                  W_in.read(tid + uint2(1, 0)).x - W_in.read(tid - uint2(1, 0)).x +
                                  W_in.read(tid + uint2(0, 1)).y - W_in.read(tid - uint2(0, 1)).y
-                                 ) * W_in.get_height() / 2,
+                                 ) * float2(imageSize(W_in)) / 2,
 //                          float2(
 //                                 W_in.read(tid + uint2(1, 0)).x - W_in.read(tid - uint2(1, 0)).x +
 //                                 W_in.read(tid + uint2(0, 1)).y - W_in.read(tid - uint2(0, 1)).y
@@ -226,11 +251,43 @@ float3 velocityColor(float2 velocity) {
 }
 
 kernel void moveDye(uint2 tid [[ thread_position_in_grid ]],
+                    constant float & dt,
+                    constant float & diffusionRate,
                       texture2d<float> velocity,
                       texture2d<float> previousDye,
                       texture2d<float, access::write> dye) {
-//    constexpr sampler sam(min_filter::nearest, mag_filter::nearest, mip_filter::none);
-//    dye.write(abs(velocity.sample(sam, (float2(tid) + 0.5)/float2(imageSize(dye)))), tid);
+    constexpr sampler sam(min_filter::linear, mag_filter::linear, mip_filter::none);
+    float2 uv = (float2(tid) + 0.5) / float2(imageSize(dye));
+    
+    
+    float2 velocityChange = velocity.sample(sam, uv).xy * float2((float)dye.get_height() / dye.get_width(), 1) * dt; // travel distance of previous fluid iteration in UV
+    dye.write(float4(previousDye.sample(sam, uv - velocityChange).xyz * (1 - diffusionRate), 1), tid);
+    
+//    dye.write(abs(float4(velocity.sample(sam, uv))), tid);
+    
+//    dye.write(float4(uv, 1, 1), tid);
+    
+    
+    
+    
+//    constexpr sampler sam(min_filter::linear, mag_filter::linear, mip_filter::none);
+//    float2 uv = (float2(tid) + 0.5) / float2(imageSize(dye));
+//
+////    float3 value = abs(velocity.sample(sam, uv)).xyz;
+////    dye.write(float4(value, 1), tid);
+//
+//    float2 movement = velocity.sample(sam, uv).xy * float2(1,float(dye.get_height()) / float(dye.get_width()));
+//    float3 color = previousDye.read(uint2(float2(tid) - float2(movement) * dt)).xyz * 0.99;
+//    dye.write(float4(color, 1), tid);
+    
+//    float2 aspect = float2(dye.get_width() * dye.get_height(), 1);
+//    float2 aspect_inv = float2()
+    
+    
+//    dye.write(, tid);
+    
+    
+//    uint2 coords = uint2(clamp((uv - duv), 0., 1.) * float2(imageSize(dye)));
 //    dye.write(previousDye.read(uint2(float2(tid) - velocity.read(tid).xy)), tid);
 //    float2 v = velocity.read(tid).xy;
 //    float mag = length(v);
@@ -239,7 +296,7 @@ kernel void moveDye(uint2 tid [[ thread_position_in_grid ]],
 //    float3 color = (velocityColor(v) * pow(mag, 0.5));
 //
 //    dye.write(float4(color, 1), tid);
-    dye.write(abs(velocity.read(tid)), tid);
+//    dye.write(abs(velocity.read(tid)), tid);
 //    dye.write(abs(velocity.read(tid)), tid);
 }
 

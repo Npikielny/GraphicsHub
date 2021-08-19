@@ -63,22 +63,6 @@ class HighFidelityRayRenderer: AntialiasingRenderer {
         objectBuffer.didModifyRange(0..<objectsSize)
     }
     
-    func loadTexture(name: String) throws -> MTLTexture {
-        let textureLoaderOption = [
-                    MTKTextureLoader.Option.allocateMipmaps: NSNumber(value: false),
-                    MTKTextureLoader.Option.SRGB: NSNumber(value: false)
-                ]
-        // TODO: Add file importing
-//        let url = URL(fileURLWithPath: "---/RayTraceComprehensive/RayTraceMPSSimple/Assets.xcassets/cape_hill_4k.imageset/cape_hill_4k copy.jpg")
-//        let texture = try! textureLoader.newTexture(URL: url, options: textureLoaderOption)
-        let textureLoader = MTKTextureLoader(device: device)
-        let image = NSImage(named: name)!
-        var size = NSRect(x: 0, y: 0, width: image.size.width, height: image.size.height)
-        let texture = try textureLoader.newTexture(cgImage: image.cgImage(forProposedRect: &size, context: nil, hints: nil)!,
-                                                    options: textureLoaderOption)
-        return texture
-    }
-    
 }
 
 class HighFidelityRayInputManager: AntialiasingInputManager {
@@ -255,22 +239,6 @@ class RealTimeRayRenderer: Renderer {
         let objectsSize = MemoryLayout<Object>.stride * self.objects.count
         memcpy(objectBuffer.contents(), self.objects, objectsSize)
         objectBuffer.didModifyRange(0..<objectsSize)
-    }
-    
-    func loadTexture(name: String) throws -> MTLTexture {
-        let textureLoaderOption = [
-                    MTKTextureLoader.Option.allocateMipmaps: NSNumber(value: false),
-                    MTKTextureLoader.Option.SRGB: NSNumber(value: false)
-                ]
-        // TODO: Add file importing
-//        let url = URL(fileURLWithPath: "---/RayTraceComprehensive/RayTraceMPSSimple/Assets.xcassets/cape_hill_4k.imageset/cape_hill_4k copy.jpg")
-//        let texture = try! textureLoader.newTexture(URL: url, options: textureLoaderOption)
-        let textureLoader = MTKTextureLoader(device: device)
-        let image = NSImage(named: name)!
-        var size = NSRect(x: 0, y: 0, width: image.size.width, height: image.size.height)
-        let texture = try textureLoader.newTexture(cgImage: image.cgImage(forProposedRect: &size, context: nil, hints: nil)!,
-                                                    options: textureLoaderOption)
-        return texture
     }
     
 }

@@ -76,6 +76,7 @@ struct Material {
         case randomNormal
         case randomLit
         case solidLit
+        case glassy
     }
     static func createMaterial(materialType: Material.MaterialType) -> Material {
         switch materialType {
@@ -108,6 +109,8 @@ struct Material {
             case .light:
                 let color = SIMD3<Float>(Float.random(in: 0...1), Float.random(in: 0...1), Float.random(in: 0...1))
                 return Material(albedo: color, specular: color, n: 0, transparency: 0, emission: color * Float.random(in: 0.1...0.85))
+            case .glassy:
+                return Material(albedo: SIMD3<Float>(1, 1, 1), specular: SIMD3<Float>(1, 1, 1) * 0.5, n: Float.random(in: 1.3...1.8), transparency: 1, emission: SIMD3<Float>(repeating: 0))
             default:
                 return Material(albedo: SIMD3<Float>(1,1,1), specular: SIMD3<Float>(1,1,1), n: 1, transparency: 0, emission: SIMD3<Float>(repeating: 0))
         }
@@ -223,6 +226,15 @@ struct Object {
         return 0
     }
     
+    var center: SIMD3<Float> {
+        switch getType() {
+        case .Triangle:
+            return (position + rotation + size) / 3
+        default:
+            return position
+        }
+    }
+    
     var radius: Float {
         switch getType() {
         case .Sphere:
@@ -230,8 +242,8 @@ struct Object {
         case .Box:
             return pow(pow(size.x, 2) + pow(size.y, 2) + pow(size.z, 2), 0.5)
         case .Triangle:
-            let farther = distance(position, size) < distance(position, rotation) ? rotation : size
-            return pow(pow(farther.x, 2) + pow(farther.y, 2) + pow(farther.z, 2), 0.5)
+            let center = center
+            return max(distance(center, position), max(distance(center, size), distance(center, rotation)))
         case .none:
             fatalError()
         }
@@ -243,7 +255,7 @@ struct Object {
     }
     
     static func intersect(object1: Object, object2: Object) -> Bool {
-        return length(object1.position - object2.position) < object1.radius + object2.radius
+        return length(object1.center - object2.center) < object1.radius + object2.radius
     }
     
     struct BoundingBox {

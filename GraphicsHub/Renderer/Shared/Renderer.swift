@@ -257,6 +257,9 @@ extension Renderer {
     func getImageGroupSize() -> MTLSize {
         return MTLSize(width: (Int(size.width) + 7)/8, height: (Int(size.height) + 7)/8, depth: 1)
     }
+    func getImageGroupSize(texture: MTLTexture) -> MTLSize {
+        return MTLSize(width: (texture.width + 7)/8, height: (texture.height + 7)/8, depth: 1)
+    }
     func getThreadGroupSize(size: CGSize, ThreadSize: MTLSize) -> MTLSize {
         return MTLSize(width: (Int(size.width) + ThreadSize.width-1)/ThreadSize.width,
                        height: (Int(size.height) + ThreadSize.height-1)/ThreadSize.height,
@@ -295,9 +298,13 @@ extension Renderer {
                                 ) {
         let computeEncoder = commandBuffer.makeComputeCommandEncoder()
         computeEncoder?.setComputePipelineState(computePipeline)
-        computeEncoder?.setBuffers(buffers, offsets: Array(repeating: 0, count: buffers.count), range: 0..<buffers.count)
+        if buffers.count > 0 {
+            computeEncoder?.setBuffers(buffers, offsets: Array(repeating: 0, count: buffers.count), range: 0..<buffers.count)
+        }
         bytes(computeEncoder, buffers.count)
-        computeEncoder?.setTextures(textures, range: 0..<textures.count)
+        if textures.count > 0 {
+            computeEncoder?.setTextures(textures, range: 0..<textures.count)
+        }
         computeEncoder?.dispatchThreadgroups(threadGroups, threadsPerThreadgroup: threadGroupSize)
         computeEncoder?.endEncoding()
     }
@@ -475,6 +482,21 @@ extension Renderer {
         return buffer
     }
     
+    func loadTexture(name: String) throws -> MTLTexture {
+        let textureLoaderOption = [
+                    MTKTextureLoader.Option.allocateMipmaps: NSNumber(value: false),
+                    MTKTextureLoader.Option.SRGB: NSNumber(value: false)
+                ]
+        // TODO: Add file importing
+//        let url = URL(fileURLWithPath: "---/RayTraceComprehensive/RayTraceMPSSimple/Assets.xcassets/cape_hill_4k.imageset/cape_hill_4k copy.jpg")
+//        let texture = try! textureLoader.newTexture(URL: url, options: textureLoaderOption)
+        let textureLoader = MTKTextureLoader(device: device)
+        let image = NSImage(named: name)!
+        var size = NSRect(x: 0, y: 0, width: image.size.width, height: image.size.height)
+        let texture = try textureLoader.newTexture(cgImage: image.cgImage(forProposedRect: &size, context: nil, hints: nil)!,
+                                                    options: textureLoaderOption)
+        return texture
+    }
 }
 
 extension NSImage {

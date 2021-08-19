@@ -8,10 +8,24 @@
 #include <metal_stdlib>
 using namespace metal;
 #include "../Shared/SharedDataTypes.h"
+#include "ComplexRendering.h"
 float2 multiplyImaginary(float2 im1, float2 im2) {
     float real = im1.x * im2.x - im1.y * im2.y;
     float imaginary = im1.x * im2.y + im1.y * im2.x;
     return float2(real, imaginary);
+}
+
+float4 julia(uint2 location, float2 origin, float2 c, float2 zoom, float scalingFactor, float3 colors[], int colorCount, int2 imageSize) {
+    float2 z = (float2(location.x, location.y) - float2(imageSize)/2) / zoom + origin;
+    int value = 0;
+    for (int i = 0; i < 255; i ++) {
+        z = multiplyImaginary(z, z);
+        z = float2(z.x+c.x,z.y+c.y);
+        if (pow(z.x*z.x+z.y*z.y,0.5) > 4) {
+            value = i;
+        }
+    }
+    return float4(interpolateColors(colors, colorCount, float(value) / 255 * scalingFactor), 1);
 }
 
 kernel void juliaSet(uint2 tid [[thread_position_in_grid]],

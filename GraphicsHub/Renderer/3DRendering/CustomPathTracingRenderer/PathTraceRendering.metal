@@ -76,6 +76,84 @@ float SmoothnessToPhongAlpha(float s) {
     return pow(1000.0f, s * s);
 }
 
+//float3 PathShade(thread Ray &ray, RayHit hit, texture2d<float> sky, int2 skyDimensions, int sphereCount, constant Object * objects, float4 lightDirection, float skyIntensity, float2 r, float roulette, float time) {
+//
+//   if (hit.distance < INFINITY) {
+//       // Calculate chances of diffuse and specular reflection
+//       hit.material.albedo = min(1.0f - hit.material.specular, hit.material.albedo);
+//       float specChance = energy(hit.material.specular);
+//       float diffChance = energy(hit.material.albedo);
+//       float sum = specChance + diffChance;
+//       specChance /= sum;
+//       diffChance /= sum;
+//       // Roulette-select the ray's path
+//       if (roulette < specChance) {
+////           // Specular reflection
+////           ray.origin = hit.position + hit.normal * 0.001f;
+////           ray.direction = reflect(ray.direction, hit.normal);
+////           ray.energy *= (1.0f / specChance) * hit.material.specular * sdot(hit.normal, ray.direction);
+//           // Specular reflection
+//           float alpha = 15.0f;
+//           ray.origin = hit.position + hit.normal * 0.001f;
+////           ray.direction = SampleHemisphere(reflect(ray.direction, hit.normal), r, alpha);
+//           ray.direction = SampleHemisphere(reflect(ray.direction, hit.normal), r, alpha);
+//           float f = (alpha + 2) / (alpha + 1);
+//           ray.energy *= (1.0f / specChance) * hit.material.specular * sdot(hit.normal, ray.direction, f);
+//       }
+//       else
+//       {
+////           // Diffuse reflection
+//
+//           ray.origin = hit.position + hit.normal * 0.001f;
+//           ray.direction = SampleHemisphere(hit.normal, r, 1.0f);
+//           ray.energy *= (1.0f / diffChance) * hit.material.albedo;
+//       }
+//       return hit.material.emission;
+//
+////
+////       // Calculate chances of diffuse and specular reflection
+////       hit.material.albedo = min(1.0f - hit.material.specular, hit.material.albedo);
+////       float specChance = energy(hit.material.specular);
+////       float diffChance = energy(hit.material.albedo);
+////       float sum = specChance + diffChance;
+////       specChance /= sum;
+////       diffChance /= sum;
+////       // Roulette-select the ray's path
+////       if (roulette < specChance) {
+////           // Specular reflection
+////           float alpha = 15.0f;
+////           ray.origin = hit.position + hit.normal * 0.001f;
+//////           ray.direction = alignHemisphereWithNormal(sampleCosineWeightedHemisphere(r), reflect(ray.direction, hit.normal));
+//////           ray.direction = alignHemisphereWithNormal(SampleHemisphere(hit.normal, alpha, r), hit.normal);
+////           ray.direction = SampleHemisphere(reflect(ray.direction, hit.normal), alpha, r);
+////           float f = (alpha + 2) / (alpha + 1);
+////           ray.energy *= (1.0f / specChance) * hit.material.specular * sdot(hit.normal, ray.direction, f);
+////       } else if (diffChance > 0 && roulette < specChance + diffChance) {
+////           // Diffuse reflection
+////           ray.origin = hit.position + hit.normal * 0.001f;
+//////           ray.direction = SampleHemisphere(hit.normal, 1.0f, r);
+//////           ray.direction = alignHemisphereWithNormal(SampleHemisphere(hit.normal, 1, r), hit.normal);
+////           ray.direction = alignHemisphereWithNormal(sampleCosineWeightedHemisphere(r), hit.normal);
+////           ray.energy *= (1.0f / diffChance) * hit.material.albedo;
+////       } else {
+////           ray.energy = 0;
+////       }
+////       return 0;
+//   }else {
+//       ray.energy = float3(0);
+//       float cloud = IntersectClouds(ray, time);
+//       cloud = 2 * (cloud > 0.7 ? (cloud - 0.7) / 0.3 : 0);
+//       float3 color = skyColor(ray.direction, lightDirection) * 0.005;
+//       float3 edgeColor = sunColor(lightDirection);
+//       return (lightDirection.w * (float3(1) * 0.75 + edgeColor * 0.25) * cloud + (1 - cloud) * color) * skyIntensity;
+////       if (cloud > 0.1 && cloud < 0.2) {
+////           return lightDirection.w * mix(float3(1), edgeColor, (cloud - 0.1) / 0.1) * cloud + (1 - cloud) * color;
+////       } else {
+////            return lightDirection.w * float3(1) * cloud + (1 - cloud) * color;
+////       }
+//   }
+//}
+
 float3 PathShade(thread Ray &ray, RayHit hit, texture2d<float> sky, int2 skyDimensions, int sphereCount, constant Object * objects, float4 lightDirection, float skyIntensity, float2 r, float roulette, float time) {
     
    if (hit.distance < INFINITY) {
@@ -87,26 +165,20 @@ float3 PathShade(thread Ray &ray, RayHit hit, texture2d<float> sky, int2 skyDime
        specChance /= sum;
        diffChance /= sum;
        // Roulette-select the ray's path
-       if (roulette < specChance) {
-//           // Specular reflection
-//           ray.origin = hit.position + hit.normal * 0.001f;
-//           ray.direction = reflect(ray.direction, hit.normal);
-//           ray.energy *= (1.0f / specChance) * hit.material.specular * sdot(hit.normal, ray.direction);
+       float roulette = r.x;
+       if (roulette < specChance)
+       {
            // Specular reflection
-           float alpha = 15.0f;
            ray.origin = hit.position + hit.normal * 0.001f;
-//           ray.direction = SampleHemisphere(reflect(ray.direction, hit.normal), r, alpha);
-           ray.direction = SampleHemisphere(reflect(ray.direction, hit.normal), r, alpha);
-           float f = (alpha + 2) / (alpha + 1);
-           ray.energy *= (1.0f / specChance) * hit.material.specular * sdot(hit.normal, ray.direction, f);
+           ray.direction = reflect(ray.direction, hit.normal);
+           ray.energy *= (1.0f / specChance) * hit.material.specular * sdot(hit.normal, ray.direction);
        }
        else
        {
-//           // Diffuse reflection
-
+           // Diffuse reflection
            ray.origin = hit.position + hit.normal * 0.001f;
-           ray.direction = SampleHemisphere(hit.normal, r, 1.0f);
-           ray.energy *= (1.0f / diffChance) * hit.material.albedo;
+           ray.direction = ray.direction = alignHemisphereWithNormal(sampleCosineWeightedHemisphere(r), hit.normal);;
+           ray.energy *= (1.0f / diffChance) * 2 * hit.material.albedo * sdot(hit.normal, ray.direction);
        }
        return hit.material.emission;
        
@@ -141,11 +213,11 @@ float3 PathShade(thread Ray &ray, RayHit hit, texture2d<float> sky, int2 skyDime
 //       return 0;
    }else {
        ray.energy = float3(0);
-       float cloud = IntersectClouds(ray, time);
+       float cloud = IntersectClouds(ray, time / 10);
        cloud = 2 * (cloud > 0.7 ? (cloud - 0.7) / 0.3 : 0);
        float3 color = skyColor(ray.direction, lightDirection) * 0.005;
        float3 edgeColor = sunColor(lightDirection);
-       return (lightDirection.w * (float3(1) * 0.75 + edgeColor * 0.25) * cloud + (1 - cloud) * color) * skyIntensity;
+       return lightDirection.w * (float3(1) * 0.75 + edgeColor * 0.25) * cloud + (1 - cloud) * color;
 //       if (cloud > 0.1 && cloud < 0.2) {
 //           return lightDirection.w * mix(float3(1), edgeColor, (cloud - 0.1) / 0.1) * cloud + (1 - cloud) * color;
 //       } else {
@@ -178,7 +250,7 @@ kernel void pathTrace (uint2 tid [[thread_position_in_grid]],
     if (int(tid.x) < imageSize.x && int(tid.y) < imageSize.y) {
         float2 uv = float2((float2(tid) + randomDirection / 2 + float2(0.5f, 0.5f)) / float2(imageSize.x, imageSize.y) * 2.0f - 1.0f);
         thread Ray &&ray = CreateCameraRay(uv, modelMatrix, projectionMatrix);
-
+        if (ray.origin.y < 0) { ray.energy *= float3(0.2, 0.5, 0.8); }
         int countPerFrame = computeCount(imageSize, raySize);
         int passed = countPerFrame * passesPerFrame * frame + countPerFrame * passes + intermediateFrame;
         
@@ -216,4 +288,17 @@ kernel void pathTrace (uint2 tid [[thread_position_in_grid]],
 //    float2 r = float2(hash((tid.x + tid.y * uint(imageSize.x)) * (1 + frame + 0 + int(randomDirection.x + 0.5))),
 //                      hash((tid.x + tid.y * uint(imageSize.x) + 1) * (1 + frame + 0 + int(randomDirection.y + 0.5))));
 //    image.write(float4(r, 0, 1), tid);
+}
+
+kernel void floatObjects(uint tid [[ thread_position_in_grid ]],
+                         device Object * objects,
+                         constant int & frame) {
+    float3 height =  waterHeight(float3(objects[tid].position.x, 0, objects[tid].position.z), float(frame));
+//    objects[tid].position.y -= objects[tid].size.y;
+    Object object = objects[tid];
+    if (object.objectType == sphere) {
+        objects[tid].position.y = height.y;// - abs(objects[tid].size.x / 2);
+    } else {
+        objects[tid].position.y = height.y;// - abs(objects[tid].size.y / 2);
+    }
 }

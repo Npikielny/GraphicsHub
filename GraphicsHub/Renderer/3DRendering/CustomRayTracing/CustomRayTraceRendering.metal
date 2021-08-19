@@ -33,6 +33,7 @@ kernel void rayTrace (uint2 tid [[thread_position_in_grid]],
         thread Ray &&ray = CreateCameraRay(uv(tid, randomDirection, imageSize),
                                            modelMatrix,
                                            projectionMatrix);
+        if (ray.origin.y < 0) { ray.energy *= float3(0.2, 0.5, 0.8); }
 
         float3 result = float3(0, 0, 0);
         for (int i = 0; i < 8; i++) {

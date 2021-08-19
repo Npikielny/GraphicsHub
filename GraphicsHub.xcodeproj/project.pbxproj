@@ -215,6 +215,7 @@
 		46F663FD26852E8E007F72E3 /* Scene.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Scene.swift; sourceTree = "<group>"; };
 		46F663FE26852E8E007F72E3 /* Transforms.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Transforms.swift; sourceTree = "<group>"; };
 		46F6640426852F38007F72E3 /* Shaders.metal */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.metal; path = Shaders.metal; sourceTree = "<group>"; };
+		46F92DD326CB1C0800D4628B /* ComplexRendering.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ComplexRendering.h; sourceTree = "<group>"; };
 		46FDE62E2686D1B4003C9F43 /* FluidRenderer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FluidRenderer.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -305,6 +306,7 @@
 			isa = PBXGroup;
 			children = (
 				309B4017263BC40000300BBE /* ComplexRenderer.swift */,
+				46F92DD326CB1C0800D4628B /* ComplexRendering.h */,
 				309B401A263BC4AE00300BBE /* ComplexRendering.metal */,
 			);
 			path = ComplexRenderer;

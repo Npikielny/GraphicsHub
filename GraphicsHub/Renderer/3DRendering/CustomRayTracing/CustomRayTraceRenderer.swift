@@ -13,27 +13,29 @@ class CustomRayTraceRenderer: HighFidelityRayRenderer {
     var skySize: SIMD2<Int32>!
         
     var rayPipeline: MTLComputePipelineState!
+    var floatPipeline: MTLComputePipelineState!
     
     required init(device: MTLDevice, size: CGSize) {
         super.init(device: device,
                    size: size,
-                   objects: SceneManager.generate(objectCount: 100,
+                   objects: SceneManager.generate(objectCount: 50,
                                                   objectTypes: [.Box, .Sphere, .Triangle],
                                                   generationType: .procedural,
                                                   positionType: .radial,
                                                   collisionType: [.grounded],
                                                   objectSizeRange: (SIMD3<Float>(repeating: 0.1), SIMD3<Float>(repeating: 2)),
                                                   objectPositionRange: (SIMD3<Float>(0, 0, 0), SIMD3<Float>(100, Float.pi * 2, 0)),
-                                                  materialType: .random),
+                                                  materialType: .glassy),
                    inputManager: HighFidelityRayInputManager(size: size),
                    imageCount: 2)
         name = "Vanilla Ray Trace Renderer"
-        let function = createFunctions("rayTrace")
-        if let rayFunction = function {
+        let function = createFunctions("rayTrace", "floatObjects")
+        if let rayFunction = function[0] {
             do {
                 rayPipeline = try device.makeComputePipelineState(function: rayFunction)
                 skyTexture = try loadTexture(name: "cape_hill_4k")
                 skySize = SIMD2<Int32>(Int32(skyTexture.width), Int32(skyTexture.height))
+                floatPipeline = try device.makeComputePipelineState(function: function[1]!)
             } catch {
                 print(error)
                 fatalError()
@@ -42,6 +44,16 @@ class CustomRayTraceRenderer: HighFidelityRayRenderer {
     }
     
     override func draw(commandBuffer: MTLCommandBuffer, view: MTKView) {
+        
+        dispatchComputeEncoder(commandBuffer: commandBuffer,
+                               computePipeline: floatPipeline,
+                               buffers: [objectBuffer],
+                               bytes: { encoder, offset in
+                                encoder?.setBytes([Int32(self.frame)], length: MemoryLayout<Int32>.stride, index: offset)
+                               },
+                               textures: [],
+                               threadGroups: MTLSize(width: (objects.count + 7) / 8, height: 1, depth: 1),
+                               threadGroupSize: MTLSize(width: 8, height: 1, depth: 1))
         
         let rayEncoder = commandBuffer.makeComputeCommandEncoder()
         rayEncoder?.setComputePipelineState(rayPipeline)

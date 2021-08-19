@@ -13,11 +13,12 @@ class CustomPathRenderer: HighFidelityRayRenderer {
     var skySize: SIMD2<Int32>!
         
     var rayPipeline: MTLComputePipelineState!
+    var floatPipeline: MTLComputePipelineState!
     
     required init(device: MTLDevice, size: CGSize) {
         super.init(device: device,
                    size: size,
-                   objects: SceneManager.generate(objectCount: 75,
+                   objects: SceneManager.generate(objectCount: 1000,
                                                   objectTypes: [.Box, .Sphere, .Triangle],
                                                   generationType: .procedural,
                                                   positionType: .radial,
@@ -28,12 +29,13 @@ class CustomPathRenderer: HighFidelityRayRenderer {
                    inputManager: HighFidelityRayInputManager(size: size),
                    imageCount: 2)
         name = "Vanilla Path Trace Renderer"
-        let function = createFunctions("pathTrace")
-        if let rayFunction = function {
+        let function = createFunctions("pathTrace", "floatObjects")
+        if let rayFunction = function[0] {
             do {
                 rayPipeline = try device.makeComputePipelineState(function: rayFunction)
                 skyTexture = try loadTexture(name: "rural_landscape_4k")
                 skySize = SIMD2<Int32>(Int32(skyTexture.width), Int32(skyTexture.height))
+                floatPipeline = try device.makeComputePipelineState(function: function[1]!)
             } catch {
                 print(error)
                 fatalError()
@@ -43,6 +45,22 @@ class CustomPathRenderer: HighFidelityRayRenderer {
     }
     
     override func draw(commandBuffer: MTLCommandBuffer, view: MTKView) {
+        let t = Float(frame) / 120 / 10
+        camera.rotation.y = -t * 360
+        camera.position.x = sin(t * 2 * Float.pi) * 15
+        camera.position.z = -cos(t * 2 * Float.pi) * 15
+//        if filledRender {
+//            dispatchComputeEncoder(commandBuffer: commandBuffer,
+//                                   computePipeline: floatPipeline,
+//                                   buffers: [objectBuffer],
+//                                   bytes: { encoder, offset in
+//                                    encoder?.setBytes([Int32(self.frame)], length: MemoryLayout<Int32>.stride, index: offset)
+//                                   },
+//                                   textures: [],
+//                                   threadGroups: MTLSize(width: (objects.count + 7) / 8, height: 1, depth: 1),
+//                                   threadGroupSize: MTLSize(width: 8, height: 1, depth: 1))
+//        }
+        
         let rayEncoder = commandBuffer.makeComputeCommandEncoder()
         rayEncoder?.setComputePipelineState(rayPipeline)
         
