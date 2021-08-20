@@ -1,6 +1,15 @@
 # GraphicsHub
 A compilation of all of the graphics projects I have made over the last year.
 Every project will have easy to use inputs, as well as some generic inputs, which allow for recording (currently a directory of photos, but this will hopefully become a video in the comming months).
+
+Demo:
+
+<a href="http://www.youtube.com/watch?feature=player_embedded&v=IGSoiPwX9M4
+" target="_blank"><img src="http://img.youtube.com/vi/IGSoiPwX9M4/0.jpg" 
+alt="IMAGE ALT TEXT HERE" width="240" height="180" border="10" /></a>
+
+
+
 ## Projects
 ### Fluid Dynamics
 ![ezgif com-video-to-gif](https://user-images.githubusercontent.com/42814781/130127425-59338e9a-5313-4909-8d8c-979ff7ed0193.gif)
