@@ -31,7 +31,6 @@
 		309B034626E72C6600372F5C /* Conway's Game of Life.swift in Sources */ = {isa = PBXBuildFile; fileRef = 309B033E26E72C6600372F5C /* Conway's Game of Life.swift */; };
 		309B034726E72C6600372F5C /* Ray Tracing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 309B033F26E72C6600372F5C /* Ray Tracing.swift */; };
 		309B034826E72C6600372F5C /* Complex Image Generator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 309B034026E72C6600372F5C /* Complex Image Generator.swift */; };
-		309B034926E72C6600372F5C /* CatalogView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 309B034126E72C6600372F5C /* CatalogView.swift */; };
 		309B034A26E72C6600372F5C /* RendererCatalog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 309B034226E72C6600372F5C /* RendererCatalog.swift */; };
 		309B4018263BC40000300BBE /* ComplexRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 309B4017263BC40000300BBE /* ComplexRenderer.swift */; };
 		309B401B263BC4AE00300BBE /* ComplexRendering.metal in Sources */ = {isa = PBXBuildFile; fileRef = 309B401A263BC4AE00300BBE /* ComplexRendering.metal */; };
@@ -141,7 +140,6 @@
 		309B033E26E72C6600372F5C /* Conway's Game of Life.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Conway's Game of Life.swift"; sourceTree = "<group>"; };
 		309B033F26E72C6600372F5C /* Ray Tracing.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Ray Tracing.swift"; sourceTree = "<group>"; };
 		309B034026E72C6600372F5C /* Complex Image Generator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Complex Image Generator.swift"; sourceTree = "<group>"; };
-		309B034126E72C6600372F5C /* CatalogView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CatalogView.swift; sourceTree = "<group>"; };
 		309B034226E72C6600372F5C /* RendererCatalog.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RendererCatalog.swift; sourceTree = "<group>"; };
 		309B4017263BC40000300BBE /* ComplexRenderer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ComplexRenderer.swift; sourceTree = "<group>"; };
 		309B401A263BC4AE00300BBE /* ComplexRendering.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = ComplexRendering.metal; sourceTree = "<group>"; };
@@ -308,7 +306,6 @@
 			isa = PBXGroup;
 			children = (
 				309B033A26E72C6600372F5C /* Descriptions */,
-				309B034126E72C6600372F5C /* CatalogView.swift */,
 				309B034226E72C6600372F5C /* RendererCatalog.swift */,
 			);
 			path = RendererCatalog;
@@ -808,7 +805,6 @@
 				46E04905268949FF00AC0AC0 /* AcceleratedRayTraceRendering.metal in Sources */,
 				30AEDA26263A2314007ED421 /* Renderer.swift in Sources */,
 				30AEDA2D263A27B7007ED421 /* RenderPipeline.metal in Sources */,
-				309B034926E72C6600372F5C /* CatalogView.swift in Sources */,
 				30B3916F2694EB9600ACF840 /* QuadraticAnimator.swift in Sources */,
 				30AEDA36263A54A2007ED421 /* LaunchPad.swift in Sources */,
 				309B034426E72C6600372F5C /* Accelerated Ray Tracing.swift in Sources */,
