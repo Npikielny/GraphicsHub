@@ -9,9 +9,11 @@ import SwiftUI
 
 @main
 struct MacGraphicsHubApp: App {
+
     var body: some Scene {
         WindowGroup {
             ContentView()
         }
     }
+    
 }

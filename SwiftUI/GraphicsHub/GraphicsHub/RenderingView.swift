@@ -9,29 +9,35 @@ import SwiftUI
 import MetalKit
 
 struct MetalView: View {
+    
     var rendererDelegate: RendererDelegate
+    
     var body: some View {
         RenderingView(delegate: rendererDelegate)
     }
+    
 }
 
 protocol RenderHandler {
+    
     var renderer: Renderer { get set }
+    
 }
+
 extension RenderHandler {
+    
     func mtkView(_ view: MTKView, drawableSizeWillChange size: CGSize) {
         renderer.mtkView(view, drawableSizeWillChange: size)
     }
     
     func draw(in view: MTKView) {
-        renderer.draw(in: view)
+        renderer.iterate(in: view)
     }
+    
 }
 
-// MARK: iOS
-#if os(iOS)
-import UIKit
 class RendererDelegate: MTKView {
+    
     var renderer: Renderer
     
     init(renderer: Renderer) {
@@ -44,6 +50,10 @@ class RendererDelegate: MTKView {
     }
     
 }
+
+// MARK: iOS
+#if os(iOS)
+import UIKit
 struct RenderingView: UIViewRepresentable {
     
     var delegate: RendererDelegate
@@ -60,19 +70,6 @@ struct RenderingView: UIViewRepresentable {
 #else
 //MARK: MacOS
 import Cocoa
-class RendererDelegate: MTKView {
-    var renderer: Renderer
-    
-    init(renderer: Renderer) {
-        self.renderer = renderer
-        super.init(frame: .zero, device: MTLCreateSystemDefaultDevice())
-    }
-    
-    required init(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-    
-}
 
 struct RenderingView: NSViewRepresentable {
     
@@ -91,7 +88,9 @@ struct RenderingView: NSViewRepresentable {
 
 
 struct MeatlView_Previews: PreviewProvider {
+    
     static var previews: some View {
         MetalView(rendererDelegate: RendererDelegate(renderer: Renderer(size: CGSize(width: 512, height: 512))))
     }
+    
 }

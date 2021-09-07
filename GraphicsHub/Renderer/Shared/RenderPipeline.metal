@@ -21,10 +21,6 @@ vertex CopyVertexOut copyVertex(unsigned short vid [[vertex_id]]) {
     return out;
 }
 
-struct Pixel {
-    uint32_t color;
-};
-
 // Simple fragment shader which copies a texture and applies a simple tonemapping function
 fragment float4 copyFragment(CopyVertexOut in [[stage_in]],
                              texture2d<float> tex)
@@ -39,6 +35,10 @@ fragment float4 copyFragment(CopyVertexOut in [[stage_in]],
     
     return color;
 }
+
+struct Pixel {
+    uint32_t color;
+};
 
 uint32_t createEntry(uint8_t red,
                  uint8_t green,

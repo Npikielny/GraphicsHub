@@ -8,19 +8,26 @@
 import SwiftUI
 
 struct ContentView: View {
+    
     var body: some View {
-        ScrollView(.vertical, showsIndicators: false) {
-            VStack {
-                ForEach (RendererCatalog.catalog) { renderer in
-                    CatalogueItem(renderer: renderer)
+        NavigationView {
+            ScrollView(.vertical, showsIndicators: false) {
+                VStack(spacing: 0) {
+                    ForEach (RendererCatalog.catalog) { renderer in
+                        CatalogueItem(renderer: renderer)
+                            .padding()
+                    }
                 }
             }
         }
     }
+    
 }
 
 struct ContentView_Previews: PreviewProvider {
+    
     static var previews: some View {
         ContentView()
     }
+    
 }

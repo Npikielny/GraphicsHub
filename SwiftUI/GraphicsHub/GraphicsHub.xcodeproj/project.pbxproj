@@ -7,6 +7,14 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		3092CB2426E7EC3500D698A9 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 309B02D326E7225700372F5C /* Assets.xcassets */; };
+		3092CB2826E7F2C300D698A9 /* TestRenderers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3092CB2726E7F2C300D698A9 /* TestRenderers.swift */; };
+		3092CB2A26E7F33D00D698A9 /* TestRendering.metal in Sources */ = {isa = PBXBuildFile; fileRef = 3092CB2926E7F33C00D698A9 /* TestRendering.metal */; };
+		3092CB2D26E7F34F00D698A9 /* Shared.metal in Sources */ = {isa = PBXBuildFile; fileRef = 3092CB2C26E7F34F00D698A9 /* Shared.metal */; };
+		3092CB2F26E7F7B300D698A9 /* TestRenderers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3092CB2726E7F2C300D698A9 /* TestRenderers.swift */; };
+		3092CB3026E7F7B300D698A9 /* TestRendering.metal in Sources */ = {isa = PBXBuildFile; fileRef = 3092CB2926E7F33C00D698A9 /* TestRendering.metal */; };
+		3092CB3126E7F7BB00D698A9 /* Shared.metal in Sources */ = {isa = PBXBuildFile; fileRef = 3092CB2C26E7F34F00D698A9 /* Shared.metal */; };
+		3092CB3326E7F80600D698A9 /* Rendering.metal in Sources */ = {isa = PBXBuildFile; fileRef = 3092CB3226E7F80600D698A9 /* Rendering.metal */; };
 		309B02D026E7225600372F5C /* GraphicsHubApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 309B02CF26E7225600372F5C /* GraphicsHubApp.swift */; };
 		309B02D226E7225600372F5C /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 309B02D126E7225600372F5C /* ContentView.swift */; };
 		309B02D426E7225700372F5C /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 309B02D326E7225700372F5C /* Assets.xcassets */; };
@@ -16,7 +24,6 @@
 		309B02FC26E7226E00372F5C /* CatalogueItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 309B02FA26E7226E00372F5C /* CatalogueItem.swift */; };
 		309B02FD26E7226E00372F5C /* RendererCatalogue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 309B02FB26E7226E00372F5C /* RendererCatalogue.swift */; };
 		309B030826E7239600372F5C /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 309B030726E7239600372F5C /* ContentView.swift */; };
-		309B030A26E7239700372F5C /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 309B030926E7239700372F5C /* Assets.xcassets */; };
 		309B030D26E7239700372F5C /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 309B030C26E7239700372F5C /* Preview Assets.xcassets */; };
 		309B031926E7239800372F5C /* MacGraphicsHubTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 309B031826E7239800372F5C /* MacGraphicsHubTests.swift */; };
 		309B032426E7239800372F5C /* MacGraphicsHubUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 309B032326E7239800372F5C /* MacGraphicsHubUITests.swift */; };
@@ -61,6 +68,11 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		3092CB2726E7F2C300D698A9 /* TestRenderers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestRenderers.swift; sourceTree = "<group>"; };
+		3092CB2926E7F33C00D698A9 /* TestRendering.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = TestRendering.metal; sourceTree = "<group>"; };
+		3092CB2C26E7F34F00D698A9 /* Shared.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = Shared.metal; sourceTree = "<group>"; };
+		3092CB2E26E7F3AE00D698A9 /* Shared.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Shared.h; sourceTree = "<group>"; };
+		3092CB3226E7F80600D698A9 /* Rendering.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = Rendering.metal; sourceTree = "<group>"; };
 		309B02CC26E7225600372F5C /* GraphicsHub.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = GraphicsHub.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		309B02CF26E7225600372F5C /* GraphicsHubApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GraphicsHubApp.swift; sourceTree = "<group>"; };
 		309B02D126E7225600372F5C /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -77,7 +89,6 @@
 		309B02FB26E7226E00372F5C /* RendererCatalogue.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RendererCatalogue.swift; sourceTree = "<group>"; };
 		309B030326E7239600372F5C /* MacGraphicsHub.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MacGraphicsHub.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		309B030726E7239600372F5C /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
-		309B030926E7239700372F5C /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		309B030C26E7239700372F5C /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		309B030E26E7239700372F5C /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		309B030F26E7239700372F5C /* MacGraphicsHub.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = MacGraphicsHub.entitlements; sourceTree = "<group>"; };
@@ -138,6 +149,35 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		3092CB2526E7F28B00D698A9 /* Renderer */ = {
+			isa = PBXGroup;
+			children = (
+				309B033526E7247300372F5C /* Renderer.swift */,
+				3092CB3226E7F80600D698A9 /* Rendering.metal */,
+				3092CB2C26E7F34F00D698A9 /* Shared.metal */,
+				3092CB2E26E7F3AE00D698A9 /* Shared.h */,
+				3092CB2626E7F2B500D698A9 /* SpecializedRenderers */,
+			);
+			path = Renderer;
+			sourceTree = "<group>";
+		};
+		3092CB2626E7F2B500D698A9 /* SpecializedRenderers */ = {
+			isa = PBXGroup;
+			children = (
+				3092CB2B26E7F34000D698A9 /* Tests */,
+			);
+			path = SpecializedRenderers;
+			sourceTree = "<group>";
+		};
+		3092CB2B26E7F34000D698A9 /* Tests */ = {
+			isa = PBXGroup;
+			children = (
+				3092CB2726E7F2C300D698A9 /* TestRenderers.swift */,
+				3092CB2926E7F33C00D698A9 /* TestRendering.metal */,
+			);
+			path = Tests;
+			sourceTree = "<group>";
+		};
 		309B02C326E7225600372F5C = {
 			isa = PBXGroup;
 			children = (
@@ -167,10 +207,10 @@
 		309B02CE26E7225600372F5C /* GraphicsHub */ = {
 			isa = PBXGroup;
 			children = (
+				3092CB2526E7F28B00D698A9 /* Renderer */,
 				309B02CF26E7225600372F5C /* GraphicsHubApp.swift */,
 				309B02D126E7225600372F5C /* ContentView.swift */,
 				309B033326E7246B00372F5C /* RenderingView.swift */,
-				309B033526E7247300372F5C /* Renderer.swift */,
 				309B02FE26E7227400372F5C /* Catalogue */,
 				309B02D326E7225700372F5C /* Assets.xcassets */,
 				309B02D826E7225700372F5C /* Info.plist */,
@@ -219,7 +259,6 @@
 			children = (
 				309B032F26E7241B00372F5C /* MacGraphicsHubApp.swift */,
 				309B030726E7239600372F5C /* ContentView.swift */,
-				309B030926E7239700372F5C /* Assets.xcassets */,
 				309B030E26E7239700372F5C /* Info.plist */,
 				309B030F26E7239700372F5C /* MacGraphicsHub.entitlements */,
 				309B030B26E7239700372F5C /* Preview Content */,
@@ -447,7 +486,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				309B030D26E7239700372F5C /* Preview Assets.xcassets in Resources */,
-				309B030A26E7239700372F5C /* Assets.xcassets in Resources */,
+				3092CB2426E7EC3500D698A9 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -473,7 +512,11 @@
 			buildActionMask = 2147483647;
 			files = (
 				309B02FC26E7226E00372F5C /* CatalogueItem.swift in Sources */,
+				3092CB2826E7F2C300D698A9 /* TestRenderers.swift in Sources */,
+				3092CB2A26E7F33D00D698A9 /* TestRendering.metal in Sources */,
 				309B02D226E7225600372F5C /* ContentView.swift in Sources */,
+				3092CB3326E7F80600D698A9 /* Rendering.metal in Sources */,
+				3092CB2D26E7F34F00D698A9 /* Shared.metal in Sources */,
 				309B02FD26E7226E00372F5C /* RendererCatalogue.swift in Sources */,
 				309B02D026E7225600372F5C /* GraphicsHubApp.swift in Sources */,
 				309B033626E7247300372F5C /* Renderer.swift in Sources */,
@@ -502,7 +545,10 @@
 			buildActionMask = 2147483647;
 			files = (
 				309B033126E7243900372F5C /* CatalogueItem.swift in Sources */,
+				3092CB2F26E7F7B300D698A9 /* TestRenderers.swift in Sources */,
+				3092CB3026E7F7B300D698A9 /* TestRendering.metal in Sources */,
 				309B033026E7241B00372F5C /* MacGraphicsHubApp.swift in Sources */,
+				3092CB3126E7F7BB00D698A9 /* Shared.metal in Sources */,
 				309B033226E7243900372F5C /* RendererCatalogue.swift in Sources */,
 				309B030826E7239600372F5C /* ContentView.swift in Sources */,
 				309B033826E72C1700372F5C /* Renderer.swift in Sources */,
