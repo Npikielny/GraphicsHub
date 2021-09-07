@@ -1,0 +1,1008 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 50;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		309B02D026E7225600372F5C /* GraphicsHubApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 309B02CF26E7225600372F5C /* GraphicsHubApp.swift */; };
+		309B02D226E7225600372F5C /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 309B02D126E7225600372F5C /* ContentView.swift */; };
+		309B02D426E7225700372F5C /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 309B02D326E7225700372F5C /* Assets.xcassets */; };
+		309B02D726E7225700372F5C /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 309B02D626E7225700372F5C /* Preview Assets.xcassets */; };
+		309B02E226E7225700372F5C /* GraphicsHubTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 309B02E126E7225700372F5C /* GraphicsHubTests.swift */; };
+		309B02ED26E7225700372F5C /* GraphicsHubUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 309B02EC26E7225700372F5C /* GraphicsHubUITests.swift */; };
+		309B02FC26E7226E00372F5C /* CatalogueItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 309B02FA26E7226E00372F5C /* CatalogueItem.swift */; };
+		309B02FD26E7226E00372F5C /* RendererCatalogue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 309B02FB26E7226E00372F5C /* RendererCatalogue.swift */; };
+		309B030826E7239600372F5C /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 309B030726E7239600372F5C /* ContentView.swift */; };
+		309B030A26E7239700372F5C /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 309B030926E7239700372F5C /* Assets.xcassets */; };
+		309B030D26E7239700372F5C /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 309B030C26E7239700372F5C /* Preview Assets.xcassets */; };
+		309B031926E7239800372F5C /* MacGraphicsHubTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 309B031826E7239800372F5C /* MacGraphicsHubTests.swift */; };
+		309B032426E7239800372F5C /* MacGraphicsHubUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 309B032326E7239800372F5C /* MacGraphicsHubUITests.swift */; };
+		309B033026E7241B00372F5C /* MacGraphicsHubApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 309B032F26E7241B00372F5C /* MacGraphicsHubApp.swift */; };
+		309B033126E7243900372F5C /* CatalogueItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 309B02FA26E7226E00372F5C /* CatalogueItem.swift */; };
+		309B033226E7243900372F5C /* RendererCatalogue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 309B02FB26E7226E00372F5C /* RendererCatalogue.swift */; };
+		309B033426E7246B00372F5C /* RenderingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 309B033326E7246B00372F5C /* RenderingView.swift */; };
+		309B033626E7247300372F5C /* Renderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 309B033526E7247300372F5C /* Renderer.swift */; };
+		309B033726E725B400372F5C /* RenderingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 309B033326E7246B00372F5C /* RenderingView.swift */; };
+		309B033826E72C1700372F5C /* Renderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 309B033526E7247300372F5C /* Renderer.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		309B02DE26E7225700372F5C /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 309B02C426E7225600372F5C /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 309B02CB26E7225600372F5C;
+			remoteInfo = GraphicsHub;
+		};
+		309B02E926E7225700372F5C /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 309B02C426E7225600372F5C /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 309B02CB26E7225600372F5C;
+			remoteInfo = GraphicsHub;
+		};
+		309B031526E7239800372F5C /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 309B02C426E7225600372F5C /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 309B030226E7239600372F5C;
+			remoteInfo = MacGraphicsHub;
+		};
+		309B032026E7239800372F5C /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 309B02C426E7225600372F5C /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 309B030226E7239600372F5C;
+			remoteInfo = MacGraphicsHub;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		309B02CC26E7225600372F5C /* GraphicsHub.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = GraphicsHub.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		309B02CF26E7225600372F5C /* GraphicsHubApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GraphicsHubApp.swift; sourceTree = "<group>"; };
+		309B02D126E7225600372F5C /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		309B02D326E7225700372F5C /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		309B02D626E7225700372F5C /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
+		309B02D826E7225700372F5C /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		309B02DD26E7225700372F5C /* GraphicsHubTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = GraphicsHubTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		309B02E126E7225700372F5C /* GraphicsHubTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GraphicsHubTests.swift; sourceTree = "<group>"; };
+		309B02E326E7225700372F5C /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		309B02E826E7225700372F5C /* GraphicsHubUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = GraphicsHubUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		309B02EC26E7225700372F5C /* GraphicsHubUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GraphicsHubUITests.swift; sourceTree = "<group>"; };
+		309B02EE26E7225700372F5C /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		309B02FA26E7226E00372F5C /* CatalogueItem.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CatalogueItem.swift; sourceTree = "<group>"; };
+		309B02FB26E7226E00372F5C /* RendererCatalogue.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RendererCatalogue.swift; sourceTree = "<group>"; };
+		309B030326E7239600372F5C /* MacGraphicsHub.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MacGraphicsHub.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		309B030726E7239600372F5C /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		309B030926E7239700372F5C /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		309B030C26E7239700372F5C /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
+		309B030E26E7239700372F5C /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		309B030F26E7239700372F5C /* MacGraphicsHub.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = MacGraphicsHub.entitlements; sourceTree = "<group>"; };
+		309B031426E7239800372F5C /* MacGraphicsHubTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MacGraphicsHubTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		309B031826E7239800372F5C /* MacGraphicsHubTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MacGraphicsHubTests.swift; sourceTree = "<group>"; };
+		309B031A26E7239800372F5C /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		309B031F26E7239800372F5C /* MacGraphicsHubUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MacGraphicsHubUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		309B032326E7239800372F5C /* MacGraphicsHubUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MacGraphicsHubUITests.swift; sourceTree = "<group>"; };
+		309B032526E7239800372F5C /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		309B032F26E7241B00372F5C /* MacGraphicsHubApp.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MacGraphicsHubApp.swift; sourceTree = "<group>"; };
+		309B033326E7246B00372F5C /* RenderingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RenderingView.swift; sourceTree = "<group>"; };
+		309B033526E7247300372F5C /* Renderer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Renderer.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		309B02C926E7225600372F5C /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		309B02DA26E7225700372F5C /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		309B02E526E7225700372F5C /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		309B030026E7239600372F5C /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		309B031126E7239800372F5C /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		309B031C26E7239800372F5C /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		309B02C326E7225600372F5C = {
+			isa = PBXGroup;
+			children = (
+				309B02CE26E7225600372F5C /* GraphicsHub */,
+				309B02E026E7225700372F5C /* GraphicsHubTests */,
+				309B02EB26E7225700372F5C /* GraphicsHubUITests */,
+				309B030426E7239600372F5C /* MacGraphicsHub */,
+				309B031726E7239800372F5C /* MacGraphicsHubTests */,
+				309B032226E7239800372F5C /* MacGraphicsHubUITests */,
+				309B02CD26E7225600372F5C /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		309B02CD26E7225600372F5C /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				309B02CC26E7225600372F5C /* GraphicsHub.app */,
+				309B02DD26E7225700372F5C /* GraphicsHubTests.xctest */,
+				309B02E826E7225700372F5C /* GraphicsHubUITests.xctest */,
+				309B030326E7239600372F5C /* MacGraphicsHub.app */,
+				309B031426E7239800372F5C /* MacGraphicsHubTests.xctest */,
+				309B031F26E7239800372F5C /* MacGraphicsHubUITests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		309B02CE26E7225600372F5C /* GraphicsHub */ = {
+			isa = PBXGroup;
+			children = (
+				309B02CF26E7225600372F5C /* GraphicsHubApp.swift */,
+				309B02D126E7225600372F5C /* ContentView.swift */,
+				309B033326E7246B00372F5C /* RenderingView.swift */,
+				309B033526E7247300372F5C /* Renderer.swift */,
+				309B02FE26E7227400372F5C /* Catalogue */,
+				309B02D326E7225700372F5C /* Assets.xcassets */,
+				309B02D826E7225700372F5C /* Info.plist */,
+				309B02D526E7225700372F5C /* Preview Content */,
+			);
+			path = GraphicsHub;
+			sourceTree = "<group>";
+		};
+		309B02D526E7225700372F5C /* Preview Content */ = {
+			isa = PBXGroup;
+			children = (
+				309B02D626E7225700372F5C /* Preview Assets.xcassets */,
+			);
+			path = "Preview Content";
+			sourceTree = "<group>";
+		};
+		309B02E026E7225700372F5C /* GraphicsHubTests */ = {
+			isa = PBXGroup;
+			children = (
+				309B02E126E7225700372F5C /* GraphicsHubTests.swift */,
+				309B02E326E7225700372F5C /* Info.plist */,
+			);
+			path = GraphicsHubTests;
+			sourceTree = "<group>";
+		};
+		309B02EB26E7225700372F5C /* GraphicsHubUITests */ = {
+			isa = PBXGroup;
+			children = (
+				309B02EC26E7225700372F5C /* GraphicsHubUITests.swift */,
+				309B02EE26E7225700372F5C /* Info.plist */,
+			);
+			path = GraphicsHubUITests;
+			sourceTree = "<group>";
+		};
+		309B02FE26E7227400372F5C /* Catalogue */ = {
+			isa = PBXGroup;
+			children = (
+				309B02FA26E7226E00372F5C /* CatalogueItem.swift */,
+				309B02FB26E7226E00372F5C /* RendererCatalogue.swift */,
+			);
+			path = Catalogue;
+			sourceTree = "<group>";
+		};
+		309B030426E7239600372F5C /* MacGraphicsHub */ = {
+			isa = PBXGroup;
+			children = (
+				309B032F26E7241B00372F5C /* MacGraphicsHubApp.swift */,
+				309B030726E7239600372F5C /* ContentView.swift */,
+				309B030926E7239700372F5C /* Assets.xcassets */,
+				309B030E26E7239700372F5C /* Info.plist */,
+				309B030F26E7239700372F5C /* MacGraphicsHub.entitlements */,
+				309B030B26E7239700372F5C /* Preview Content */,
+			);
+			path = MacGraphicsHub;
+			sourceTree = "<group>";
+		};
+		309B030B26E7239700372F5C /* Preview Content */ = {
+			isa = PBXGroup;
+			children = (
+				309B030C26E7239700372F5C /* Preview Assets.xcassets */,
+			);
+			path = "Preview Content";
+			sourceTree = "<group>";
+		};
+		309B031726E7239800372F5C /* MacGraphicsHubTests */ = {
+			isa = PBXGroup;
+			children = (
+				309B031826E7239800372F5C /* MacGraphicsHubTests.swift */,
+				309B031A26E7239800372F5C /* Info.plist */,
+			);
+			path = MacGraphicsHubTests;
+			sourceTree = "<group>";
+		};
+		309B032226E7239800372F5C /* MacGraphicsHubUITests */ = {
+			isa = PBXGroup;
+			children = (
+				309B032326E7239800372F5C /* MacGraphicsHubUITests.swift */,
+				309B032526E7239800372F5C /* Info.plist */,
+			);
+			path = MacGraphicsHubUITests;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		309B02CB26E7225600372F5C /* GraphicsHub */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 309B02F126E7225700372F5C /* Build configuration list for PBXNativeTarget "GraphicsHub" */;
+			buildPhases = (
+				309B02C826E7225600372F5C /* Sources */,
+				309B02C926E7225600372F5C /* Frameworks */,
+				309B02CA26E7225600372F5C /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = GraphicsHub;
+			productName = GraphicsHub;
+			productReference = 309B02CC26E7225600372F5C /* GraphicsHub.app */;
+			productType = "com.apple.product-type.application";
+		};
+		309B02DC26E7225700372F5C /* GraphicsHubTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 309B02F426E7225700372F5C /* Build configuration list for PBXNativeTarget "GraphicsHubTests" */;
+			buildPhases = (
+				309B02D926E7225700372F5C /* Sources */,
+				309B02DA26E7225700372F5C /* Frameworks */,
+				309B02DB26E7225700372F5C /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				309B02DF26E7225700372F5C /* PBXTargetDependency */,
+			);
+			name = GraphicsHubTests;
+			productName = GraphicsHubTests;
+			productReference = 309B02DD26E7225700372F5C /* GraphicsHubTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		309B02E726E7225700372F5C /* GraphicsHubUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 309B02F726E7225700372F5C /* Build configuration list for PBXNativeTarget "GraphicsHubUITests" */;
+			buildPhases = (
+				309B02E426E7225700372F5C /* Sources */,
+				309B02E526E7225700372F5C /* Frameworks */,
+				309B02E626E7225700372F5C /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				309B02EA26E7225700372F5C /* PBXTargetDependency */,
+			);
+			name = GraphicsHubUITests;
+			productName = GraphicsHubUITests;
+			productReference = 309B02E826E7225700372F5C /* GraphicsHubUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
+		309B030226E7239600372F5C /* MacGraphicsHub */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 309B032626E7239800372F5C /* Build configuration list for PBXNativeTarget "MacGraphicsHub" */;
+			buildPhases = (
+				309B02FF26E7239600372F5C /* Sources */,
+				309B030026E7239600372F5C /* Frameworks */,
+				309B030126E7239600372F5C /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = MacGraphicsHub;
+			productName = MacGraphicsHub;
+			productReference = 309B030326E7239600372F5C /* MacGraphicsHub.app */;
+			productType = "com.apple.product-type.application";
+		};
+		309B031326E7239800372F5C /* MacGraphicsHubTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 309B032926E7239800372F5C /* Build configuration list for PBXNativeTarget "MacGraphicsHubTests" */;
+			buildPhases = (
+				309B031026E7239800372F5C /* Sources */,
+				309B031126E7239800372F5C /* Frameworks */,
+				309B031226E7239800372F5C /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				309B031626E7239800372F5C /* PBXTargetDependency */,
+			);
+			name = MacGraphicsHubTests;
+			productName = MacGraphicsHubTests;
+			productReference = 309B031426E7239800372F5C /* MacGraphicsHubTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		309B031E26E7239800372F5C /* MacGraphicsHubUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 309B032C26E7239800372F5C /* Build configuration list for PBXNativeTarget "MacGraphicsHubUITests" */;
+			buildPhases = (
+				309B031B26E7239800372F5C /* Sources */,
+				309B031C26E7239800372F5C /* Frameworks */,
+				309B031D26E7239800372F5C /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				309B032126E7239800372F5C /* PBXTargetDependency */,
+			);
+			name = MacGraphicsHubUITests;
+			productName = MacGraphicsHubUITests;
+			productReference = 309B031F26E7239800372F5C /* MacGraphicsHubUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		309B02C426E7225600372F5C /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastSwiftUpdateCheck = 1250;
+				LastUpgradeCheck = 1250;
+				TargetAttributes = {
+					309B02CB26E7225600372F5C = {
+						CreatedOnToolsVersion = 12.5.1;
+					};
+					309B02DC26E7225700372F5C = {
+						CreatedOnToolsVersion = 12.5.1;
+						TestTargetID = 309B02CB26E7225600372F5C;
+					};
+					309B02E726E7225700372F5C = {
+						CreatedOnToolsVersion = 12.5.1;
+						TestTargetID = 309B02CB26E7225600372F5C;
+					};
+					309B030226E7239600372F5C = {
+						CreatedOnToolsVersion = 12.5.1;
+					};
+					309B031326E7239800372F5C = {
+						CreatedOnToolsVersion = 12.5.1;
+						TestTargetID = 309B030226E7239600372F5C;
+					};
+					309B031E26E7239800372F5C = {
+						CreatedOnToolsVersion = 12.5.1;
+						TestTargetID = 309B030226E7239600372F5C;
+					};
+				};
+			};
+			buildConfigurationList = 309B02C726E7225600372F5C /* Build configuration list for PBXProject "GraphicsHub" */;
+			compatibilityVersion = "Xcode 9.3";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 309B02C326E7225600372F5C;
+			productRefGroup = 309B02CD26E7225600372F5C /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				309B02CB26E7225600372F5C /* GraphicsHub */,
+				309B02DC26E7225700372F5C /* GraphicsHubTests */,
+				309B02E726E7225700372F5C /* GraphicsHubUITests */,
+				309B030226E7239600372F5C /* MacGraphicsHub */,
+				309B031326E7239800372F5C /* MacGraphicsHubTests */,
+				309B031E26E7239800372F5C /* MacGraphicsHubUITests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		309B02CA26E7225600372F5C /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				309B02D726E7225700372F5C /* Preview Assets.xcassets in Resources */,
+				309B02D426E7225700372F5C /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		309B02DB26E7225700372F5C /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		309B02E626E7225700372F5C /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		309B030126E7239600372F5C /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				309B030D26E7239700372F5C /* Preview Assets.xcassets in Resources */,
+				309B030A26E7239700372F5C /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		309B031226E7239800372F5C /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		309B031D26E7239800372F5C /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		309B02C826E7225600372F5C /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				309B02FC26E7226E00372F5C /* CatalogueItem.swift in Sources */,
+				309B02D226E7225600372F5C /* ContentView.swift in Sources */,
+				309B02FD26E7226E00372F5C /* RendererCatalogue.swift in Sources */,
+				309B02D026E7225600372F5C /* GraphicsHubApp.swift in Sources */,
+				309B033626E7247300372F5C /* Renderer.swift in Sources */,
+				309B033426E7246B00372F5C /* RenderingView.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		309B02D926E7225700372F5C /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				309B02E226E7225700372F5C /* GraphicsHubTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		309B02E426E7225700372F5C /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				309B02ED26E7225700372F5C /* GraphicsHubUITests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		309B02FF26E7239600372F5C /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				309B033126E7243900372F5C /* CatalogueItem.swift in Sources */,
+				309B033026E7241B00372F5C /* MacGraphicsHubApp.swift in Sources */,
+				309B033226E7243900372F5C /* RendererCatalogue.swift in Sources */,
+				309B030826E7239600372F5C /* ContentView.swift in Sources */,
+				309B033826E72C1700372F5C /* Renderer.swift in Sources */,
+				309B033726E725B400372F5C /* RenderingView.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		309B031026E7239800372F5C /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				309B031926E7239800372F5C /* MacGraphicsHubTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		309B031B26E7239800372F5C /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				309B032426E7239800372F5C /* MacGraphicsHubUITests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		309B02DF26E7225700372F5C /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 309B02CB26E7225600372F5C /* GraphicsHub */;
+			targetProxy = 309B02DE26E7225700372F5C /* PBXContainerItemProxy */;
+		};
+		309B02EA26E7225700372F5C /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 309B02CB26E7225600372F5C /* GraphicsHub */;
+			targetProxy = 309B02E926E7225700372F5C /* PBXContainerItemProxy */;
+		};
+		309B031626E7239800372F5C /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 309B030226E7239600372F5C /* MacGraphicsHub */;
+			targetProxy = 309B031526E7239800372F5C /* PBXContainerItemProxy */;
+		};
+		309B032126E7239800372F5C /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 309B030226E7239600372F5C /* MacGraphicsHub */;
+			targetProxy = 309B032026E7239800372F5C /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		309B02EF26E7225700372F5C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.5;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		309B02F026E7225700372F5C /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.5;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		309B02F226E7225700372F5C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_ASSET_PATHS = "\"GraphicsHub/Preview Content\"";
+				DEVELOPMENT_TEAM = 597PF7552F;
+				ENABLE_PREVIEWS = YES;
+				INFOPLIST_FILE = GraphicsHub/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = kelkamonStudios.GraphicsHub;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		309B02F326E7225700372F5C /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_ASSET_PATHS = "\"GraphicsHub/Preview Content\"";
+				DEVELOPMENT_TEAM = 597PF7552F;
+				ENABLE_PREVIEWS = YES;
+				INFOPLIST_FILE = GraphicsHub/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = kelkamonStudios.GraphicsHub;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		309B02F526E7225700372F5C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 597PF7552F;
+				INFOPLIST_FILE = GraphicsHubTests/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = kelkamonStudios.GraphicsHubTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/GraphicsHub.app/GraphicsHub";
+			};
+			name = Debug;
+		};
+		309B02F626E7225700372F5C /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 597PF7552F;
+				INFOPLIST_FILE = GraphicsHubTests/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = kelkamonStudios.GraphicsHubTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/GraphicsHub.app/GraphicsHub";
+			};
+			name = Release;
+		};
+		309B02F826E7225700372F5C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 597PF7552F;
+				INFOPLIST_FILE = GraphicsHubUITests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = kelkamonStudios.GraphicsHubUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = GraphicsHub;
+			};
+			name = Debug;
+		};
+		309B02F926E7225700372F5C /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 597PF7552F;
+				INFOPLIST_FILE = GraphicsHubUITests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = kelkamonStudios.GraphicsHubUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = GraphicsHub;
+			};
+			name = Release;
+		};
+		309B032726E7239800372F5C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = MacGraphicsHub/MacGraphicsHub.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_ASSET_PATHS = "\"MacGraphicsHub/Preview Content\"";
+				DEVELOPMENT_TEAM = 597PF7552F;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_PREVIEWS = YES;
+				INFOPLIST_FILE = MacGraphicsHub/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 11.3;
+				PRODUCT_BUNDLE_IDENTIFIER = kelkamonStudios.MacGraphicsHub;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		309B032826E7239800372F5C /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = MacGraphicsHub/MacGraphicsHub.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_ASSET_PATHS = "\"MacGraphicsHub/Preview Content\"";
+				DEVELOPMENT_TEAM = 597PF7552F;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_PREVIEWS = YES;
+				INFOPLIST_FILE = MacGraphicsHub/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 11.3;
+				PRODUCT_BUNDLE_IDENTIFIER = kelkamonStudios.MacGraphicsHub;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		309B032A26E7239800372F5C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_TEAM = 597PF7552F;
+				INFOPLIST_FILE = MacGraphicsHubTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 11.3;
+				PRODUCT_BUNDLE_IDENTIFIER = kelkamonStudios.MacGraphicsHubTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_VERSION = 5.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/MacGraphicsHub.app/Contents/MacOS/MacGraphicsHub";
+			};
+			name = Debug;
+		};
+		309B032B26E7239800372F5C /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_TEAM = 597PF7552F;
+				INFOPLIST_FILE = MacGraphicsHubTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 11.3;
+				PRODUCT_BUNDLE_IDENTIFIER = kelkamonStudios.MacGraphicsHubTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_VERSION = 5.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/MacGraphicsHub.app/Contents/MacOS/MacGraphicsHub";
+			};
+			name = Release;
+		};
+		309B032D26E7239800372F5C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_TEAM = 597PF7552F;
+				INFOPLIST_FILE = MacGraphicsHubUITests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 11.3;
+				PRODUCT_BUNDLE_IDENTIFIER = kelkamonStudios.MacGraphicsHubUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_VERSION = 5.0;
+				TEST_TARGET_NAME = MacGraphicsHub;
+			};
+			name = Debug;
+		};
+		309B032E26E7239800372F5C /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_TEAM = 597PF7552F;
+				INFOPLIST_FILE = MacGraphicsHubUITests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 11.3;
+				PRODUCT_BUNDLE_IDENTIFIER = kelkamonStudios.MacGraphicsHubUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_VERSION = 5.0;
+				TEST_TARGET_NAME = MacGraphicsHub;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		309B02C726E7225600372F5C /* Build configuration list for PBXProject "GraphicsHub" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				309B02EF26E7225700372F5C /* Debug */,
+				309B02F026E7225700372F5C /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		309B02F126E7225700372F5C /* Build configuration list for PBXNativeTarget "GraphicsHub" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				309B02F226E7225700372F5C /* Debug */,
+				309B02F326E7225700372F5C /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		309B02F426E7225700372F5C /* Build configuration list for PBXNativeTarget "GraphicsHubTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				309B02F526E7225700372F5C /* Debug */,
+				309B02F626E7225700372F5C /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		309B02F726E7225700372F5C /* Build configuration list for PBXNativeTarget "GraphicsHubUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				309B02F826E7225700372F5C /* Debug */,
+				309B02F926E7225700372F5C /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		309B032626E7239800372F5C /* Build configuration list for PBXNativeTarget "MacGraphicsHub" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				309B032726E7239800372F5C /* Debug */,
+				309B032826E7239800372F5C /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		309B032926E7239800372F5C /* Build configuration list for PBXNativeTarget "MacGraphicsHubTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				309B032A26E7239800372F5C /* Debug */,
+				309B032B26E7239800372F5C /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		309B032C26E7239800372F5C /* Build configuration list for PBXNativeTarget "MacGraphicsHubUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				309B032D26E7239800372F5C /* Debug */,
+				309B032E26E7239800372F5C /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 309B02C426E7225600372F5C /* Project object */;
+}
