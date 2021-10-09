@@ -45,10 +45,6 @@ class CustomPathRenderer: HighFidelityRayRenderer {
     }
     
     override func draw(commandBuffer: MTLCommandBuffer, view: MTKView) {
-        let t = Float(frame) / 120 / 10
-        camera.rotation.y = -t * 360
-        camera.position.x = sin(t * 2 * Float.pi) * 15
-        camera.position.z = -cos(t * 2 * Float.pi) * 15
 //        if filledRender {
 //            dispatchComputeEncoder(commandBuffer: commandBuffer,
 //                                   computePipeline: floatPipeline,
