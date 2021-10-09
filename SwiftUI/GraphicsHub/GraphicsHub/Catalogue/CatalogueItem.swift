@@ -36,10 +36,10 @@ struct CatalogueItem: View {
                 .border(Color.primary, width: 3)
                 .cornerRadius(5)
             }
-//            if let rendererType = renderer.renderer {
-//                NavigationLink("Start", destination: RendererDelegate(renderer: <#T##Renderer#>))
+            if let rendererType = renderer.renderer {
+                NavigationLink("Start", destination: MetalView(rendererDelegate: RendererDelegate(renderer: rendererType.init(size: CGSize(width: 512, height: 512)))))
 //                FIXME: MTLDevice can't be created on startup...
-//            }
+            }
             if renderer.sources.count > 0 {
                 Text("References")
             }
@@ -62,7 +62,7 @@ struct CatalogueItem: View {
 struct CatalogueItem_Previews: PreviewProvider {
     
     static var previews: some View {
-        CatalogueItem(renderer: RendererCatalog.catalog[0])
+        CatalogueItem(renderer: RendererCatalog.catalog.last!)
     }
     
 }

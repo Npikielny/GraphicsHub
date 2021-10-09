@@ -74,13 +74,16 @@ import Cocoa
 struct RenderingView: NSViewRepresentable {
     
     var delegate: RendererDelegate
+    var appearing: Bool = false
     
     func makeNSView(context: Context) -> some RendererDelegate {
         return delegate
     }
     
     func updateNSView(_ uiView: NSViewType, context: Context) {
-        delegate.renderer.iterate(in: delegate)
+        if appearing {
+            delegate.renderer.iterate(in: delegate)
+        }
     }
     
 }

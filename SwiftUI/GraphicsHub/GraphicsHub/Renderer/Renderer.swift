@@ -48,7 +48,8 @@ class Renderer: NSObject {
     
     // Do not override this!
     func iterate(in view: MTKView) {
-        guard let commandBuffer = commandQueue.makeCommandBuffer(), let drawable = view.currentDrawable else { return }
+        guard let commandBuffer = commandQueue.makeCommandBuffer() else { print("command buffer failed"); return }
+        guard let drawable = view.currentDrawable else { print("view has no drawable"); return }
         semaphore.wait()
         commandBuffer.addCompletedHandler { _ in
             self.semaphore.signal()
