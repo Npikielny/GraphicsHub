@@ -2,7 +2,7 @@
 //  ContentView.swift
 //  GraphicsHub
 //
-//  Created by Noah Pikielny on 9/7/21.
+//  Created b@y Noah Pikielny on 9/7/21.
 //
 
 import SwiftUI
