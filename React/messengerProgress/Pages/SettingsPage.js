@@ -17,7 +17,6 @@ const SettingsPage = () => {
     return state.profile.current_theme
   })
 
-
   const [isEnabled, setIsEnabled] = useState(false);
   const toggleSwitch = () => {
     setIsEnabled(

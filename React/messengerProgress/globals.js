@@ -35,7 +35,6 @@ class global_styles {
       container: {
         flex: 1,
         alignItems: 'center',
-        // justifyContent: 'center'
       }
     });
   }
@@ -56,51 +55,3 @@ class global_styles {
 }
 
 export default global_styles;
-// class global_styles {
-//   static color_themes(theme) {
-//     return StyleSheet.create({
-//       background_color: (theme === DarkTheme) ? "#FFF" : "#000"
-//     })
-//   }
-
-//   static _layout(theme) {
-//     return StyleSheet.create({
-//       container: {
-//         flex: 1,
-//         alignItems: 'center',
-//         justifyContent: 'center'
-//       }
-//     });
-//   }
-
-//   static container(theme) {
-//     return [
-//       global_styles._layout(theme).container,
-//       // global_styles.color_themes(theme).backgroundColor
-//     ]
-//   }
-// }
-
-// // const theme_colors = {
-// //   "background": {
-// //     DARK_THEME: "#000",
-// //     LIGHT_THEME: "#FFF",
-// //     default: "#AAA"
-// //   }
-// // }
-
-// // function global_styles(theme) {
-// //   // if (!(theme) in [DARK_THEME, LIGHT_THEME]) {
-// //   //   theme = "default"
-// //   // }
-// //   return StyleSheet.create({
-// //     container: {
-// //       flex: 1,
-// //       backgroundColor: theme_colors["background"][DARK_THEME],
-// //       alignItems: 'center',
-// //       justifyContent: 'center'
-// //     },
-// //   });
-// // }
-
-// export default global_styles;
